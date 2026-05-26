@@ -1,219 +1,653 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Emma Job Tracker 🌿</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400&display=swap" rel="stylesheet"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Emma Finds A Job 🌿</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&display=swap" rel="stylesheet"/>
   <style>
-    :root {
-      --parchment: #F5EED8;
-      --parchment-dark: #E8DFC0;
-      --bark: #5C3D2E;
-      --clay: #8B5A3A;
-      --clay-light: #C4855A;
-      --moss: #6B7C5A;
-      --moss-light: #8A9E74;
-      --sand: #D4C4A0;
-      --ink: #2C1F14;
-      --cream: #FAF6EC;
+    :root{--parchment:#F5EED8;--parchment-d:#E8DFC0;--bark:#5C3D2E;--clay:#8B5A3A;--clay-l:#C4855A;--moss:#6B7C5A;--moss-l:#8A9E74;--sand:#D4C4A0;--ink:#2C1F14;--cream:#FAF6EC;--gold:#C9A84C;--gold-l:#E8C96A;--rose:#C4847A;--rose-l:#DBA99E;--blush:#F5DDD8;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--parchment);background-image:radial-gradient(ellipse at 10% 0%,rgba(107,124,90,.12) 0%,transparent 50%),radial-gradient(ellipse at 90% 100%,rgba(196,132,122,.1) 0%,transparent 50%);font-family:'Source Serif 4',Georgia,serif;color:var(--ink);min-height:100vh;padding:0 0 80px;overflow-x:hidden;}
+    canvas#confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;}
+ 
+    .header{background:linear-gradient(135deg,#C4847A 0%,#8B5A3A 45%,#6B7C5A 100%);padding:16px 20px 12px;text-align:center;box-shadow:0 3px 16px rgba(92,61,46,.3);}
+    .header h1{font-family:'Playfair Display',serif;font-size:1.9rem;color:var(--parchment);}
+    .header h1 span{color:var(--gold-l);font-style:italic;}
+    .money-bar{display:inline-flex;align-items:center;gap:6px;background:rgba(250,246,236,.88);border-radius:999px;padding:4px 16px;margin-top:7px;font-weight:700;font-size:.92rem;color:var(--ink);}
+    .money-bar .amt{color:var(--moss);}
+ 
+    .tabs{display:flex;background:var(--cream);border-bottom:2px solid var(--sand);overflow-x:auto;}
+    .tab{flex:1;min-width:70px;padding:10px 5px;border:none;background:transparent;font-family:'Source Serif 4',serif;font-size:.73rem;font-weight:600;color:var(--clay-l);cursor:pointer;transition:all .2s;white-space:nowrap;}
+    .tab.active{color:var(--bark);border-bottom:3px solid var(--bark);background:var(--blush);}
+    .page{display:none;padding:14px;}
+    .page.active{display:block;}
+ 
+    .stats{display:flex;gap:8px;margin-bottom:14px;}
+    .stat{flex:1;border-radius:13px;padding:12px 8px;text-align:center;box-shadow:0 2px 8px rgba(92,61,46,.1);}
+    .stat.today{background:linear-gradient(135deg,var(--rose),var(--bark));}
+    .stat.total{background:linear-gradient(135deg,var(--moss-l),var(--moss));}
+    .stat.money{background:linear-gradient(135deg,var(--gold-l),var(--gold));}
+    .stat .num{font-family:'Playfair Display',serif;font-size:2.1rem;font-weight:700;color:#fff;line-height:1;text-shadow:0 2px 4px rgba(0,0,0,.15);}
+    .stat.money .num{color:var(--ink);}
+    .stat .lbl{font-size:.6rem;color:rgba(255,255,255,.9);margin-top:3px;text-transform:uppercase;letter-spacing:.1em;font-weight:600;}
+    .stat.money .lbl{color:rgba(44,31,20,.65);}
+ 
+    .apply-wrap{text-align:center;margin-bottom:16px;display:flex;flex-direction:column;align-items:center;gap:8px;}
+    #apply-btn{background:linear-gradient(135deg,var(--bark),var(--clay));color:var(--parchment);border:none;border-radius:999px;padding:14px 42px;font-family:'Playfair Display',serif;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 18px rgba(92,61,46,.3);transition:transform .15s;}
+    #apply-btn:hover{transform:translateY(-2px);}
+    #apply-btn:active{transform:scale(.97);}
+    #undo-btn{background:transparent;border:2px solid var(--sand);color:var(--clay);border-radius:999px;padding:7px 22px;font-family:'Source Serif 4',serif;font-weight:600;font-size:.8rem;cursor:pointer;}
+ 
+    #milestone-banner{display:none;border-radius:13px;padding:14px;text-align:center;margin-bottom:12px;font-family:'Playfair Display',serif;font-size:1rem;color:var(--ink);animation:bounceIn .5s cubic-bezier(.34,1.56,.64,1);background:linear-gradient(135deg,var(--gold-l),var(--gold));box-shadow:0 4px 16px rgba(201,168,76,.4);}
+    @keyframes bounceIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+ 
+    .log-lbl{font-size:.66rem;text-transform:uppercase;letter-spacing:.14em;color:var(--clay-l);margin-bottom:8px;font-weight:600;}
+    .day-block{background:var(--cream);border:1.5px solid var(--sand);border-radius:11px;margin-bottom:7px;overflow:hidden;}
+    .day-head{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;}
+    .day-head .date{font-family:'Playfair Display',serif;font-weight:700;font-size:.86rem;color:var(--bark);}
+    .day-head .badge{background:var(--bark);color:var(--parchment);font-size:.66rem;padding:3px 10px;border-radius:999px;font-weight:700;}
+    .day-entries{border-top:1.5px solid var(--parchment-d);padding:7px 13px 10px;display:flex;flex-direction:column;gap:4px;}
+    .entry{font-size:.73rem;color:var(--clay);display:flex;align-items:center;gap:6px;}
+    .entry::before{content:'✦';color:var(--rose);font-size:.53rem;}
+    #reset-btn{display:block;margin:16px auto 0;background:transparent;border:1.5px solid var(--sand);color:var(--clay-l);border-radius:8px;padding:5px 14px;font-family:'Source Serif 4',serif;font-size:.68rem;cursor:pointer;}
+    #reset-btn:hover{border-color:var(--rose);color:var(--rose);}
+    .empty{text-align:center;color:var(--clay-l);font-size:.81rem;padding:20px 0;font-style:italic;}
+ 
+    /* SHOP */
+    .shop-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+    .shop-top h2{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--bark);}
+    .coin-pill{display:inline-flex;align-items:center;gap:5px;background:var(--cream);border:1px solid var(--sand);border-radius:999px;padding:4px 14px;font-family:'Playfair Display',serif;font-size:.9rem;color:var(--gold);}
+    .seed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
+    .seed-card{background:var(--cream);border:1.5px solid var(--sand);border-radius:13px;padding:14px 10px;text-align:center;transition:transform .15s;}
+    .seed-card:hover{transform:translateY(-2px);}
+    .seed-card .emoji{font-size:2rem;display:block;margin-bottom:5px;}
+    .seed-card .sname{font-family:'Playfair Display',serif;font-size:.78rem;color:var(--bark);font-weight:700;margin-bottom:2px;}
+    .seed-card .sdesc{font-size:.64rem;color:var(--clay-l);margin-bottom:8px;line-height:1.35;min-height:28px;}
+    .seed-card .sprice{font-size:.72rem;color:var(--gold);font-weight:700;margin-bottom:7px;}
+    .buy-btn{background:var(--moss);color:var(--cream);border:none;border-radius:999px;padding:5px 14px;font-family:'Source Serif 4',serif;font-size:.68rem;cursor:pointer;width:100%;}
+    .buy-btn:hover{background:var(--bark);}
+    .buy-btn:disabled{background:var(--sand);color:var(--clay-l);cursor:not-allowed;}
+    .owned-badge{font-size:.6rem;color:var(--moss);display:block;margin-top:2px;}
+ 
+    /* ── GARDEN ── */
+    .garden-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;}
+    .garden-top h2{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--bark);}
+    .garden-hint{font-size:.68rem;color:var(--clay-l);font-style:italic;}
+ 
+    /* SCENE wrapper */
+    .field-scene{border-radius:20px;overflow:hidden;box-shadow:0 6px 28px rgba(92,61,46,.22);margin-bottom:14px;border:2.5px solid #5a8f2e;}
+ 
+    /* SKY */
+    .field-sky{
+      height:70px;
+      background:linear-gradient(180deg,#87CEEB 0%,#c8e6f5 60%,#d8ecc8 100%);
+      position:relative;overflow:hidden;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: var(--parchment);
-      background-image:
-        radial-gradient(ellipse at 10% 0%, rgba(107,124,90,0.12) 0%, transparent 50%),
-        radial-gradient(ellipse at 90% 100%, rgba(139,90,58,0.08) 0%, transparent 50%);
-      font-family: 'Source Serif 4', Georgia, serif;
-      color: var(--ink);
-      min-height: 100vh;
-      padding: 48px 20px 80px;
+    .sky-sun{position:absolute;top:10px;right:22px;font-size:2rem;animation:sunPulse 4s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(255,220,50,.5));}
+    @keyframes sunPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+    .sky-cloud{position:absolute;animation:drift linear infinite;opacity:.9;}
+    @keyframes drift{from{transform:translateX(-120px)}to{transform:translateX(110vw)}}
+    /* birds in sky */
+    .sky-bird{position:absolute;font-size:.7rem;animation:birdfly 18s linear infinite;opacity:.7;}
+    @keyframes birdfly{from{transform:translateX(-60px) translateY(0)}to{transform:translateX(110vw) translateY(-20px)}}
+ 
+    /* GARDEN FIELD — freeform canvas */
+    .field-canvas{
+      position:relative;
+      width:100%;
+      height:480px;
+      overflow:hidden;
+      cursor:crosshair;
+      /* layered background: sky-to-ground gradient + texture */
+      background:
+        /* grass blades texture via repeating pattern */
+        repeating-linear-gradient(87deg,transparent 0px,transparent 8px,rgba(60,100,30,.07) 8px,rgba(60,100,30,.07) 9px),
+        repeating-linear-gradient(93deg,transparent 0px,transparent 12px,rgba(80,120,40,.05) 12px,rgba(80,120,40,.05) 13px),
+        /* depth gradient — lighter near top, darker near bottom */
+        linear-gradient(180deg,
+          #8dc455 0%,
+          #7ab648 15%,
+          #6aa838 35%,
+          #5a9230 55%,
+          #4e8028 75%,
+          #426e22 100%
+        );
     }
-    canvas#confetti {
-      position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none; z-index: 999;
+ 
+    /* decorative garden zones drawn as SVG bg overlay */
+    .field-canvas::before{
+      content:'';
+      position:absolute;inset:0;
+      background:
+        /* stone path - horizontal strip */
+        radial-gradient(ellipse 120px 18px at 50% 72%, rgba(180,160,120,.35) 0%, transparent 100%),
+        radial-gradient(ellipse 80px 14px at 30% 82%, rgba(180,160,120,.28) 0%, transparent 100%),
+        radial-gradient(ellipse 90px 14px at 70% 88%, rgba(180,160,120,.25) 0%, transparent 100%),
+        /* dirt patches for planting */
+        radial-gradient(ellipse 90px 40px at 25% 55%, rgba(101,67,33,.28) 0%, transparent 100%),
+        radial-gradient(ellipse 110px 48px at 72% 60%, rgba(101,67,33,.22) 0%, transparent 100%),
+        radial-gradient(ellipse 70px 32px at 50% 78%, rgba(101,67,33,.2) 0%, transparent 100%),
+        /* hedge/bush shadows along edges */
+        radial-gradient(ellipse 60px 80px at 4% 50%, rgba(40,80,20,.3) 0%, transparent 100%),
+        radial-gradient(ellipse 60px 80px at 96% 50%, rgba(40,80,20,.3) 0%, transparent 100%),
+        /* light patches — sunbeams */
+        radial-gradient(ellipse 140px 80px at 60% 30%, rgba(255,255,200,.08) 0%, transparent 100%),
+        radial-gradient(ellipse 100px 60px at 20% 20%, rgba(255,255,200,.06) 0%, transparent 100%);
+      pointer-events:none;
+      z-index:1;
     }
-    .wrap { max-width: 580px; margin: 0 auto; }
-    header { text-align: center; margin-bottom: 40px; }
-    header h1 {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: clamp(2rem, 5vw, 2.8rem);
-      color: var(--bark); line-height: 1.15;
+ 
+    /* fence at bottom */
+    .field-fence{
+      position:absolute;bottom:0;left:0;right:0;height:28px;
+      background:repeating-linear-gradient(90deg,#8B5A3A 0px,#8B5A3A 10px,#7A4A2A 10px,#7A4A2A 12px,transparent 12px,transparent 16px);
+      opacity:.55;z-index:5;
     }
-    header h1 span { color: var(--moss); }
-    header p { font-size: 0.85rem; color: var(--clay-light); margin-top: 6px; letter-spacing: 0.05em; }
-    .stats { display: flex; gap: 14px; margin-bottom: 36px; }
-    .stat {
-      flex: 1; background: var(--cream);
-      border: 1px solid var(--sand); border-radius: 14px;
-      padding: 22px 16px; text-align: center;
-      box-shadow: 0 2px 12px rgba(92,61,46,0.07);
+    /* fence rail */
+    .field-fence::before{
+      content:'';position:absolute;top:8px;left:0;right:0;height:5px;
+      background:linear-gradient(90deg,#8B5A3A,#A06A3A,#8B5A3A);
+      opacity:.8;
     }
-    .stat .num { font-family: 'Playfair Display', serif; font-size: 2.8rem; font-weight: 700; line-height: 1; }
-    .stat.today .num { color: var(--clay); }
-    .stat.total .num { color: var(--moss); }
-    .stat .lbl { font-size: 0.72rem; color: var(--clay-light); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.12em; }
-    .btn-wrap { text-align: center; margin-bottom: 40px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-    #apply-btn {
-      background: var(--bark); color: var(--parchment);
-      border: none; border-radius: 999px; padding: 18px 48px;
-      font-family: 'Playfair Display', serif; font-size: 1.15rem;
-      cursor: pointer; letter-spacing: 0.02em;
-      box-shadow: 0 4px 20px rgba(92,61,46,0.25);
-      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+ 
+    /* stones on path */
+    .path-stone{position:absolute;border-radius:50%;background:rgba(180,165,130,.55);z-index:2;}
+ 
+    /* fixed decorative bushes */
+    .garden-decor{position:absolute;font-size:1.6rem;z-index:2;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.2));}
+ 
+    /* DROP ZONE hint */
+    .field-canvas.dragover::after{
+      content:'Drop here 🌱';
+      position:absolute;inset:0;
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Playfair Display',serif;font-size:1.2rem;color:rgba(255,255,255,.8);
+      background:rgba(107,124,90,.15);
+      border:3px dashed rgba(255,255,255,.5);
+      border-radius:16px;
+      z-index:100;
+      pointer-events:none;
     }
-    #apply-btn:hover { background: var(--clay); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(92,61,46,0.3); }
-    #apply-btn:active { transform: scale(0.97); }
-    #undo-btn {
-      background: transparent; border: 1px solid var(--sand);
-      color: var(--clay); border-radius: 999px; padding: 10px 28px;
-      font-family: 'Playfair Display', serif; font-size: 0.9rem;
-      cursor: pointer; transition: border-color 0.2s, color 0.2s;
+ 
+    /* PLANT items — freely positioned */
+    .garden-item{
+      position:absolute;
+      display:flex;flex-direction:column;align-items:center;
+      cursor:grab;
+      z-index:10;
+      user-select:none;
+      touch-action:none;
+      transition:transform .1s;
     }
-    #undo-btn:hover { border-color: var(--clay); color: var(--bark); }
-    .log-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--clay-light); margin-bottom: 12px; }
-    .day-block {
-      background: var(--cream); border: 1px solid var(--sand);
-      border-radius: 12px; margin-bottom: 10px; overflow: hidden;
-      box-shadow: 0 1px 6px rgba(92,61,46,0.06);
+    .garden-item:hover{transform:scale(1.12);}
+    .garden-item.dragging-item{cursor:grabbing;z-index:200;opacity:.85;transform:scale(1.15);}
+    .garden-item .gi-emoji{font-size:1.8rem;line-height:1;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25));}
+    .garden-item.seed-stage .gi-emoji{font-size:.9rem;filter:grayscale(.3);}
+    .garden-item.sprout-stage .gi-emoji{font-size:1.2rem;}
+    .garden-item .gi-label{font-size:.38rem;color:rgba(255,255,255,.95);font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.6);margin-top:2px;white-space:nowrap;font-family:'Source Serif 4',serif;}
+    .garden-item .gi-bar{width:28px;height:3px;background:rgba(255,255,255,.25);border-radius:2px;margin-top:1px;}
+    .garden-item .gi-fill{height:100%;background:var(--gold-l);border-radius:2px;transition:width 1s;}
+ 
+    /* ANIMALS */
+    .garden-animal{
+      position:absolute;
+      display:flex;flex-direction:column;align-items:center;
+      z-index:15;
+      pointer-events:none;
+      animation:animalBob 2.8s ease-in-out infinite;
+      filter:drop-shadow(0 3px 5px rgba(0,0,0,.22));
     }
-    .day-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; }
-    .day-head .date { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: var(--bark); font-weight: 700; }
-    .day-head .badge { background: var(--bark); color: var(--parchment); font-size: 0.72rem; padding: 3px 12px; border-radius: 999px; letter-spacing: 0.05em; }
-    .day-entries { border-top: 1px solid var(--parchment-dark); padding: 10px 18px 14px; display: flex; flex-direction: column; gap: 5px; }
-    .entry { font-size: 0.8rem; color: var(--clay); display: flex; align-items: center; gap: 8px; }
-    .entry::before { content: '✦'; color: var(--moss); font-size: 0.6rem; }
-    #reset-btn {
-      display: block; margin: 28px auto 0;
-      background: transparent; border: 1px solid var(--sand);
-      color: var(--clay-light); border-radius: 8px; padding: 7px 18px;
-      font-family: 'Source Serif 4', serif; font-size: 0.75rem;
-      cursor: pointer; transition: border-color 0.2s, color 0.2s;
-    }
-    #reset-btn:hover { border-color: #A0522D; color: #A0522D; }
-    .empty { text-align: center; color: var(--clay-light); font-size: 0.85rem; padding: 28px 0; font-style: italic; }
+    .garden-animal .ga-emoji{font-size:1.8rem;line-height:1;}
+    .garden-animal .ga-label{font-size:.36rem;color:rgba(255,255,255,.95);font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.6);white-space:nowrap;font-family:'Source Serif 4',serif;margin-top:1px;}
+    @keyframes animalBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+ 
+    /* ANIMALS LOG */
+    .animals-section{margin-top:12px;}
+    .animals-label{font-size:.66rem;text-transform:uppercase;letter-spacing:.14em;color:var(--clay-l);margin-bottom:8px;font-weight:600;}
+    .animals-grid{display:flex;flex-wrap:wrap;gap:7px;}
+    .animal-tag{background:var(--cream);border:1.5px solid var(--sand);border-radius:12px;padding:7px 11px;display:flex;align-items:center;gap:7px;}
+    .animal-tag .at-e{font-size:1.3rem;}
+    .animal-tag .at-n{font-size:.7rem;font-weight:700;color:var(--bark);}
+    .animal-tag .at-r{font-size:.57rem;color:var(--clay-l);}
+ 
+    /* INVENTORY */
+    .inv-label{font-size:.66rem;text-transform:uppercase;letter-spacing:.14em;color:var(--clay-l);margin-bottom:8px;font-weight:600;}
+    .inventory{display:flex;flex-wrap:wrap;gap:7px;padding:11px;background:var(--cream);border:1.5px solid var(--sand);border-radius:12px;min-height:44px;}
+    .inv-seed{display:flex;flex-direction:column;align-items:center;background:var(--parchment);border:1.5px solid var(--sand);border-radius:10px;padding:7px 9px;cursor:grab;transition:transform .15s;user-select:none;}
+    .inv-seed:hover{transform:scale(1.1);}
+    .inv-seed:active{cursor:grabbing;}
+    .inv-seed .is-e{font-size:1.4rem;}
+    .inv-seed .is-n{font-size:.54rem;color:var(--bark);font-weight:700;margin-top:2px;}
+    .inv-seed .is-c{font-size:.52rem;color:var(--gold);}
+    .inv-empty{font-size:.74rem;color:var(--clay-l);font-style:italic;align-self:center;}
+ 
+    /* ANIMAL ARRIVAL */
+    .animal-arrival{display:none;position:fixed;inset:0;z-index:2000;align-items:center;justify-content:center;background:rgba(44,31,20,.45);}
+    .animal-arrival.show{display:flex;}
+    .arrival-card{background:var(--cream);border:2px solid var(--rose-l);border-radius:24px;padding:28px 24px;text-align:center;max-width:280px;box-shadow:0 8px 40px rgba(92,61,46,.25);animation:slideUp .4s cubic-bezier(.34,1.56,.64,1);}
+    @keyframes slideUp{from{transform:translateY(50px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .arrival-emoji{font-size:4rem;display:block;margin-bottom:8px;animation:wiggle .6s ease-in-out infinite alternate;}
+    @keyframes wiggle{from{transform:rotate(-8deg) scale(1)}to{transform:rotate(8deg) scale(1.1)}}
+    .arrival-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--bark);margin-bottom:5px;}
+    .arrival-sub{font-size:.76rem;color:var(--clay-l);margin-bottom:14px;line-height:1.5;}
+    .arrival-btn{background:var(--bark);color:var(--parchment);border:none;border-radius:999px;padding:9px 24px;font-family:'Playfair Display',serif;font-size:.9rem;cursor:pointer;}
+ 
+    #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bark);color:var(--parchment);font-size:.78rem;font-weight:700;padding:9px 20px;border-radius:999px;opacity:0;transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .3s;z-index:5000;white-space:nowrap;}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   </style>
 </head>
 <body>
 <canvas id="confetti"></canvas>
-<div class="wrap">
-
-  <header>
-    <h1>emma<span>finds</span>ajob 🌿</h1>
-    <p id="dateline">loading...</p>
-  </header>
-
-  <div class="stats">
-    <div class="stat today">
-      <div class="num" id="today-count">0</div>
-      <div class="lbl">Today</div>
-    </div>
-    <div class="stat total">
-      <div class="num" id="total-count">0</div>
-      <div class="lbl">All Time</div>
-    </div>
+ 
+<div class="animal-arrival" id="animal-arrival" onclick="closeArrival()">
+  <div class="arrival-card" onclick="event.stopPropagation()">
+    <span class="arrival-emoji" id="arrival-emoji">🐼</span>
+    <div class="arrival-title" id="arrival-title">A visitor!</div>
+    <div class="arrival-sub" id="arrival-sub">Someone moved into your garden.</div>
+    <button class="arrival-btn" onclick="closeArrival()">Welcome them! 🌿</button>
   </div>
-
-  <div class="btn-wrap">
+</div>
+ 
+<div class="header">
+  <h1>emma<span>finds</span>ajob 🌿</h1>
+  <div class="money-bar">💰 <span class="amt" id="header-money">0</span> coins</div>
+</div>
+ 
+<div class="tabs">
+  <button class="tab active" onclick="showTab('tracker',this)">📋 Tracker</button>
+  <button class="tab" onclick="showTab('shop',this)">🌾 Seeds</button>
+  <button class="tab" onclick="showTab('garden',this)">🌱 Garden</button>
+</div>
+ 
+<!-- TRACKER -->
+<div class="page active" id="page-tracker">
+  <div id="milestone-banner"></div>
+  <div class="stats">
+    <div class="stat today"><div class="num" id="today-count">0</div><div class="lbl">Today</div></div>
+    <div class="stat total"><div class="num" id="total-count">0</div><div class="lbl">All Time</div></div>
+    <div class="stat money"><div class="num" id="money-count">0</div><div class="lbl">💰 Coins</div></div>
+  </div>
+  <div class="apply-wrap">
     <button id="apply-btn">✓ I Applied!</button>
     <button id="undo-btn">↩ Undo Last</button>
   </div>
-
-  <div class="log-label">Application Log</div>
+  <div class="log-lbl">Application Log</div>
   <div id="log"></div>
-
   <button id="reset-btn">reset all data</button>
-
 </div>
-
+ 
+<!-- SHOP -->
+<div class="page" id="page-shop">
+  <div class="shop-top">
+    <h2>🌾 Seed Shop</h2>
+    <div class="coin-pill">💰 <span id="shop-coins">0</span></div>
+  </div>
+  <div class="seed-grid" id="seed-grid"></div>
+</div>
+ 
+<!-- GARDEN -->
+<div class="page" id="page-garden">
+  <div class="garden-top">
+    <h2>🌱 My Garden</h2>
+    <span class="garden-hint">Drag seeds anywhere · drag to move · double-tap to remove</span>
+  </div>
+ 
+  <div class="field-scene">
+    <!-- SKY -->
+    <div class="field-sky" id="field-sky">
+      <span class="sky-sun">☀️</span>
+      <span class="sky-cloud" style="font-size:1.4rem;top:8px;animation-duration:24s;animation-delay:0s">☁️</span>
+      <span class="sky-cloud" style="font-size:1rem;top:20px;animation-duration:32s;animation-delay:-14s">☁️</span>
+      <span class="sky-cloud" style="font-size:1.6rem;top:5px;animation-duration:40s;animation-delay:-22s">⛅</span>
+      <span class="sky-bird" style="top:14px;animation-duration:16s;animation-delay:0s">🐦</span>
+      <span class="sky-bird" style="top:26px;animation-duration:22s;animation-delay:-8s">🐦</span>
+    </div>
+ 
+    <!-- FIELD -->
+    <div class="field-canvas" id="field-canvas"
+      ondragover="event.preventDefault();this.classList.add('dragover')"
+      ondragleave="this.classList.remove('dragover')"
+      ondrop="dropSeedOnField(event)">
+ 
+      <!-- stone path decorations -->
+      <div class="path-stone" style="width:22px;height:14px;left:20%;bottom:18%;"></div>
+      <div class="path-stone" style="width:18px;height:12px;left:32%;bottom:14%;"></div>
+      <div class="path-stone" style="width:26px;height:15px;left:46%;bottom:16%;"></div>
+      <div class="path-stone" style="width:20px;height:13px;left:60%;bottom:12%;"></div>
+      <div class="path-stone" style="width:24px;height:14px;left:74%;bottom:17%;"></div>
+      <div class="path-stone" style="width:16px;height:11px;left:85%;bottom:13%;"></div>
+      <div class="path-stone" style="width:19px;height:12px;left:12%;bottom:22%;"></div>
+ 
+      <!-- static decorative bushes / hedges -->
+      <div class="garden-decor" style="left:1%;top:10%">🌳</div>
+      <div class="garden-decor" style="right:2%;top:8%">🌳</div>
+      <div class="garden-decor" style="left:2%;top:38%">🪨</div>
+      <div class="garden-decor" style="right:3%;top:42%">🪨</div>
+      <div class="garden-decor" style="left:4%;bottom:20%">🌿</div>
+      <div class="garden-decor" style="right:4%;bottom:22%">🌿</div>
+      <div class="garden-decor" style="left:15%;top:5%">🍃</div>
+      <div class="garden-decor" style="right:18%;top:4%">🍃</div>
+ 
+      <!-- fence -->
+      <div class="field-fence"></div>
+ 
+      <!-- plants & animals injected here by JS -->
+    </div>
+  </div>
+ 
+  <div class="animals-section">
+    <div class="animals-label">🐾 Garden Visitors</div>
+    <div class="animals-grid" id="animals-grid"></div>
+  </div>
+ 
+  <div class="inv-label" style="margin-top:14px">🎒 Seed Inventory — drag onto the garden</div>
+  <div class="inventory" id="inventory"></div>
+</div>
+ 
+<div id="toast"></div>
+ 
 <script>
-  const todayKey = () => new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  const timeNow  = () => new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-  const load = () => JSON.parse(localStorage.getItem('emmajobs') || '{}');
-  const save = d  => localStorage.setItem('emmajobs', JSON.stringify(d));
-
-  function render() {
-    const data = load(), today = todayKey();
-    document.getElementById('dateline').textContent = today;
-    const todayList = data[today] || [];
-    document.getElementById('today-count').textContent = todayList.length;
-    const total = Object.values(data).reduce((s,a) => s + a.length, 0);
-    document.getElementById('total-count').textContent = total;
-    const log = document.getElementById('log');
-    log.innerHTML = '';
-    const days = Object.keys(data).sort((a,b) => new Date(b)-new Date(a));
-    if (!days.length) {
-      log.innerHTML = '<p class="empty">No applications yet — you\'ve got this! 🌱</p>';
-      return;
-    }
-    days.forEach(day => {
-      const entries = data[day];
-      const block = document.createElement('div');
-      block.className = 'day-block';
-      block.innerHTML = `
-        <div class="day-head">
-          <span class="date">${day === today ? '📅 Today' : day}</span>
-          <span class="badge">${entries.length} app${entries.length !== 1 ? 's' : ''}</span>
-        </div>
-        <div class="day-entries">
-          ${entries.map(t => `<div class="entry">${t}</div>`).join('')}
-        </div>`;
-      log.appendChild(block);
-    });
+// ── SEEDS ─────────────────────────────────────────────────
+const SEEDS=[
+  {id:'fern',     emoji:'🌱',name:'Baby Fern',     desc:'Just getting started.',        cost:1},
+  {id:'mushroom', emoji:'🍄',name:'Mushroom',      desc:'Grows in the dark. So do you.',cost:2},
+  {id:'herb',     emoji:'🌿',name:'Fresh Herbs',   desc:'Practical and lovely.',        cost:2},
+  {id:'daisy',    emoji:'🌼',name:'Daisy',         desc:'Cheerful and bright.',         cost:2},
+  {id:'seedling', emoji:'🌾',name:'Wheat',         desc:'Growth takes time.',           cost:2},
+  {id:'vine',     emoji:'🍃',name:'Trailing Vine', desc:'Spreads everywhere.',          cost:3},
+  {id:'cactus',   emoji:'🌵',name:'Cactus',        desc:'Tough and resilient.',         cost:3},
+  {id:'tulip',    emoji:'🌷',name:'Tulip',         desc:'Fresh start vibes.',           cost:3},
+  {id:'lavender', emoji:'💜',name:'Lavender',      desc:'Keeps you calm.',              cost:3},
+  {id:'sunflower',emoji:'🌻',name:'Sunflower',     desc:'Faces the future boldly.',     cost:3},
+  {id:'rose',     emoji:'🌹',name:'Rose',          desc:'You worked hard for this.',    cost:4},
+  {id:'hibiscus', emoji:'🌺',name:'Hibiscus',      desc:'Tropical treat.',              cost:4},
+  {id:'bamboo',   emoji:'🎋',name:'Bamboo',        desc:'Grows fast once started.',     cost:4},
+  {id:'fourleaf', emoji:'🍀',name:'Four-Leaf',     desc:'Pure luck. You earned it.',    cost:5},
+  {id:'cherry',   emoji:'🌸',name:'Cherry Blossom',desc:'Beautiful interview energy.',  cost:5},
+  {id:'maple',    emoji:'🍁',name:'Maple',         desc:'Strong roots. Beautiful.',     cost:5},
+  {id:'bouquet',  emoji:'💐',name:'Wildflowers',   desc:'A little of everything.',      cost:6},
+  {id:'lotus',    emoji:'🪷',name:'Lotus',         desc:'Rises from mud. Peak plant.',  cost:6},
+  {id:'bonsai',   emoji:'🎍',name:'Bonsai',        desc:'Rare and refined.',            cost:8},
+  {id:'pansy',    emoji:'🏵️',name:'Pansy',         desc:'Delicate but determined.',     cost:3},
+];
+ 
+const ALL_ANIMALS=[
+  {emoji:'🐝', name:'Honey Bee',       msg:'A little bee flew in! She approves of your hustle. 🍯',              rarity:'Common'},
+  {emoji:'🦋', name:'Butterfly',       msg:'A butterfly landed on your flowers. She loves it here! 🌸',          rarity:'Common'},
+  {emoji:'🐛', name:'Friendly Worm',   msg:'A worm moved into the soil helping your plants grow! 🌱',            rarity:'Common'},
+  {emoji:'🐶', name:'Puppy',           msg:'A PUPPY ran into your garden!! She\'s so happy to see you! 🐾',      rarity:'Uncommon'},
+  {emoji:'🐼', name:'Panda',           msg:'A PANDA arrived!! She brought bamboo snacks and good vibes! 🎋',     rarity:'Uncommon'},
+  {emoji:'🐸', name:'Little Frog',     msg:'Ribbit! A frog hopped in. She heard your garden is the place to be!',rarity:'Uncommon'},
+  {emoji:'🐇', name:'Bunny',           msg:'A bunny hopped over! Nibbling clover and cheering you on! 🍀',       rarity:'Uncommon'},
+  {emoji:'🦔', name:'Hedgehog',        msg:'A hedgehog curled up in the corner. Shy but she trusts you! 🌿',     rarity:'Uncommon'},
+  {emoji:'🐱', name:'Kitten',          msg:'A fluffy kitten wandered in and made herself at home! 🌸',           rarity:'Uncommon'},
+  {emoji:'🦉', name:'Wise Owl',        msg:'An owl perched at dusk. She says you\'re doing amazing! 🌙',         rarity:'Rare'},
+  {emoji:'🦊', name:'Fox',             msg:'A fox crept in at golden hour. She respects the hustle. 🦊',         rarity:'Rare'},
+  {emoji:'🐿️',name:'Squirrel',        msg:'A squirrel brought you an acorn as a gift! She believes in you! 🌰', rarity:'Rare'},
+  {emoji:'🦌', name:'Deer',            msg:'A deer stepped gracefully in. This is a blessed visit! 🌸',          rarity:'Rare'},
+  {emoji:'🐨', name:'Koala',           msg:'A koala is napping among your flowers. So peaceful! 🌸',             rarity:'Rare'},
+  {emoji:'🦩', name:'Flamingo',        msg:'A flamingo arrived! Adding a pop of pink to your garden. 🌸',        rarity:'Rare'},
+  {emoji:'🐰', name:'White Rabbit',    msg:'A white rabbit with a bow tie! She thinks you\'re the main character!',rarity:'Rare'},
+  {emoji:'🐧', name:'Penguin',         msg:'A penguin waddled in wearing a tiny bow tie. Formal support! 🎩',    rarity:'Rare'},
+  {emoji:'🦚', name:'Peacock',         msg:'A PEACOCK spread her feathers just for you! Stunning! ✨',            rarity:'Very Rare'},
+  {emoji:'🐼', name:'Twin Pandas',     msg:'TWO PANDAS showed up!! Double the bamboo, double the love! 🎋🎋',    rarity:'Very Rare'},
+  {emoji:'🐕', name:'Golden Retriever',msg:'A golden retriever with a flower crown! She is perfect. 🌸',         rarity:'Very Rare'},
+  {emoji:'🦁', name:'Lion Cub',        msg:'A tiny lion cub! She sees the queen energy in you. 👑',              rarity:'Very Rare'},
+  {emoji:'🐯', name:'Tiger Cub',       msg:'A tiger cub! Bold, fierce, and absolutely adorable. 🐯',             rarity:'Very Rare'},
+  {emoji:'🦓', name:'Zebra',           msg:'A zebra trotted in! Unique stripes for a unique job hunter. ✨',      rarity:'Very Rare'},
+  {emoji:'🦋', name:'Blue Butterfly',  msg:'A rare blue butterfly! She shimmers in the sunlight. 💙',            rarity:'Rare'},
+  {emoji:'🐦‍🌈',name:'Rainbow Bird',  msg:'A rare rainbow bird flew in! Your garden is truly magical! 🌈',       rarity:'Legendary'},
+  {emoji:'🐉', name:'Baby Dragon',     msg:'A BABY DRAGON landed in your garden!! She breathes gold sparks! ✨',  rarity:'Legendary'},
+  {emoji:'🦄', name:'Unicorn',         msg:'A UNICORN appeared!! Your garden is literally enchanted now! 🌈✨',   rarity:'Legendary'},
+  {emoji:'🐼', name:'Panda Queen',     msg:'THE PANDA QUEEN herself!! She bows to your dedication. 👑🎋',        rarity:'LEGENDARY'},
+];
+ 
+// ── STORAGE ───────────────────────────────────────────────
+const todayKey=()=>new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+const timeNow=()=>new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+const loadJobs=()=>JSON.parse(localStorage.getItem('emmajobs')||'{}');
+const saveJobs=d=>localStorage.setItem('emmajobs',JSON.stringify(d));
+const loadG=()=>JSON.parse(localStorage.getItem('emmagarden6')||'{"coins":0,"inventory":[],"plants":[],"animals":[]}');
+const saveG=g=>localStorage.setItem('emmagarden6',JSON.stringify(g));
+ 
+// migrate coins
+(function(){['emmamall','emmamall2','emmamall3','emmaworld','emmagarden','emmagarden2','emmagarden3','emmagarden4','emmagarden5'].forEach(k=>{const o=localStorage.getItem(k);if(o){try{const p=JSON.parse(o);const g=loadG();if(p.coins&&g.coins===0){g.coins=p.coins;saveG(g);}}catch(e){}}});})();
+ 
+const COIN_MILESTONES={4:3,8:5,12:5,16:8,20:10,24:10,28:12,32:15,36:15,40:20,44:20,48:25,52:30,56:30,60:35,64:35,68:40,72:40,76:45,80:50,84:50,88:55,92:55,96:60,100:75};
+ 
+function updateMoneyUI(c){document.getElementById('money-count').textContent=c;document.getElementById('header-money').textContent=c;document.getElementById('shop-coins').textContent=c;}
+ 
+// ── TRACKER ───────────────────────────────────────────────
+function render(){
+  const data=loadJobs(),today=todayKey(),g=loadG();
+  document.getElementById('today-count').textContent=(data[today]||[]).length;
+  const total=Object.values(data).reduce((s,a)=>s+a.length,0);
+  document.getElementById('total-count').textContent=total;
+  updateMoneyUI(g.coins);
+  const log=document.getElementById('log');log.innerHTML='';
+  const days=Object.keys(data).sort((a,b)=>new Date(b)-new Date(a));
+  if(!days.length){log.innerHTML='<p class="empty">No applications yet — you\'ve got this! 🌱</p>';return;}
+  days.forEach(day=>{const e=data[day];const b=document.createElement('div');b.className='day-block';b.innerHTML=`<div class="day-head"><span class="date">${day===today?'📅 Today':day}</span><span class="badge">${e.length} app${e.length!==1?'s':''}</span></div><div class="day-entries">${e.map(t=>`<div class="entry">${t}</div>`).join('')}</div>`;log.appendChild(b);});
+}
+ 
+function showTab(name,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  el.classList.add('active');
+  if(name==='shop') renderShop();
+  if(name==='garden') renderGarden();
+}
+ 
+// ── SHOP ──────────────────────────────────────────────────
+function renderShop(){
+  const g=loadG();document.getElementById('shop-coins').textContent=g.coins;
+  const grid=document.getElementById('seed-grid');grid.innerHTML='';
+  SEEDS.forEach(s=>{
+    const owned=g.inventory.filter(i=>i.id===s.id).length;
+    const card=document.createElement('div');card.className='seed-card';
+    card.innerHTML=`<span class="emoji">${s.emoji}</span><div class="sname">${s.name}</div><div class="sdesc">${s.desc}</div><div class="sprice">💰 ${s.cost}${owned?`<span class="owned-badge">×${owned} in bag</span>`:''}</div><button class="buy-btn" ${g.coins<s.cost?'disabled':''} onclick="buySeed('${s.id}')">${g.coins>=s.cost?'Buy Seed':'Need coins'}</button>`;
+    grid.appendChild(card);
+  });
+}
+ 
+function buySeed(id){
+  const g=loadG(),s=SEEDS.find(x=>x.id===id);
+  if(!s||g.coins<s.cost) return;
+  g.coins-=s.cost;g.inventory.push({id:s.id,emoji:s.emoji,name:s.name});saveG(g);
+  updateMoneyUI(g.coins);renderShop();playSparkle();miniConfetti();showToast(s.name+' added to bag! 🌱');
+}
+ 
+// ── GARDEN RENDER ─────────────────────────────────────────
+function renderGarden(){
+  const g=loadG();
+  renderField(g);
+  renderAnimalsLog(g);
+  renderInventory(g);
+}
+ 
+function renderField(g){
+  const canvas=document.getElementById('field-canvas');
+  // remove only plants & animals (keep static decor)
+  canvas.querySelectorAll('.garden-item,.garden-animal').forEach(e=>e.remove());
+ 
+  // draw plants
+  (g.plants||[]).forEach((p,idx)=>{
+    const now=Date.now(),age=now-p.plantedAt;
+    let stage=0;
+    if(age>=20000) stage=2;
+    else if(age>=8000) stage=1;
+    const pct=stage===2?100:stage===1?Math.min(100,((age-8000)/12000)*100):Math.min(100,(age/8000)*100);
+    const stageEmoji=stage===0?'🌰':stage===1?'🪴':p.emoji;
+    const stageClass=['seed-stage','sprout-stage',''][stage];
+ 
+    const el=document.createElement('div');
+    el.className=`garden-item ${stageClass}`;
+    el.style.left=p.x+'px';
+    el.style.top=p.y+'px';
+    el.dataset.idx=idx;
+    el.innerHTML=`<div class="gi-emoji">${stageEmoji}</div><div class="gi-label">${p.name}</div><div class="gi-bar"><div class="gi-fill" style="width:${pct}%"></div></div>`;
+ 
+    // drag to reposition
+    el.draggable=true;
+    el.addEventListener('dragstart',e=>{e.dataTransfer.setData('plantIdx',idx);el.classList.add('dragging-item');e.stopPropagation();});
+    el.addEventListener('dragend',()=>el.classList.remove('dragging-item'));
+ 
+    // double-click remove
+    let clicks=0;
+    el.addEventListener('click',e=>{e.stopPropagation();clicks++;if(clicks>=2){removePlant(idx);}setTimeout(()=>{clicks=0;},500);});
+    el.title='Drag to move · double-click to remove';
+ 
+    canvas.appendChild(el);
+    if(stage<2){const ms=stage===0?8000-age:20000-age;setTimeout(()=>{if(document.getElementById('page-garden').classList.contains('active'))renderGarden();},ms+100);}
+  });
+ 
+  // draw animals
+  (g.animals||[]).forEach(a=>{
+    const el=document.createElement('div');
+    el.className='garden-animal';
+    el.style.left=a.x+'px';
+    el.style.top=a.y+'px';
+    el.style.animationDelay=(Math.random()*2)+'s';
+    el.innerHTML=`<div class="ga-emoji">${a.emoji}</div><div class="ga-label">${a.name}</div>`;
+    el.title=a.name+' · arrived at app #'+a.apps;
+    canvas.appendChild(el);
+  });
+}
+ 
+function removePlant(idx){
+  const g=loadG();g.plants.splice(idx,1);saveG(g);renderGarden();showToast('Plant removed ✕');
+}
+ 
+// ── DROP ON FIELD ─────────────────────────────────────────
+function dropSeedOnField(e){
+  e.preventDefault();
+  const canvas=document.getElementById('field-canvas');
+  canvas.classList.remove('dragover');
+  const rect=canvas.getBoundingClientRect();
+ 
+  // check if repositioning an existing plant
+  const plantIdx=e.dataTransfer.getData('plantIdx');
+  if(plantIdx!==''){
+    const g=loadG();
+    const x=Math.max(0,Math.min(rect.width-40,e.clientX-rect.left-20));
+    const y=Math.max(0,Math.min(rect.height-60,e.clientY-rect.top-30));
+    if(g.plants[plantIdx]){g.plants[plantIdx].x=x;g.plants[plantIdx].y=y;saveG(g);renderGarden();}
+    return;
   }
-
-  document.getElementById('apply-btn').addEventListener('click', () => {
-    const data = load(), today = todayKey();
-    if (!data[today]) data[today] = [];
-    data[today].push(timeNow());
-    save(data); render(); confetti();
+ 
+  const seedId=e.dataTransfer.getData('seedId');
+  if(!seedId) return;
+  const g=loadG();
+  const idx=g.inventory.findIndex(i=>i.id===seedId);
+  if(idx===-1) return;
+  const seed=g.inventory[idx];
+  const x=Math.max(4,Math.min(rect.width-44,e.clientX-rect.left-20));
+  const y=Math.max(4,Math.min(rect.height-70,e.clientY-rect.top-30));
+  g.plants=g.plants||[];
+  g.plants.push({id:seed.id,emoji:seed.emoji,name:seed.name,plantedAt:Date.now(),x,y});
+  g.inventory.splice(idx,1);
+  saveG(g);
+  dragSeedId=null;
+  playSparkle();
+  renderGarden();
+  showToast(seed.name+' planted! 🌱');
+}
+ 
+let dragSeedId=null;
+ 
+function renderInventory(g){
+  const inv=document.getElementById('inventory');inv.innerHTML='';
+  const groups={};
+  g.inventory.forEach((s,i)=>{if(!groups[s.id]) groups[s.id]={seed:s,indices:[]};groups[s.id].indices.push(i);});
+  if(!Object.keys(groups).length){inv.innerHTML='<span class="inv-empty">No seeds yet — buy some from the shop! 🛒</span>';return;}
+  Object.values(groups).forEach(({seed,indices})=>{
+    const el=document.createElement('div');el.className='inv-seed';el.draggable=true;
+    el.innerHTML=`<span class="is-e">${seed.emoji}</span><span class="is-n">${seed.name}</span><span class="is-c">×${indices.length}</span>`;
+    el.addEventListener('dragstart',e=>{dragSeedId=seed.id;e.dataTransfer.setData('seedId',seed.id);e.dataTransfer.effectAllowed='move';});
+    inv.appendChild(el);
   });
-
-  document.getElementById('undo-btn').addEventListener('click', () => {
-    const data = load(), today = todayKey();
-    if (data[today] && data[today].length > 0) {
-      data[today].pop();
-      if (data[today].length === 0) delete data[today];
-      save(data); render();
-    }
+}
+ 
+function renderAnimalsLog(g){
+  const grid=document.getElementById('animals-grid');grid.innerHTML='';
+  const animals=g.animals||[];
+  if(!animals.length){grid.innerHTML='<p style="font-size:.73rem;color:var(--clay-l);font-style:italic">Keep applying — surprise animals visit at every milestone! 🐾</p>';return;}
+  const colors={Common:'var(--moss)',Uncommon:'var(--gold)',Rare:'var(--rose)',['Very Rare']:'#9b6b9e',Legendary:'#c0952a',LEGENDARY:'#d4a800'};
+  animals.forEach(a=>{
+    const tag=document.createElement('div');tag.className='animal-tag';
+    tag.innerHTML=`<span class="at-e">${a.emoji}</span><div><div class="at-n">${a.name}</div><div class="at-r" style="color:${colors[a.rarity]||'var(--clay-l)'}">${a.rarity} · app #${a.apps}</div></div>`;
+    grid.appendChild(tag);
   });
-
-  document.getElementById('reset-btn').addEventListener('click', () => {
-    if (confirm('Reset everything?')) { localStorage.removeItem('emmajobs'); render(); }
-  });
-
-  function confetti() {
-    const cv = document.getElementById('confetti');
-    const ctx = cv.getContext('2d');
-    cv.width = innerWidth; cv.height = innerHeight;
-    const cols = ['#C4855A','#6B7C5A','#8B5A3A','#D4C4A0','#5C3D2E','#8A9E74','#E8DFC0'];
-    const pts = Array.from({length:110}, () => ({
-      x: Math.random()*cv.width, y: Math.random()*-cv.height*0.4,
-      w: Math.random()*10+4, h: Math.random()*5+3,
-      c: cols[Math.floor(Math.random()*cols.length)],
-      r: Math.random()*Math.PI*2, vx:(Math.random()-.5)*3.5,
-      vy: Math.random()*3.5+1.5, vr:(Math.random()-.5)*.15, op:1
-    }));
-    let f=0;
-    (function draw(){
-      ctx.clearRect(0,0,cv.width,cv.height);
-      let alive=false;
-      pts.forEach(p=>{
-        p.x+=p.vx; p.y+=p.vy; p.vy+=0.07; p.r+=p.vr;
-        if(f>55) p.op=Math.max(0,p.op-.013);
-        if(p.y<cv.height+20) alive=true;
-        ctx.save(); ctx.globalAlpha=p.op;
-        ctx.translate(p.x,p.y); ctx.rotate(p.r);
-        ctx.fillStyle=p.c;
-        ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
-        ctx.restore();
-      });
-      f++;
-      if(alive) requestAnimationFrame(draw);
-      else ctx.clearRect(0,0,cv.width,cv.height);
-    })();
-  }
+}
+ 
+// ── ANIMAL VISIT ──────────────────────────────────────────
+function triggerAnimalVisit(total){
+  const g=loadG();
+  if((g.animals||[]).some(a=>a.apps===total)) return;
+  const idx=(g.animals||[]).length%ALL_ANIMALS.length;
+  const animal=ALL_ANIMALS[idx];
+  const canvas=document.getElementById('field-canvas');
+  const w=canvas.offsetWidth||300,h=canvas.offsetHeight||480;
+  const x=30+Math.random()*(w-90);
+  const y=30+Math.random()*(h-100);
+  g.animals=g.animals||[];
+  g.animals.push({...animal,apps:total,x,y});
+  saveG(g);
+  setTimeout(()=>{
+    document.getElementById('arrival-emoji').textContent=animal.emoji;
+    document.getElementById('arrival-title').textContent=animal.name+' arrived! '+stars(animal.rarity);
+    document.getElementById('arrival-sub').textContent=animal.msg;
+    document.getElementById('animal-arrival').classList.add('show');
+    playAnimalSound();
+  },1200);
+}
+ 
+function stars(r){return{Common:'⭐',Uncommon:'⭐⭐',Rare:'⭐⭐⭐',['Very Rare']:'⭐⭐⭐⭐',Legendary:'✨✨✨✨✨',LEGENDARY:'🌟🌟🌟🌟🌟'}[r]||'⭐';}
+function closeArrival(){document.getElementById('animal-arrival').classList.remove('show');if(document.getElementById('page-garden').classList.contains('active'))renderGarden();}
+ 
+// ── APPLY ─────────────────────────────────────────────────
+document.getElementById('apply-btn').addEventListener('click',()=>{
+  const data=loadJobs(),today=todayKey();
+  if(!data[today]) data[today]=[];
+  data[today].push(timeNow());saveJobs(data);
+  const g=loadG();g.coins+=1;
+  const total=Object.values(data).reduce((s,a)=>s+a.length,0);
+  if(total%4===0){
+    const bonus=COIN_MILESTONES[total]||3;g.coins+=bonus;saveG(g);
+    const b=document.getElementById('milestone-banner');b.style.display='block';
+    b.textContent='🎉 '+total+' applications!! Bonus +'+bonus+' coins! 💰';
+    setTimeout(()=>{b.style.display='none';},3500);
+    triggerAnimalVisit(total);
+  } else {saveG(g);}
+  render();launchConfetti();playSparkle();
+});
+ 
+document.getElementById('undo-btn').addEventListener('click',()=>{
+  const data=loadJobs(),today=todayKey();
+  if(data[today]?.length>0){data[today].pop();if(!data[today].length) delete data[today];saveJobs(data);const g=loadG();if(g.coins>0) g.coins--;saveG(g);render();}
+});
+ 
+document.getElementById('reset-btn').addEventListener('click',()=>{
+  if(confirm('Reset ALL data — jobs, coins, plants, and animals?')){localStorage.removeItem('emmajobs');localStorage.removeItem('emmagarden6');render();}
+});
+ 
+// ── TOAST ─────────────────────────────────────────────────
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+ 
+// ── SOUNDS ────────────────────────────────────────────────
+function playSparkle(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();[523,659,784,1047,1319].forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.setValueAtTime(f,ctx.currentTime+i*.08);g.gain.setValueAtTime(.12,ctx.currentTime+i*.08);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+i*.08+.28);o.start(ctx.currentTime+i*.08);o.stop(ctx.currentTime+i*.08+.3);});}catch(e){}}
+function playAnimalSound(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();[392,494,587,740,880].forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='triangle';o.frequency.setValueAtTime(f,ctx.currentTime+i*.12);g.gain.setValueAtTime(.12,ctx.currentTime+i*.12);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+i*.12+.5);o.start(ctx.currentTime+i*.12);o.stop(ctx.currentTime+i*.12+.55);});}catch(e){}}
+ 
+// ── CONFETTI ──────────────────────────────────────────────
+function launchConfetti(){const cv=document.getElementById('confetti'),ctx=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;const cols=['#C4847A','#8B5A3A','#8A9E74','#D4C4A0','#C9A84C','#DBA99E','#E8DFC0'];const pts=Array.from({length:130},()=>({x:Math.random()*cv.width,y:Math.random()*-cv.height*.4,w:Math.random()*10+4,h:Math.random()*5+3,c:cols[Math.floor(Math.random()*cols.length)],r:Math.random()*Math.PI*2,vx:(Math.random()-.5)*3.5,vy:Math.random()*3.5+1.5,vr:(Math.random()-.5)*.15,op:1}));let f=0;(function draw(){ctx.clearRect(0,0,cv.width,cv.height);let alive=false;pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.07;p.r+=p.vr;if(f>55)p.op=Math.max(0,p.op-.013);if(p.y<cv.height+20)alive=true;ctx.save();ctx.globalAlpha=p.op;ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});f++;if(alive)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);})();}
+function miniConfetti(){const cv=document.getElementById('confetti'),ctx=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;const cols=['#C9A84C','#E8C96A','#8A9E74','#6B7C5A'];const pts=Array.from({length:40},()=>({x:innerWidth/2+(Math.random()-.5)*200,y:innerHeight/2+(Math.random()-.5)*100,w:Math.random()*7+3,h:Math.random()*4+2,c:cols[Math.floor(Math.random()*cols.length)],r:Math.random()*Math.PI*2,vx:(Math.random()-.5)*4,vy:Math.random()*-4-2,vr:(Math.random()-.5)*.2,op:1}));let f=0;(function draw(){ctx.clearRect(0,0,cv.width,cv.height);let alive=false;pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.1;p.r+=p.vr;if(f>30)p.op=Math.max(0,p.op-.025);if(p.op>0)alive=true;ctx.save();ctx.globalAlpha=p.op;ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});f++;if(alive)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);})();}
+ 
+render();
+</script>
+</body>
+</html>
 
   render();
 </script>

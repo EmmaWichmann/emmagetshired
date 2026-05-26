@@ -411,8 +411,27 @@ const saveJobs=d=>localStorage.setItem('emmajobs',JSON.stringify(d));
 const loadG=()=>JSON.parse(localStorage.getItem('emmagarden6')||'{"coins":0,"inventory":[],"plants":[],"animals":[]}');
 const saveG=g=>localStorage.setItem('emmagarden6',JSON.stringify(g));
  
-// migrate coins
-(function(){['emmamall','emmamall2','emmamall3','emmaworld','emmagarden','emmagarden2','emmagarden3','emmagarden4','emmagarden5'].forEach(k=>{const o=localStorage.getItem(k);if(o){try{const p=JSON.parse(o);const g=loadG();if(p.coins&&g.coins===0){g.coins=p.coins;saveG(g);}}catch(e){}}});})();
+// migrate coins + calculate coins from existing job history
+(function(){
+  const g=loadG();
+  // first try migrating coins from old storage keys
+  if(g.coins===0){
+    ['emmamall','emmamall2','emmamall3','emmaworld','emmagarden','emmagarden2','emmagarden3','emmagarden4','emmagarden5'].forEach(k=>{
+      const o=localStorage.getItem(k);
+      if(o){try{const p=JSON.parse(o);if(p.coins&&p.coins>g.coins){g.coins=p.coins;}}catch(e){}}
+    });
+  }
+  // always recalculate coins from job history so they match
+  // 1 coin per app + milestone bonuses
+  const data=JSON.parse(localStorage.getItem('emmajobs')||'{}');
+  const total=Object.values(data).reduce((s,a)=>s+a.length,0);
+  const MILESTONES={4:3,8:5,12:5,16:8,20:10,24:10,28:12,32:15,36:15,40:20,44:20,48:25,52:30,56:30,60:35,64:35,68:40,72:40,76:45,80:50,84:50,88:55,92:55,96:60,100:75};
+  let expectedCoins=total; // 1 per app
+  for(let i=4;i<=total;i+=4) expectedCoins+=(MILESTONES[i]||3); // milestone bonuses
+  // only update if coins are LESS than expected (never take coins away from spending)
+  if(g.coins<expectedCoins) g.coins=expectedCoins;
+  saveG(g);
+})();
  
 const COIN_MILESTONES={4:3,8:5,12:5,16:8,20:10,24:10,28:12,32:15,36:15,40:20,44:20,48:25,52:30,56:30,60:35,64:35,68:40,72:40,76:45,80:50,84:50,88:55,92:55,96:60,100:75};
  
@@ -645,11 +664,6 @@ function launchConfetti(){const cv=document.getElementById('confetti'),ctx=cv.ge
 function miniConfetti(){const cv=document.getElementById('confetti'),ctx=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;const cols=['#C9A84C','#E8C96A','#8A9E74','#6B7C5A'];const pts=Array.from({length:40},()=>({x:innerWidth/2+(Math.random()-.5)*200,y:innerHeight/2+(Math.random()-.5)*100,w:Math.random()*7+3,h:Math.random()*4+2,c:cols[Math.floor(Math.random()*cols.length)],r:Math.random()*Math.PI*2,vx:(Math.random()-.5)*4,vy:Math.random()*-4-2,vr:(Math.random()-.5)*.2,op:1}));let f=0;(function draw(){ctx.clearRect(0,0,cv.width,cv.height);let alive=false;pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.1;p.r+=p.vr;if(f>30)p.op=Math.max(0,p.op-.025);if(p.op>0)alive=true;ctx.save();ctx.globalAlpha=p.op;ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});f++;if(alive)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);})();}
  
 render();
-</script>
-</body>
-</html>
-
-  render();
 </script>
 </body>
 </html>

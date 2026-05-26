@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emma Job Tracker 🌿</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --parchment: #F5EED8;
+      --parchment-dark: #E8DFC0;
+      --bark: #5C3D2E;
+      --clay: #8B5A3A;
+      --clay-light: #C4855A;
+      --moss: #6B7C5A;
+      --moss-light: #8A9E74;
+      --sand: #D4C4A0;
+      --ink: #2C1F14;
+      --cream: #FAF6EC;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--parchment);
+      background-image:
+        radial-gradient(ellipse at 10% 0%, rgba(107,124,90,0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 100%, rgba(139,90,58,0.08) 0%, transparent 50%);
+      font-family: 'Source Serif 4', Georgia, serif;
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 48px 20px 80px;
+    }
+    canvas#confetti {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 999;
+    }
+    .wrap { max-width: 580px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 40px; }
+    header h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      color: var(--bark); line-height: 1.15;
+    }
+    header h1 span { color: var(--moss); }
+    header p { font-size: 0.85rem; color: var(--clay-light); margin-top: 6px; letter-spacing: 0.05em; }
+    .stats { display: flex; gap: 14px; margin-bottom: 36px; }
+    .stat {
+      flex: 1; background: var(--cream);
+      border: 1px solid var(--sand); border-radius: 14px;
+      padding: 22px 16px; text-align: center;
+      box-shadow: 0 2px 12px rgba(92,61,46,0.07);
+    }
+    .stat .num { font-family: 'Playfair Display', serif; font-size: 2.8rem; font-weight: 700; line-height: 1; }
+    .stat.today .num { color: var(--clay); }
+    .stat.total .num { color: var(--moss); }
+    .stat .lbl { font-size: 0.72rem; color: var(--clay-light); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.12em; }
+    .btn-wrap { text-align: center; margin-bottom: 40px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #apply-btn {
+      background: var(--bark); color: var(--parchment);
+      border: none; border-radius: 999px; padding: 18px 48px;
+      font-family: 'Playfair Display', serif; font-size: 1.15rem;
+      cursor: pointer; letter-spacing: 0.02em;
+      box-shadow: 0 4px 20px rgba(92,61,46,0.25);
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    #apply-btn:hover { background: var(--clay); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(92,61,46,0.3); }
+    #apply-btn:active { transform: scale(0.97); }
+    #undo-btn {
+      background: transparent; border: 1px solid var(--sand);
+      color: var(--clay); border-radius: 999px; padding: 10px 28px;
+      font-family: 'Playfair Display', serif; font-size: 0.9rem;
+      cursor: pointer; transition: border-color 0.2s, color 0.2s;
+    }
+    #undo-btn:hover { border-color: var(--clay); color: var(--bark); }
+    .log-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--clay-light); margin-bottom: 12px; }
+    .day-block {
+      background: var(--cream); border: 1px solid var(--sand);
+      border-radius: 12px; margin-bottom: 10px; overflow: hidden;
+      box-shadow: 0 1px 6px rgba(92,61,46,0.06);
+    }
+    .day-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; }
+    .day-head .date { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: var(--bark); font-weight: 700; }
+    .day-head .badge { background: var(--bark); color: var(--parchment); font-size: 0.72rem; padding: 3px 12px; border-radius: 999px; letter-spacing: 0.05em; }
+    .day-entries { border-top: 1px solid var(--parchment-dark); padding: 10px 18px 14px; display: flex; flex-direction: column; gap: 5px; }
+    .entry { font-size: 0.8rem; color: var(--clay); display: flex; align-items: center; gap: 8px; }
+    .entry::before { content: '✦'; color: var(--moss); font-size: 0.6rem; }
+    #reset-btn {
+      display: block; margin: 28px auto 0;
+      background: transparent; border: 1px solid var(--sand);
+      color: var(--clay-light); border-radius: 8px; padding: 7px 18px;
+      font-family: 'Source Serif 4', serif; font-size: 0.75rem;
+      cursor: pointer; transition: border-color 0.2s, color 0.2s;
+    }
+    #reset-btn:hover { border-color: #A0522D; color: #A0522D; }
+    .empty { text-align: center; color: var(--clay-light); font-size: 0.85rem; padding: 28px 0; font-style: italic; }
+  </style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="wrap">
+
+  <header>
+    <h1>emma<span>finds</span>ajob 🌿</h1>
+    <p id="dateline">loading...</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat today">
+      <div class="num" id="today-count">0</div>
+      <div class="lbl">Today</div>
+    </div>
+    <div class="stat total">
+      <div class="num" id="total-count">0</div>
+      <div class="lbl">All Time</div>
+    </div>
+  </div>
+
+  <div class="btn-wrap">
+    <button id="apply-btn">✓ I Applied!</button>
+    <button id="undo-btn">↩ Undo Last</button>
+  </div>
+
+  <div class="log-label">Application Log</div>
+  <div id="log"></div>
+
+  <button id="reset-btn">reset all data</button>
+
+</div>
+
+<script>
+  const todayKey = () => new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const timeNow  = () => new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  const load = () => JSON.parse(localStorage.getItem('emmajobs') || '{}');
+  const save = d  => localStorage.setItem('emmajobs', JSON.stringify(d));
+
+  function render() {
+    const data = load(), today = todayKey();
+    document.getElementById('dateline').textContent = today;
+    const todayList = data[today] || [];
+    document.getElementById('today-count').textContent = todayList.length;
+    const total = Object.values(data).reduce((s,a) => s + a.length, 0);
+    document.getElementById('total-count').textContent = total;
+    const log = document.getElementById('log');
+    log.innerHTML = '';
+    const days = Object.keys(data).sort((a,b) => new Date(b)-new Date(a));
+    if (!days.length) {
+      log.innerHTML = '<p class="empty">No applications yet — you\'ve got this! 🌱</p>';
+      return;
+    }
+    days.forEach(day => {
+      const entries = data[day];
+      const block = document.createElement('div');
+      block.className = 'day-block';
+      block.innerHTML = `
+        <div class="day-head">
+          <span class="date">${day === today ? '📅 Today' : day}</span>
+          <span class="badge">${entries.length} app${entries.length !== 1 ? 's' : ''}</span>
+        </div>
+        <div class="day-entries">
+          ${entries.map(t => `<div class="entry">${t}</div>`).join('')}
+        </div>`;
+      log.appendChild(block);
+    });
+  }
+
+  document.getElementById('apply-btn').addEventListener('click', () => {
+    const data = load(), today = todayKey();
+    if (!data[today]) data[today] = [];
+    data[today].push(timeNow());
+    save(data); render(); confetti();
+  });
+
+  document.getElementById('undo-btn').addEventListener('click', () => {
+    const data = load(), today = todayKey();
+    if (data[today] && data[today].length > 0) {
+      data[today].pop();
+      if (data[today].length === 0) delete data[today];
+      save(data); render();
+    }
+  });
+
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    if (confirm('Reset everything?')) { localStorage.removeItem('emmajobs'); render(); }
+  });
+
+  function confetti() {
+    const cv = document.getElementById('confetti');
+    const ctx = cv.getContext('2d');
+    cv.width = innerWidth; cv.height = innerHeight;
+    const cols = ['#C4855A','#6B7C5A','#8B5A3A','#D4C4A0','#5C3D2E','#8A9E74','#E8DFC0'];
+    const pts = Array.from({length:110}, () => ({
+      x: Math.random()*cv.width, y: Math.random()*-cv.height*0.4,
+      w: Math.random()*10+4, h: Math.random()*5+3,
+      c: cols[Math.floor(Math.random()*cols.length)],
+      r: Math.random()*Math.PI*2, vx:(Math.random()-.5)*3.5,
+      vy: Math.random()*3.5+1.5, vr:(Math.random()-.5)*.15, op:1
+    }));
+    let f=0;
+    (function draw(){
+      ctx.clearRect(0,0,cv.width,cv.height);
+      let alive=false;
+      pts.forEach(p=>{
+        p.x+=p.vx; p.y+=p.vy; p.vy+=0.07; p.r+=p.vr;
+        if(f>55) p.op=Math.max(0,p.op-.013);
+        if(p.y<cv.height+20) alive=true;
+        ctx.save(); ctx.globalAlpha=p.op;
+        ctx.translate(p.x,p.y); ctx.rotate(p.r);
+        ctx.fillStyle=p.c;
+        ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+        ctx.restore();
+      });
+      f++;
+      if(alive) requestAnimationFrame(draw);
+      else ctx.clearRect(0,0,cv.width,cv.height);
+    })();
+  }
+
+  render();
+</script>
+</body>
+</html>

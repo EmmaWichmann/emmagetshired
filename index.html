@@ -113,11 +113,19 @@
       /* height is fixed so zoom works visually */
       height:380px;
       position:relative;
+      background:
+        repeating-linear-gradient(87deg,transparent 0,transparent 8px,rgba(60,100,30,.07) 8px,rgba(60,100,30,.07) 9px),
+        repeating-linear-gradient(93deg,transparent 0,transparent 12px,rgba(80,120,40,.05) 12px,rgba(80,120,40,.05) 13px),
+        linear-gradient(180deg,#8dc455 0%,#7ab648 15%,#6aa838 35%,#5a9230 55%,#4e8028 75%,#426e22 100%);
+      background-size:
+        100px 100px,
+        120px 120px,
+        100% 100%;
     }
  
     /* the actual field canvas — gets scaled by JS */
     .field-canvas{
-      width:100%;min-width:900px;
+      width:900px;
       height:500px;
       position:relative;
       transform-origin:top left;
@@ -125,6 +133,10 @@
         repeating-linear-gradient(87deg,transparent 0,transparent 8px,rgba(60,100,30,.07) 8px,rgba(60,100,30,.07) 9px),
         repeating-linear-gradient(93deg,transparent 0,transparent 12px,rgba(80,120,40,.05) 12px,rgba(80,120,40,.05) 13px),
         linear-gradient(180deg,#8dc455 0%,#7ab648 15%,#6aa838 35%,#5a9230 55%,#4e8028 75%,#426e22 100%);
+      background-size:
+        100px 100px,
+        120px 120px,
+        100% 100%;
       /* keep it as a block so transform works */
       display:block;
     }
@@ -438,15 +450,43 @@ const ZMIN=0.3,ZMAX=3,ZSTEP=0.2;
 function applyZoom(){
   const canvas=document.getElementById('field-canvas');
   const scroll=document.getElementById('field-scroll');
+
+  const baseW=900;
+  const baseH=500;
+
+  // When zooming out, make the unscaled canvas bigger first.
+  // After scaling, it still fills the visible garden instead of leaving a plain green rectangle.
+  const neededW=Math.max(baseW, scroll.clientWidth / zoom);
+  const neededH=Math.max(baseH, scroll.clientHeight / zoom);
+  canvas.style.width=neededW+'px';
+  canvas.style.height=neededH+'px';
+
   canvas.style.transform=`scale(${zoom})`;
-  // expand scroll area so scaled canvas is reachable
-  canvas.style.marginBottom=((500*zoom)-500)+'px';
-  canvas.style.marginRight=((900*zoom)-900)+'px';
+
+  // Keep the grass texture visually the same size while zooming.
+  canvas.style.backgroundSize=`
+    ${100/zoom}px ${100/zoom}px,
+    ${120/zoom}px ${120/zoom}px,
+    100% 100%
+  `;
+
+  // Match the backup grass behind the canvas too, so no hard edge appears.
+  scroll.style.backgroundSize=`
+    100px 100px,
+    120px 120px,
+    100% 100%
+  `;
+
+  // Only add scroll space when zooming in. No negative margins when zooming out.
+  canvas.style.marginBottom=Math.max(0,(neededH*zoom)-neededH)+'px';
+  canvas.style.marginRight=Math.max(0,(neededW*zoom)-neededW)+'px';
+
   document.getElementById('zoom-lbl').textContent=Math.round(zoom*100)+'%';
 }
 function zoomIn(){zoom=Math.min(ZMAX,+(zoom+ZSTEP).toFixed(1));applyZoom();}
 function zoomOut(){zoom=Math.max(ZMIN,+(zoom-ZSTEP).toFixed(1));applyZoom();}
 function zoomReset(){zoom=1;applyZoom();}
+window.addEventListener('resize',applyZoom);
  
 // mouse wheel zoom on field
 document.addEventListener('wheel',e=>{
@@ -706,6 +746,7 @@ function launchConfetti(){const cv=document.getElementById('confetti'),ctx=cv.ge
 function miniConfetti(){const cv=document.getElementById('confetti'),ctx=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;const cols=['#C9A84C','#E8C96A','#8A9E74','#6B7C5A'];const pts=Array.from({length:40},()=>({x:innerWidth/2+(Math.random()-.5)*200,y:innerHeight/2+(Math.random()-.5)*100,w:Math.random()*7+3,h:Math.random()*4+2,c:cols[Math.floor(Math.random()*cols.length)],r:Math.random()*Math.PI*2,vx:(Math.random()-.5)*4,vy:Math.random()*-4-2,vr:(Math.random()-.5)*.2,op:1}));let f=0;(function draw(){ctx.clearRect(0,0,cv.width,cv.height);let alive=false;pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.1;p.r+=p.vr;if(f>30)p.op=Math.max(0,p.op-.025);if(p.op>0)alive=true;ctx.save();ctx.globalAlpha=p.op;ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});f++;if(alive)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);})();}
  
 render();
+applyZoom();
 </script>
 </body>
 </html>

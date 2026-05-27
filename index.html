@@ -425,23 +425,58 @@ const todayKey=()=>new Date().toLocaleDateString('en-US',{weekday:'long',year:'n
 const timeNow=()=>new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
 const loadJobs=()=>JSON.parse(localStorage.getItem('emmajobs')||'{}');
 const saveJobs=d=>localStorage.setItem('emmajobs',JSON.stringify(d));
-const loadG=()=>JSON.parse(localStorage.getItem('emmagarden6')||'{"coins":0,"inventory":[],"plants":[],"animals":[]}');
+const loadG=()=>JSON.parse(localStorage.getItem('emmagarden6')||'{"inventory":[],"plants":[],"animals":[],"spentCoins":0}');
 const saveG=g=>localStorage.setItem('emmagarden6',JSON.stringify(g));
  
-// sync coins from job history
-(function(){
-  const g=loadG();
-  const data=JSON.parse(localStorage.getItem('emmajobs')||'{}');
-  const total=Object.values(data).reduce((s,a)=>s+a.length,0);
-  const M={4:3,8:5,12:5,16:8,20:10,24:10,28:12,32:15,36:15,40:20,44:20,48:25,52:30,56:30,60:35,64:35,68:40,72:40,76:45,80:50,84:50,88:55,92:55,96:60,100:75};
-  let expected=total;
-  for(let i=4;i<=total;i+=4) expected+=(M[i]||3);
-  if(g.coins<expected){g.coins=expected;saveG(g);}
-})();
- 
 const COIN_MILESTONES={4:3,8:5,12:5,16:8,20:10,24:10,28:12,32:15,36:15,40:20,44:20,48:25,52:30,56:30,60:35,64:35,68:40,72:40,76:45,80:50,84:50,88:55,92:55,96:60,100:75};
- 
-function updateMoneyUI(c){document.getElementById('money-count').textContent=c;document.getElementById('header-money').textContent=c;document.getElementById('shop-coins').textContent=c;}
+
+function totalApplications(){
+  const data=loadJobs();
+  return Object.values(data).reduce((s,a)=>s+a.length,0);
+}
+
+function totalEarnedCoins(){
+  const total=totalApplications();
+  let earned=total; // 1 coin per application
+  for(let i=4;i<=total;i+=4){
+    earned += COIN_MILESTONES[i] || 3;
+  }
+  return earned;
+}
+
+function seedCost(id){
+  const seed=SEEDS.find(s=>s.id===id);
+  return seed ? seed.cost : 0;
+}
+
+function repairGardenState(){
+  const g=loadG();
+  g.inventory=g.inventory||[];
+  g.plants=g.plants||[];
+  g.animals=g.animals||[];
+
+  // Old versions stored remaining coins in g.coins. New version stores spentCoins
+  // so the display always follows the job application math.
+  if(typeof g.spentCoins!=='number'){
+    g.spentCoins=[...g.inventory,...g.plants].reduce((sum,item)=>sum+seedCost(item.id),0);
+  }
+
+  // Stop old g.coins from overriding the real math.
+  delete g.coins;
+  saveG(g);
+  return g;
+}
+
+function availableCoins(){
+  const g=repairGardenState();
+  return Math.max(0,totalEarnedCoins()-(g.spentCoins||0));
+}
+
+function updateMoneyUI(c){
+  document.getElementById('money-count').textContent=c;
+  document.getElementById('header-money').textContent=c;
+  document.getElementById('shop-coins').textContent=c;
+}
  
 // ── ZOOM ──────────────────────────────────────────────────
 let zoom=1;
@@ -450,12 +485,13 @@ const ZMIN=0.3,ZMAX=3,ZSTEP=0.2;
 function applyZoom(){
   const canvas=document.getElementById('field-canvas');
   const scroll=document.getElementById('field-scroll');
+  if(!canvas||!scroll) return;
 
   const baseW=900;
   const baseH=500;
 
-  // When zooming out, make the unscaled canvas bigger first.
-  // After scaling, it still fills the visible garden instead of leaving a plain green rectangle.
+  // When zoomed out, make the actual canvas bigger before scaling so the
+  // grass fills the whole visible garden instead of showing a plain green block.
   const neededW=Math.max(baseW, scroll.clientWidth / zoom);
   const neededH=Math.max(baseH, scroll.clientHeight / zoom);
   canvas.style.width=neededW+'px';
@@ -463,21 +499,21 @@ function applyZoom(){
 
   canvas.style.transform=`scale(${zoom})`;
 
-  // Keep the grass texture visually the same size while zooming.
+  // Keeps grass texture visually consistent during zoom.
   canvas.style.backgroundSize=`
     ${100/zoom}px ${100/zoom}px,
     ${120/zoom}px ${120/zoom}px,
     100% 100%
   `;
 
-  // Match the backup grass behind the canvas too, so no hard edge appears.
+  // Gives the scroll area the same grass texture as backup, so there is no seam.
   scroll.style.backgroundSize=`
     100px 100px,
     120px 120px,
     100% 100%
   `;
 
-  // Only add scroll space when zooming in. No negative margins when zooming out.
+  // Add scroll space only when the scaled visual canvas is larger than the layout box.
   canvas.style.marginBottom=Math.max(0,(neededH*zoom)-neededH)+'px';
   canvas.style.marginRight=Math.max(0,(neededW*zoom)-neededW)+'px';
 
@@ -513,11 +549,11 @@ document.addEventListener('touchend',()=>{lastPinch=null;});
  
 // ── TRACKER ───────────────────────────────────────────────
 function render(){
-  const data=loadJobs(),today=todayKey(),g=loadG();
+  const data=loadJobs(),today=todayKey();
   document.getElementById('today-count').textContent=(data[today]||[]).length;
   const total=Object.values(data).reduce((s,a)=>s+a.length,0);
   document.getElementById('total-count').textContent=total;
-  updateMoneyUI(g.coins);
+  updateMoneyUI(availableCoins());
   const log=document.getElementById('log');log.innerHTML='';
   const days=Object.keys(data).sort((a,b)=>new Date(b)-new Date(a));
   if(!days.length){log.innerHTML='<p class="empty">No applications yet — you\'ve got this! 🌱</p>';return;}
@@ -540,26 +576,32 @@ function showTab(name,el){
 let curCat='all';
 function setCat(cat,el){curCat=cat;document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderShop();}
 function renderShop(){
-  const g=loadG();document.getElementById('shop-coins').textContent=g.coins;
+  const g=repairGardenState();
+  const coins=availableCoins();
+  document.getElementById('shop-coins').textContent=coins;
   const grid=document.getElementById('seed-grid');grid.innerHTML='';
   const list=curCat==='all'?SEEDS:SEEDS.filter(s=>s.cat===curCat);
   list.forEach(s=>{
     const owned=g.inventory.filter(i=>i.id===s.id).length;
+    const canBuy=coins>=s.cost;
     const c=document.createElement('div');c.className='seed-card';
-    c.innerHTML=`<span class="emoji">${s.emoji}</span><div class="sname">${s.name}</div><div class="sdesc">${s.desc}</div><div class="sprice">💰 ${s.cost}${owned?`<span class="owned-badge">×${owned} in bag</span>`:''}</div><button class="buy-btn" ${g.coins<s.cost?'disabled':''} onclick="buySeed('${s.id}')">${g.coins>=s.cost?'Buy':'Need coins'}</button>`;
+    c.innerHTML=`<span class="emoji">${s.emoji}</span><div class="sname">${s.name}</div><div class="sdesc">${s.desc}</div><div class="sprice">💰 ${s.cost}${owned?`<span class="owned-badge">×${owned} in bag</span>`:''}</div><button class="buy-btn" ${canBuy?'':'disabled'} onclick="buySeed('${s.id}')">${canBuy?'Buy':'Need coins'}</button>`;
     grid.appendChild(c);
   });
 }
 function buySeed(id){
-  const g=loadG(),s=SEEDS.find(x=>x.id===id);
-  if(!s||g.coins<s.cost) return;
-  g.coins-=s.cost;g.inventory.push({id:s.id,emoji:s.emoji,name:s.name});saveG(g);
-  updateMoneyUI(g.coins);renderShop();playSparkle();miniConfetti();showToast(s.name+' added to bag! 🌱');
+  const g=repairGardenState(),s=SEEDS.find(x=>x.id===id);
+  if(!s||availableCoins()<s.cost) return;
+  g.spentCoins=(g.spentCoins||0)+s.cost;
+  g.inventory.push({id:s.id,emoji:s.emoji,name:s.name});
+  saveG(g);
+  updateMoneyUI(availableCoins());renderShop();playSparkle();miniConfetti();showToast(s.name+' added to bag! 🌱');
 }
  
 // ── GARDEN ────────────────────────────────────────────────
 function renderGarden(){
-  const g=loadG();
+  applyZoom();
+  const g=repairGardenState();
   renderField(g);renderAnimalsLog(g);renderInventory(g);
 }
  
@@ -577,9 +619,14 @@ function makeFieldDraggable(el,idx,isAnimal){
   }
   function move(cx,cy){
     if(!active) return;
+    const canvas=document.getElementById('field-canvas');
+    const itemW=el.offsetWidth||40;
+    const itemH=el.offsetHeight||40;
+    const maxX=Math.max(0,canvas.offsetWidth-itemW);
+    const maxY=Math.max(0,canvas.offsetHeight-itemH);
     const dx=(cx-sx)/zoom, dy=(cy-sy)/zoom;
-    el.style.left=Math.max(0,Math.min(860,sl+dx))+'px';
-    el.style.top=Math.max(0,Math.min(460,st+dy))+'px';
+    el.style.left=Math.max(0,Math.min(maxX,sl+dx))+'px';
+    el.style.top=Math.max(0,Math.min(maxY,st+dy))+'px';
   }
   function end(){
     if(!active) return; active=false;
@@ -649,9 +696,10 @@ document.getElementById('field-scroll').addEventListener('drop',e=>{
   const idx=g.inventory.findIndex(i=>i.id===seedId);
   if(idx===-1) return;
   const seed=g.inventory[idx];
-  const rect=fieldCanvas().getBoundingClientRect();
-  const x=Math.max(4,Math.min(860,(e.clientX-rect.left)/zoom));
-  const y=Math.max(4,Math.min(460,(e.clientY-rect.top)/zoom));
+  const canvas=fieldCanvas();
+  const rect=canvas.getBoundingClientRect();
+  const x=Math.max(4,Math.min(canvas.offsetWidth-40,(e.clientX-rect.left)/zoom));
+  const y=Math.max(4,Math.min(canvas.offsetHeight-40,(e.clientY-rect.top)/zoom));
   g.plants.push({id:seed.id,emoji:seed.emoji,name:seed.name,plantedAt:Date.now(),x,y});
   g.inventory.splice(idx,1);saveG(g);
   playSparkle();renderGarden();showToast(seed.name+' planted! 🌱');
@@ -706,15 +754,14 @@ document.getElementById('apply-btn').addEventListener('click',()=>{
   const data=loadJobs(),today=todayKey();
   if(!data[today]) data[today]=[];
   data[today].push(timeNow());saveJobs(data);redoStack=[];
-  const g=loadG();g.coins+=1;
   const total=Object.values(data).reduce((s,a)=>s+a.length,0);
   if(total%4===0){
-    const bonus=COIN_MILESTONES[total]||3;g.coins+=bonus;saveG(g);
+    const bonus=COIN_MILESTONES[total]||3;
     const b=document.getElementById('milestone-banner');b.style.display='block';
     b.textContent='🎉 '+total+' applications!! Bonus +'+bonus+' coins! 💰';
     setTimeout(()=>{b.style.display='none';},3500);
     triggerAnimalVisit(total);
-  } else {saveG(g);}
+  }
   render();launchConfetti();playSparkle();
 });
 document.getElementById('undo-btn').addEventListener('click',()=>{
@@ -722,7 +769,7 @@ document.getElementById('undo-btn').addEventListener('click',()=>{
   if(data[today]?.length>0){
     redoStack.push({day:today,time:data[today].pop()});
     if(!data[today].length) delete data[today];
-    saveJobs(data);const g=loadG();if(g.coins>0) g.coins--;saveG(g);render();
+    saveJobs(data);render();
   }
 });
 document.getElementById('redo-btn').addEventListener('click',()=>{
@@ -730,10 +777,9 @@ document.getElementById('redo-btn').addEventListener('click',()=>{
   const {day,time}=redoStack.pop();
   const data=loadJobs();if(!data[day]) data[day]=[];
   data[day].push(time);saveJobs(data);
-  const g=loadG();g.coins+=1;
   const total=Object.values(data).reduce((s,a)=>s+a.length,0);
-  if(total%4===0){const bonus=COIN_MILESTONES[total]||3;g.coins+=bonus;}
-  saveG(g);render();
+  if(total%4===0){triggerAnimalVisit(total);}
+  render();
 });
 document.getElementById('reset-btn').addEventListener('click',()=>{
   if(confirm('Reset ALL data?')){localStorage.removeItem('emmajobs');localStorage.removeItem('emmagarden6');redoStack=[];render();}

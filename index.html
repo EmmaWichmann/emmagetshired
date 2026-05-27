@@ -1,215 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Emma Finds A Job 🌿</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Serif+4:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
-    :root{--parchment:#F5EED8;--parchment-d:#E8DFC0;--bark:#5C3D2E;--clay:#8B5A3A;--clay-l:#C4855A;--moss:#6B7C5A;--moss-l:#8A9E74;--sand:#D4C4A0;--ink:#2C1F14;--cream:#FAF6EC;--gold:#C9A84C;--gold-l:#E8C96A;--rose:#C4847A;--rose-l:#DBA99E;--blush:#F5DDD8;}
+    :root{
+      --parchment:#F5EED8;--parchment-d:#E8DFC0;--bark:#5C3D2E;--clay:#8B5A3A;--clay-l:#C4855A;--moss:#6B7C5A;--moss-l:#8A9E74;--sand:#D4C4A0;--ink:#2C1F14;--cream:#FAF6EC;--gold:#C9A84C;--gold-l:#E8C96A;--rose:#C4847A;--blush:#F5DDD8;
+    }
     *{margin:0;padding:0;box-sizing:border-box;}
-    body{background:var(--parchment);background-image:radial-gradient(ellipse at 10% 0%,rgba(107,124,90,.12) 0%,transparent 50%),radial-gradient(ellipse at 90% 100%,rgba(196,132,122,.1) 0%,transparent 50%);font-family:'Source Serif 4',Georgia,serif;color:var(--ink);min-height:100vh;padding:0 0 80px;overflow-x:hidden;}
-    canvas#confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;}
- 
-    .header{background:linear-gradient(135deg,#C4847A 0%,#8B5A3A 45%,#6B7C5A 100%);padding:16px 20px 12px;text-align:center;box-shadow:0 3px 16px rgba(92,61,46,.3);}
+    body{background:var(--parchment);background-image:radial-gradient(ellipse at 10% 0%,rgba(107,124,90,.12),transparent 50%),radial-gradient(ellipse at 90% 100%,rgba(196,132,122,.1),transparent 50%);font-family:'Source Serif 4',Georgia,serif;color:var(--ink);min-height:100vh;padding-bottom:70px;overflow-x:hidden;}
+    canvas#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9999;}
+    .header{background:linear-gradient(135deg,#C4847A,#8B5A3A 45%,#6B7C5A);padding:16px 20px 12px;text-align:center;box-shadow:0 3px 16px rgba(92,61,46,.3);}
     .header h1{font-family:'Playfair Display',serif;font-size:1.9rem;color:var(--parchment);}
     .header h1 span{color:var(--gold-l);font-style:italic;}
-    .money-bar{display:inline-flex;align-items:center;gap:6px;background:rgba(250,246,236,.88);border-radius:999px;padding:4px 16px;margin-top:7px;font-weight:700;font-size:.92rem;color:var(--ink);}
+    .money-bar{display:inline-flex;gap:6px;align-items:center;background:rgba(250,246,236,.9);border-radius:999px;padding:4px 16px;margin-top:7px;font-weight:700;font-size:.92rem;}
     .money-bar .amt{color:var(--moss);}
- 
     .tabs{display:flex;background:var(--cream);border-bottom:2px solid var(--sand);overflow-x:auto;}
-    .tab{flex:1;min-width:70px;padding:10px 5px;border:none;background:transparent;font-family:'Source Serif 4',serif;font-size:.73rem;font-weight:600;color:var(--clay-l);cursor:pointer;transition:all .2s;white-space:nowrap;}
+    .tab{flex:1;min-width:80px;padding:10px 5px;border:0;background:transparent;font-family:'Source Serif 4',serif;font-size:.75rem;font-weight:700;color:var(--clay-l);cursor:pointer;white-space:nowrap;}
     .tab.active{color:var(--bark);border-bottom:3px solid var(--bark);background:var(--blush);}
     .page{display:none;padding:14px;}
     .page.active{display:block;}
- 
     .stats{display:flex;gap:8px;margin-bottom:14px;}
     .stat{flex:1;border-radius:13px;padding:12px 8px;text-align:center;box-shadow:0 2px 8px rgba(92,61,46,.1);}
     .stat.today{background:linear-gradient(135deg,var(--rose),var(--bark));}
     .stat.total{background:linear-gradient(135deg,var(--moss-l),var(--moss));}
     .stat.money{background:linear-gradient(135deg,var(--gold-l),var(--gold));}
-    .stat .num{font-family:'Playfair Display',serif;font-size:2.1rem;font-weight:700;color:#fff;line-height:1;}
+    .num{font-family:'Playfair Display',serif;font-size:2.1rem;font-weight:700;color:#fff;line-height:1;}
     .stat.money .num{color:var(--ink);}
-    .stat .lbl{font-size:.6rem;color:rgba(255,255,255,.9);margin-top:3px;text-transform:uppercase;letter-spacing:.1em;font-weight:600;}
+    .lbl{font-size:.6rem;color:rgba(255,255,255,.9);margin-top:3px;text-transform:uppercase;letter-spacing:.1em;font-weight:700;}
     .stat.money .lbl{color:rgba(44,31,20,.65);}
- 
     .apply-wrap{text-align:center;margin-bottom:16px;display:flex;flex-direction:column;align-items:center;gap:8px;}
-    #apply-btn{background:linear-gradient(135deg,var(--bark),var(--clay));color:var(--parchment);border:none;border-radius:999px;padding:14px 42px;font-family:'Playfair Display',serif;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 18px rgba(92,61,46,.3);transition:transform .15s;}
-    #apply-btn:hover{transform:translateY(-2px);}
+    #apply-btn{background:linear-gradient(135deg,var(--bark),var(--clay));color:var(--parchment);border:0;border-radius:999px;padding:14px 42px;font-family:'Playfair Display',serif;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 18px rgba(92,61,46,.3);}
     #apply-btn:active{transform:scale(.97);}
     .undo-redo{display:flex;gap:8px;}
-    #undo-btn,#redo-btn{background:transparent;border:2px solid var(--sand);color:var(--clay);border-radius:999px;padding:7px 22px;font-family:'Source Serif 4',serif;font-weight:600;font-size:.8rem;cursor:pointer;transition:border-color .2s;}
-    #undo-btn:hover,#redo-btn:hover{border-color:var(--clay);}
- 
-    #milestone-banner{display:none;border-radius:13px;padding:14px;text-align:center;margin-bottom:12px;font-family:'Playfair Display',serif;font-size:1rem;color:var(--ink);animation:bounceIn .5s cubic-bezier(.34,1.56,.64,1);background:linear-gradient(135deg,var(--gold-l),var(--gold));box-shadow:0 4px 16px rgba(201,168,76,.4);}
-    @keyframes bounceIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
- 
-    .log-lbl{font-size:.66rem;text-transform:uppercase;letter-spacing:.14em;color:var(--clay-l);margin-bottom:8px;font-weight:600;}
+    #undo-btn,#redo-btn,#reset-btn{background:transparent;border:2px solid var(--sand);color:var(--clay);border-radius:999px;padding:7px 22px;font-family:'Source Serif 4',serif;font-weight:700;font-size:.8rem;cursor:pointer;}
+    #reset-btn{display:block;margin:16px auto 0;border-radius:8px;padding:5px 14px;font-size:.68rem;color:var(--clay-l);}
+    #milestone-banner{display:none;border-radius:13px;padding:14px;text-align:center;margin-bottom:12px;font-family:'Playfair Display',serif;background:linear-gradient(135deg,var(--gold-l),var(--gold));box-shadow:0 4px 16px rgba(201,168,76,.4);}
+    .section-label{font-size:.66rem;text-transform:uppercase;letter-spacing:.14em;color:var(--clay-l);margin:14px 0 8px;font-weight:700;}
     .day-block{background:var(--cream);border:1.5px solid var(--sand);border-radius:11px;margin-bottom:7px;overflow:hidden;}
     .day-head{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;}
     .day-head .date{font-family:'Playfair Display',serif;font-weight:700;font-size:.86rem;color:var(--bark);}
-    .day-head .badge{background:var(--bark);color:var(--parchment);font-size:.66rem;padding:3px 10px;border-radius:999px;font-weight:700;}
+    .badge{background:var(--bark);color:var(--parchment);font-size:.66rem;padding:3px 10px;border-radius:999px;font-weight:700;}
     .day-entries{border-top:1.5px solid var(--parchment-d);padding:7px 13px 10px;display:flex;flex-direction:column;gap:4px;}
     .entry{font-size:.73rem;color:var(--clay);display:flex;align-items:center;gap:6px;}
-    .entry::before{content:'✦';color:var(--rose);font-size:.53rem;}
-    #reset-btn{display:block;margin:16px auto 0;background:transparent;border:1.5px solid var(--sand);color:var(--clay-l);border-radius:8px;padding:5px 14px;font-family:'Source Serif 4',serif;font-size:.68rem;cursor:pointer;}
-    #reset-btn:hover{border-color:var(--rose);color:var(--rose);}
+    .entry:before{content:'✦';color:var(--rose);font-size:.53rem;}
     .empty{text-align:center;color:var(--clay-l);font-size:.81rem;padding:20px 0;font-style:italic;}
- 
-    /* SHOP */
-    .shop-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
-    .shop-top h2{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--bark);}
-    .coin-pill{display:inline-flex;align-items:center;gap:5px;background:var(--cream);border:1px solid var(--sand);border-radius:999px;padding:4px 14px;font-family:'Playfair Display',serif;font-size:.9rem;color:var(--gold);}
+    .top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+    .top-row h2{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--bark);}
+    .coin-pill{display:inline-flex;gap:5px;align-items:center;background:var(--cream);border:1px solid var(--sand);border-radius:999px;padding:4px 14px;font-family:'Playfair Display',serif;font-size:.9rem;color:var(--gold);}
     .cat-tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
-    .cat-tab{background:var(--cream);border:1.5px solid var(--sand);border-radius:999px;padding:4px 12px;font-size:.68rem;font-weight:600;cursor:pointer;color:var(--clay-l);transition:all .2s;font-family:'Source Serif 4',serif;}
+    .cat-tab{background:var(--cream);border:1.5px solid var(--sand);border-radius:999px;padding:4px 12px;font-size:.68rem;font-weight:700;cursor:pointer;color:var(--clay-l);font-family:'Source Serif 4',serif;}
     .cat-tab.active{background:var(--bark);border-color:var(--bark);color:var(--parchment);}
     .seed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px;}
-    .seed-card{background:var(--cream);border:1.5px solid var(--sand);border-radius:13px;padding:12px 8px;text-align:center;transition:transform .15s;}
-    .seed-card:hover{transform:translateY(-2px);}
+    .seed-card{background:var(--cream);border:1.5px solid var(--sand);border-radius:13px;padding:12px 8px;text-align:center;}
     .seed-card .emoji{font-size:1.9rem;display:block;margin-bottom:4px;}
-    .seed-card .sname{font-family:'Playfair Display',serif;font-size:.75rem;color:var(--bark);font-weight:700;margin-bottom:2px;}
-    .seed-card .sdesc{font-size:.62rem;color:var(--clay-l);margin-bottom:7px;line-height:1.3;min-height:26px;}
-    .seed-card .sprice{font-size:.7rem;color:var(--gold);font-weight:700;margin-bottom:6px;}
-    .buy-btn{background:var(--moss);color:var(--cream);border:none;border-radius:999px;padding:5px 12px;font-family:'Source Serif 4',serif;font-size:.66rem;cursor:pointer;width:100%;}
-    .buy-btn:hover{background:var(--bark);}
+    .sname{font-family:'Playfair Display',serif;font-size:.75rem;color:var(--bark);font-weight:700;margin-bottom:2px;}
+    .sdesc{font-size:.62rem;color:var(--clay-l);margin-bottom:7px;line-height:1.3;min-height:26px;}
+    .sprice{font-size:.7rem;color:var(--gold);font-weight:700;margin-bottom:6px;}
+    .buy-btn{background:var(--moss);color:var(--cream);border:0;border-radius:999px;padding:5px 12px;font-family:'Source Serif 4',serif;font-size:.66rem;cursor:pointer;width:100%;font-weight:700;}
     .buy-btn:disabled{background:var(--sand);color:var(--clay-l);cursor:not-allowed;}
     .owned-badge{font-size:.58rem;color:var(--moss);display:block;margin-top:2px;}
- 
-    /* GARDEN */
-    .garden-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
-    .garden-top h2{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--bark);}
-    .garden-hint{font-size:.65rem;color:var(--clay-l);font-style:italic;}
- 
-    /* ZOOM BAR */
+    .hint{font-size:.65rem;color:var(--clay-l);font-style:italic;}
     .zoom-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px;justify-content:flex-end;}
-    .zoom-btn{background:var(--cream);border:1.5px solid var(--sand);border-radius:8px;width:32px;height:32px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--bark);font-weight:700;transition:background .15s;flex-shrink:0;}
-    .zoom-btn:hover{background:var(--parchment-d);}
-    .zoom-lbl{font-size:.72rem;color:var(--clay-l);min-width:38px;text-align:center;font-family:'Source Serif 4',serif;}
-    .zoom-reset{font-size:.65rem;padding:0 10px;width:auto;}
- 
-    /* FIELD WRAPPER — clips to viewport, scrollable */
-    .field-outer{
-      border-radius:18px;
-      border:2.5px solid #5a8f2e;
-      overflow:hidden;
-      box-shadow:0 6px 28px rgba(92,61,46,.22);
-      margin-bottom:14px;
-      background:linear-gradient(180deg,#8dc455 0%,#7ab648 15%,#6aa838 35%,#5a9230 55%,#4e8028 75%,#426e22 100%);
-      position:relative;
-    }
-    /* sky always full width, doesn't zoom */
-    .field-sky{height:60px;background:linear-gradient(180deg,#87CEEB 0%,#c8e6f5 60%,#d8ecc8 100%);position:relative;overflow:hidden;flex-shrink:0;}
-    .sky-sun{position:absolute;top:10px;right:22px;font-size:1.9rem;animation:sunPulse 4s ease-in-out infinite;}
-    @keyframes sunPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
-    .sky-cloud{position:absolute;animation:cloudrift linear infinite;opacity:.88;}
-    @keyframes cloudrift{from{left:-120px}to{left:110%}}
-    .sky-bird{position:absolute;font-size:.7rem;animation:birdfly 18s linear infinite;opacity:.7;}
-    @keyframes birdfly{from{left:-60px;top:14px}to{left:110%;top:4px}}
- 
-    /* scrollable viewport for the zoomable field */
-    .field-scroll{
-      overflow:auto;
-      width:100%;
-      /* height is fixed so zoom works visually */
-      height:380px;
-      position:relative;
-      background:#6aa838;
-    }
- 
-    /* the actual field canvas — gets scaled by JS */
-    .field-canvas{
-      width:100%;
-      min-width:900px;
-      height:500px;
-      position:relative;
-      transform-origin:top left;
-      background:
-        repeating-linear-gradient(87deg,transparent 0,transparent 8px,rgba(60,100,30,.07) 8px,rgba(60,100,30,.07) 9px),
-        repeating-linear-gradient(93deg,transparent 0,transparent 12px,rgba(80,120,40,.05) 12px,rgba(80,120,40,.05) 13px),
-        linear-gradient(180deg,#8dc455 0%,#7ab648 15%,#6aa838 35%,#5a9230 55%,#4e8028 75%,#426e22 100%);
-      background-size:
-        100px 100px,
-        120px 120px,
-        100% 100%;
-      /* keep it as a block so transform works */
-      display:block;
-    }
-    .field-canvas::before{
-      content:'';position:absolute;inset:0;pointer-events:none;z-index:1;
-      background:
-        radial-gradient(ellipse 120px 18px at 50% 80%,rgba(180,160,120,.35) 0%,transparent 100%),
-        radial-gradient(ellipse 100px 14px at 28% 88%,rgba(180,160,120,.28) 0%,transparent 100%),
-        radial-gradient(ellipse 90px 14px at 72% 84%,rgba(180,160,120,.25) 0%,transparent 100%),
-        radial-gradient(ellipse 100px 44px at 22% 58%,rgba(101,67,33,.25) 0%,transparent 100%),
-        radial-gradient(ellipse 120px 50px at 70% 62%,rgba(101,67,33,.2) 0%,transparent 100%),
-        radial-gradient(ellipse 80px 36px at 48% 75%,rgba(101,67,33,.18) 0%,transparent 100%),
-        radial-gradient(ellipse 55px 90px at 3% 50%,rgba(40,80,20,.28) 0%,transparent 100%),
-        radial-gradient(ellipse 55px 90px at 97% 50%,rgba(40,80,20,.28) 0%,transparent 100%);
-    }
-    /* fence */
-    .field-fence{position:absolute;bottom:0;left:0;right:0;height:26px;z-index:5;
-      background:repeating-linear-gradient(90deg,#8B5A3A 0,#8B5A3A 10px,#7A4A2A 10px,#7A4A2A 12px,transparent 12px,transparent 16px);
-      opacity:.55;}
-    .field-fence::before{content:'';position:absolute;top:7px;left:0;right:0;height:5px;background:linear-gradient(90deg,#8B5A3A,#A06A3A,#8B5A3A);opacity:.8;}
-    /* static stones */
+    .zoom-btn{background:var(--cream);border:1.5px solid var(--sand);border-radius:8px;min-width:32px;height:32px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--bark);font-weight:700;padding:0 10px;}
+    .zoom-lbl{font-size:.72rem;color:var(--clay-l);min-width:38px;text-align:center;}
+    .field-outer{border-radius:18px;border:2.5px solid #5a8f2e;overflow:hidden;box-shadow:0 6px 28px rgba(92,61,46,.22);margin-bottom:14px;background:#6aa838;}
+    .field-sky{height:60px;background:linear-gradient(180deg,#87CEEB,#c8e6f5 60%,#d8ecc8);position:relative;overflow:hidden;}
+    .sky-sun{position:absolute;top:10px;right:22px;font-size:1.9rem;}
+    .field-scroll{overflow:auto;width:100%;height:380px;position:relative;background:#6aa838;}
+    .field-spacer{position:relative;width:900px;height:500px;}
+    .field-canvas{width:900px;height:500px;position:absolute;left:0;top:0;transform-origin:top left;background:repeating-linear-gradient(87deg,transparent 0,transparent 8px,rgba(60,100,30,.07) 8px,rgba(60,100,30,.07) 9px),repeating-linear-gradient(93deg,transparent 0,transparent 12px,rgba(80,120,40,.05) 12px,rgba(80,120,40,.05) 13px),linear-gradient(180deg,#8dc455,#7ab648 15%,#6aa838 35%,#5a9230 55%,#4e8028 75%,#426e22);background-size:100px 100px,120px 120px,100% 100%;}
+    .field-canvas:before{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse 120px 18px at 50% 80%,rgba(180,160,120,.35),transparent),radial-gradient(ellipse 100px 14px at 28% 88%,rgba(180,160,120,.28),transparent),radial-gradient(ellipse 90px 14px at 72% 84%,rgba(180,160,120,.25),transparent),radial-gradient(ellipse 100px 44px at 22% 58%,rgba(101,67,33,.25),transparent),radial-gradient(ellipse 120px 50px at 70% 62%,rgba(101,67,33,.2),transparent);}
+    .field-fence{position:absolute;bottom:0;left:0;right:0;height:26px;z-index:5;background:repeating-linear-gradient(90deg,#8B5A3A 0,#8B5A3A 10px,#7A4A2A 10px,#7A4A2A 12px,transparent 12px,transparent 16px);opacity:.55;}
     .pstone{position:absolute;border-radius:50%;background:rgba(180,165,130,.5);z-index:2;}
-    /* static decor */
     .gdecor{position:absolute;pointer-events:none;z-index:2;filter:drop-shadow(0 2px 3px rgba(0,0,0,.18));}
- 
-    /* GARDEN ITEMS — plants & animals both draggable */
-    .gitem{
-      position:absolute;
-      display:flex;flex-direction:column;align-items:center;
-      cursor:grab;z-index:10;user-select:none;touch-action:none;
-      transition:filter .1s;
-    }
-    .gitem:hover{filter:brightness(1.15);}
-    .gitem.dragging{cursor:grabbing;z-index:200;opacity:.88;}
+    .gitem{position:absolute;display:flex;flex-direction:column;align-items:center;cursor:grab;z-index:10;user-select:none;touch-action:none;}
+    .gitem.dragging{cursor:grabbing;z-index:200;opacity:.9;}
     .gitem .gi-e{font-size:1.8rem;line-height:1;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25));}
     .gitem.seed-s .gi-e{font-size:.9rem;filter:grayscale(.3);}
     .gitem.sprout-s .gi-e{font-size:1.2rem;}
-    .gitem .gi-lbl{font-size:.36rem;color:rgba(255,255,255,.95);font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.6);margin-top:1px;white-space:nowrap;font-family:'Source Serif 4',serif;}
-    .gitem .gi-bar{width:24px;height:3px;background:rgba(255,255,255,.25);border-radius:2px;margin-top:1px;}
-    .gitem .gi-fill{height:100%;background:var(--gold-l);border-radius:2px;}
-    /* animal items bob */
-    .gitem.animal-item{animation:anBob 2.8s ease-in-out infinite;}
-    .gitem.animal-item:hover{animation:none;}
-    @keyframes anBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
- 
-    /* ANIMALS LOG */
-    .animals-section{margin-top:12px;}
-    .animals-label{font-size:.66rem;text-transform:uppercase;letter-spacing:.14em;color:var(--clay-l);margin-bottom:8px;font-weight:600;}
+    .gi-lbl{font-size:.36rem;color:#fff;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.6);margin-top:1px;white-space:nowrap;}
+    .gi-bar{width:24px;height:3px;background:rgba(255,255,255,.25);border-radius:2px;margin-top:1px;}
+    .gi-fill{height:100%;background:var(--gold-l);border-radius:2px;}
     .animals-grid{display:flex;flex-wrap:wrap;gap:7px;}
     .animal-tag{background:var(--cream);border:1.5px solid var(--sand);border-radius:12px;padding:7px 11px;display:flex;align-items:center;gap:7px;}
     .at-e{font-size:1.3rem;}.at-n{font-size:.7rem;font-weight:700;color:var(--bark);}.at-r{font-size:.57rem;color:var(--clay-l);}
- 
-    /* INVENTORY */
-    .inv-label{font-size:.66rem;text-transform:uppercase;letter-spacing:.14em;color:var(--clay-l);margin-bottom:8px;font-weight:600;}
     .inventory{display:flex;flex-wrap:wrap;gap:7px;padding:11px;background:var(--cream);border:1.5px solid var(--sand);border-radius:12px;min-height:44px;}
-    .inv-seed{display:flex;flex-direction:column;align-items:center;background:var(--parchment);border:1.5px solid var(--sand);border-radius:10px;padding:7px 9px;cursor:grab;transition:transform .15s;user-select:none;}
-    .inv-seed:hover{transform:scale(1.1);}
-    .inv-seed .is-e{font-size:1.4rem;}
-    .inv-seed .is-n{font-size:.52rem;color:var(--bark);font-weight:700;margin-top:2px;}
-    .inv-empty{font-size:.74rem;color:var(--clay-l);font-style:italic;align-self:center;}
- 
-    /* ANIMAL ARRIVAL */
+    .inv-seed{display:flex;flex-direction:column;align-items:center;background:var(--parchment);border:1.5px solid var(--sand);border-radius:10px;padding:7px 9px;cursor:grab;user-select:none;}
+    .is-e{font-size:1.4rem;}.is-n{font-size:.52rem;color:var(--bark);font-weight:700;margin-top:2px;}.inv-empty{font-size:.74rem;color:var(--clay-l);font-style:italic;align-self:center;}
     .animal-arrival{display:none;position:fixed;inset:0;z-index:2000;align-items:center;justify-content:center;background:rgba(44,31,20,.45);}
     .animal-arrival.show{display:flex;}
-    .arrival-card{background:var(--cream);border:2px solid var(--rose-l);border-radius:24px;padding:28px 24px;text-align:center;max-width:280px;box-shadow:0 8px 40px rgba(92,61,46,.25);animation:slideUp .4s cubic-bezier(.34,1.56,.64,1);}
-    @keyframes slideUp{from{transform:translateY(50px);opacity:0}to{transform:translateY(0);opacity:1}}
-    .arrival-emoji{font-size:4rem;display:block;margin-bottom:8px;animation:wiggle .6s ease-in-out infinite alternate;}
-    @keyframes wiggle{from{transform:rotate(-8deg) scale(1)}to{transform:rotate(8deg) scale(1.1)}}
-    .arrival-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--bark);margin-bottom:5px;}
-    .arrival-sub{font-size:.76rem;color:var(--clay-l);margin-bottom:14px;line-height:1.5;}
-    .arrival-btn{background:var(--bark);color:var(--parchment);border:none;border-radius:999px;padding:9px 24px;font-family:'Playfair Display',serif;font-size:.9rem;cursor:pointer;}
- 
-    #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bark);color:var(--parchment);font-size:.78rem;font-weight:700;padding:9px 20px;border-radius:999px;opacity:0;transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .3s;z-index:5000;white-space:nowrap;}
+    .arrival-card{background:var(--cream);border:2px solid var(--rose);border-radius:24px;padding:28px 24px;text-align:center;max-width:280px;box-shadow:0 8px 40px rgba(92,61,46,.25);}
+    .arrival-emoji{font-size:4rem;display:block;margin-bottom:8px;}.arrival-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--bark);margin-bottom:5px;}.arrival-sub{font-size:.76rem;color:var(--clay-l);margin-bottom:14px;line-height:1.5;}
+    .arrival-btn{background:var(--bark);color:var(--parchment);border:0;border-radius:999px;padding:9px 24px;font-family:'Playfair Display',serif;font-size:.9rem;cursor:pointer;}
+    #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bark);color:var(--parchment);font-size:.78rem;font-weight:700;padding:9px 20px;border-radius:999px;opacity:0;transition:transform .4s,opacity .3s;z-index:5000;white-space:nowrap;}
     #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   </style>
 </head>
 <body>
 <canvas id="confetti"></canvas>
- 
+
 <div class="animal-arrival" id="animal-arrival" onclick="closeArrival()">
   <div class="arrival-card" onclick="event.stopPropagation()">
     <span class="arrival-emoji" id="arrival-emoji">🐼</span>
@@ -218,19 +110,18 @@
     <button class="arrival-btn" onclick="closeArrival()">Welcome them! 🌿</button>
   </div>
 </div>
- 
+
 <div class="header">
   <h1>emma<span>finds</span>ajob 🌿</h1>
   <div class="money-bar">💰 <span class="amt" id="header-money">0</span> coins</div>
 </div>
- 
+
 <div class="tabs">
   <button class="tab active" onclick="showTab('tracker',this)">📋 Tracker</button>
   <button class="tab" onclick="showTab('shop',this)">🌾 Seeds</button>
   <button class="tab" onclick="showTab('garden',this)">🌱 Garden</button>
 </div>
- 
-<!-- TRACKER -->
+
 <div class="page active" id="page-tracker">
   <div id="milestone-banner"></div>
   <div class="stats">
@@ -240,22 +131,15 @@
   </div>
   <div class="apply-wrap">
     <button id="apply-btn">✓ I Applied!</button>
-    <div class="undo-redo">
-      <button id="undo-btn">↩ Undo</button>
-      <button id="redo-btn">↪ Redo</button>
-    </div>
+    <div class="undo-redo"><button id="undo-btn">↩ Undo</button><button id="redo-btn">↪ Redo</button></div>
   </div>
-  <div class="log-lbl">Application Log</div>
+  <div class="section-label">Application Log</div>
   <div id="log"></div>
   <button id="reset-btn">reset all data</button>
 </div>
- 
-<!-- SHOP -->
+
 <div class="page" id="page-shop">
-  <div class="shop-top">
-    <h2>🌾 Seed Shop</h2>
-    <div class="coin-pill">💰 <span id="shop-coins">0</span></div>
-  </div>
+  <div class="top-row"><h2>🌾 Seed Shop</h2><div class="coin-pill">💰 <span id="shop-coins">0</span></div></div>
   <div class="cat-tabs">
     <button class="cat-tab active" onclick="setCat('all',this)">All</button>
     <button class="cat-tab" onclick="setCat('flowers',this)">🌸 Flowers</button>
@@ -267,579 +151,204 @@
   </div>
   <div class="seed-grid" id="seed-grid"></div>
 </div>
- 
-<!-- GARDEN -->
+
 <div class="page" id="page-garden">
-  <div class="garden-top">
-    <h2>🌱 My Garden</h2>
-    <span class="garden-hint">Drag seeds in · drag anything to move · double-click to remove</span>
-  </div>
- 
-  <div class="zoom-bar">
-    <button class="zoom-btn" onclick="zoomOut()">−</button>
-    <span class="zoom-lbl" id="zoom-lbl">100%</span>
-    <button class="zoom-btn" onclick="zoomIn()">+</button>
-    <button class="zoom-btn zoom-reset" onclick="zoomReset()">Reset</button>
-  </div>
- 
+  <div class="top-row"><h2>🌱 My Garden</h2><span class="hint">Drag seeds in · drag anything to move · double-click to remove</span></div>
+  <div class="zoom-bar"><button class="zoom-btn" onclick="zoomOut()">−</button><span class="zoom-lbl" id="zoom-lbl">100%</span><button class="zoom-btn" onclick="zoomIn()">+</button><button class="zoom-btn" onclick="zoomReset()">Reset</button></div>
   <div class="field-outer">
-    <div class="field-sky">
-      <span class="sky-sun">☀️</span>
-      <span class="sky-cloud" style="font-size:1.4rem;top:8px;left:-120px;animation-duration:24s"></span>
-      <span class="sky-cloud" style="font-size:1.1rem;top:22px;left:-120px;animation-duration:34s;animation-delay:-15s">☁️</span>
-      <span class="sky-cloud" style="font-size:1.6rem;top:4px;left:-120px;animation-duration:42s;animation-delay:-24s">⛅</span>
-      <span class="sky-bird" style="animation-duration:17s">🐦</span>
-      <span class="sky-bird" style="animation-duration:24s;animation-delay:-10s;top:30px">🐦</span>
-    </div>
-    <!-- scrollable area -->
+    <div class="field-sky"><span class="sky-sun">☀️</span></div>
     <div class="field-scroll" id="field-scroll">
-      <div class="field-canvas" id="field-canvas">
-        <!-- static stones -->
-        <div class="pstone" style="width:22px;height:13px;left:18%;bottom:20%"></div>
-        <div class="pstone" style="width:17px;height:11px;left:31%;bottom:15%"></div>
-        <div class="pstone" style="width:25px;height:14px;left:45%;bottom:18%"></div>
-        <div class="pstone" style="width:19px;height:12px;left:59%;bottom:13%"></div>
-        <div class="pstone" style="width:23px;height:13px;left:73%;bottom:19%"></div>
-        <div class="pstone" style="width:15px;height:10px;left:86%;bottom:14%"></div>
-        <!-- static decor -->
-        <div class="gdecor" style="font-size:2rem;left:1%;top:8%">🌳</div>
-        <div class="gdecor" style="font-size:2rem;right:1%;top:6%">🌳</div>
-        <div class="gdecor" style="font-size:1.3rem;left:2%;top:40%">🪨</div>
-        <div class="gdecor" style="font-size:1.3rem;right:2%;top:44%">🪨</div>
-        <div class="gdecor" style="font-size:1.2rem;left:5%;bottom:24%">🌿</div>
-        <div class="gdecor" style="font-size:1.2rem;right:5%;bottom:26%">🌿</div>
-        <div class="gdecor" style="font-size:1rem;left:14%;top:4%">🍃</div>
-        <div class="gdecor" style="font-size:1rem;right:16%;top:3%">🍃</div>
-        <div class="field-fence"></div>
+      <div class="field-spacer" id="field-spacer">
+        <div class="field-canvas" id="field-canvas">
+          <div class="pstone" style="width:22px;height:13px;left:18%;bottom:20%"></div>
+          <div class="pstone" style="width:17px;height:11px;left:31%;bottom:15%"></div>
+          <div class="pstone" style="width:25px;height:14px;left:45%;bottom:18%"></div>
+          <div class="pstone" style="width:19px;height:12px;left:59%;bottom:13%"></div>
+          <div class="pstone" style="width:23px;height:13px;left:73%;bottom:19%"></div>
+          <div class="pstone" style="width:15px;height:10px;left:86%;bottom:14%"></div>
+          <div class="gdecor" style="font-size:2rem;left:1%;top:8%">🌳</div>
+          <div class="gdecor" style="font-size:2rem;right:1%;top:6%">🌳</div>
+          <div class="gdecor" style="font-size:1.3rem;left:2%;top:40%">🪨</div>
+          <div class="gdecor" style="font-size:1.3rem;right:2%;top:44%">🪨</div>
+          <div class="gdecor" style="font-size:1.2rem;left:5%;bottom:24%">🌿</div>
+          <div class="gdecor" style="font-size:1.2rem;right:5%;bottom:26%">🌿</div>
+          <div class="field-fence"></div>
+        </div>
       </div>
     </div>
   </div>
- 
-  <div class="animals-section">
-    <div class="animals-label">🐾 Garden Visitors</div>
-    <div class="animals-grid" id="animals-grid"></div>
-  </div>
-  <div class="inv-label" style="margin-top:14px">🎒 Seed Inventory — drag onto garden</div>
+  <div class="section-label">🐾 Garden Visitors</div>
+  <div class="animals-grid" id="animals-grid"></div>
+  <div class="section-label">🎒 Seed Inventory — drag onto garden</div>
   <div class="inventory" id="inventory"></div>
 </div>
- 
+
 <div id="toast"></div>
- 
+
 <script>
 const SEEDS=[
-  {id:'daisy',    emoji:'🌼',name:'Daisy',          desc:'Cheerful & bright.',       cost:2,cat:'flowers'},
-  {id:'tulip',    emoji:'🌷',name:'Tulip',           desc:'Fresh start vibes.',       cost:3,cat:'flowers'},
-  {id:'rose',     emoji:'🌹',name:'Rose',            desc:'You worked hard for this.',cost:4,cat:'flowers'},
-  {id:'sunflower',emoji:'🌻',name:'Sunflower',       desc:'Faces the future.',        cost:3,cat:'flowers'},
-  {id:'cherry',   emoji:'🌸',name:'Cherry Blossom',  desc:'Interview energy.',        cost:5,cat:'flowers'},
-  {id:'hibiscus', emoji:'🌺',name:'Hibiscus',        desc:'Tropical treat.',          cost:4,cat:'flowers'},
-  {id:'lavender', emoji:'💜',name:'Lavender',        desc:'Keeps you calm.',          cost:3,cat:'flowers'},
-  {id:'pansy',    emoji:'🏵️',name:'Pansy',           desc:'Delicate but strong.',     cost:3,cat:'flowers'},
-  {id:'bouquet',  emoji:'💐',name:'Wildflowers',     desc:'A little of everything.',  cost:6,cat:'flowers'},
-  {id:'lotus',    emoji:'🪷',name:'Lotus',           desc:'Rises from mud.',          cost:6,cat:'flowers'},
-  {id:'strawberry',emoji:'🍓',name:'Strawberry',    desc:'Sweet reward.',            cost:3,cat:'fruits'},
-  {id:'watermelon',emoji:'🍉',name:'Watermelon',    desc:'Summer vibes.',            cost:4,cat:'fruits'},
-  {id:'grapes',   emoji:'🍇',name:'Grapes',          desc:'Abundance incoming.',      cost:4,cat:'fruits'},
-  {id:'peach',    emoji:'🍑',name:'Peach',           desc:'Soft & sweet.',            cost:3,cat:'fruits'},
-  {id:'lemon',    emoji:'🍋',name:'Lemon',           desc:'When life gives you...',   cost:3,cat:'fruits'},
-  {id:'orange',   emoji:'🍊',name:'Orange',          desc:'Bright & cheerful.',       cost:3,cat:'fruits'},
-  {id:'mango',    emoji:'🥭',name:'Mango',           desc:'Tropical success.',        cost:4,cat:'fruits'},
-  {id:'pineapple',emoji:'🍍',name:'Pineapple',       desc:'Stand tall. Be sweet.',    cost:5,cat:'fruits'},
-  {id:'blueberry',emoji:'🫐',name:'Blueberries',     desc:'Small but powerful.',      cost:3,cat:'fruits'},
-  {id:'apple',    emoji:'🍎',name:'Apple',           desc:'An apple a day...',        cost:3,cat:'fruits'},
-  {id:'cherry2',  emoji:'🍒',name:'Cherry',          desc:'Double the good luck.',    cost:3,cat:'fruits'},
-  {id:'kiwi',     emoji:'🥝',name:'Kiwi',            desc:'Surprising inside.',       cost:4,cat:'fruits'},
-  {id:'avocado',  emoji:'🥑',name:'Avocado',         desc:'Worth every penny.',       cost:4,cat:'fruits'},
-  {id:'carrot',   emoji:'🥕',name:'Carrot',          desc:'Root yourself.',           cost:2,cat:'veggies'},
-  {id:'corn',     emoji:'🌽',name:'Corn',            desc:'Grow tall & strong.',      cost:2,cat:'veggies'},
-  {id:'broccoli', emoji:'🥦',name:'Broccoli',        desc:'Good for the brain.',      cost:2,cat:'veggies'},
-  {id:'tomato',   emoji:'🍅',name:'Tomato',          desc:'Technically a fruit 👀',   cost:2,cat:'veggies'},
-  {id:'eggplant', emoji:'🍆',name:'Eggplant',        desc:'Purple power.',            cost:2,cat:'veggies'},
-  {id:'lettuce',  emoji:'🥬',name:'Lettuce',         desc:'Crisp & fresh.',           cost:2,cat:'veggies'},
-  {id:'pepper',   emoji:'🌶️',name:'Red Pepper',     desc:'Spice things up.',         cost:3,cat:'veggies'},
-  {id:'mushroom', emoji:'🍄',name:'Mushroom',        desc:'Grows in the dark.',       cost:2,cat:'veggies'},
-  {id:'garlic',   emoji:'🧄',name:'Garlic',          desc:'Keeps bad vibes away.',    cost:2,cat:'veggies'},
-  {id:'pumpkin',  emoji:'🎃',name:'Pumpkin',         desc:'Autumn energy.',           cost:3,cat:'veggies'},
-  {id:'cucumber', emoji:'🥒',name:'Cucumber',        desc:'Cool as a cucumber.',      cost:2,cat:'veggies'},
-  {id:'bamboo',   emoji:'🎋',name:'Bamboo',          desc:'Grows fast.',              cost:4,cat:'trees'},
-  {id:'maple',    emoji:'🍁',name:'Maple Tree',      desc:'Strong roots.',            cost:5,cat:'trees'},
-  {id:'bonsai',   emoji:'🎍',name:'Bonsai',          desc:'Rare & refined.',          cost:8,cat:'trees'},
-  {id:'palm',     emoji:'🌴',name:'Palm Tree',       desc:'Vacation vibes.',          cost:5,cat:'trees'},
-  {id:'pine',     emoji:'🌲',name:'Pine Tree',       desc:'Always evergreen.',        cost:4,cat:'trees'},
-  {id:'oak',      emoji:'🌳',name:'Oak Tree',        desc:'Shade & strength.',        cost:5,cat:'trees'},
-  {id:'cactus',   emoji:'🌵',name:'Cactus',          desc:'Tough & resilient.',       cost:3,cat:'trees'},
-  {id:'fern',     emoji:'🌱',name:'Baby Fern',       desc:'Just getting started.',    cost:1,cat:'herbs'},
-  {id:'herb',     emoji:'🌿',name:'Fresh Herbs',     desc:'Practical & lovely.',      cost:2,cat:'herbs'},
-  {id:'wheat',    emoji:'🌾',name:'Wheat',           desc:'Growth takes time.',       cost:2,cat:'herbs'},
-  {id:'vine',     emoji:'🍃',name:'Trailing Vine',   desc:'Spreads everywhere.',      cost:3,cat:'herbs'},
-  {id:'clover',   emoji:'🍀',name:'Four-Leaf Clover',desc:'Pure luck.',              cost:5,cat:'herbs'},
-  {id:'shamrock', emoji:'☘️',name:'Shamrock',        desc:'Triple the luck!',         cost:3,cat:'herbs'},
-  {id:'rainbow',  emoji:'🌈',name:'Rainbow Plant',   desc:'After every storm.',       cost:8,cat:'rare'},
-  {id:'star',     emoji:'⭐',name:'Star Flower',     desc:'You are a star.',          cost:7,cat:'rare'},
-  {id:'sparkle',  emoji:'✨',name:'Sparkle Bloom',   desc:'Pure magic.',              cost:9,cat:'rare'},
-  {id:'moon',     emoji:'🌙',name:'Moon Flower',     desc:'Blooms at midnight.',      cost:8,cat:'rare'},
-  {id:'comet',    emoji:'☄️',name:'Comet Seed',      desc:'Once in a lifetime.',      cost:10,cat:'rare'},
-  {id:'crystal',  emoji:'💎',name:'Crystal Bloom',   desc:'Priceless beauty.',        cost:12,cat:'rare'},
-  {id:'fire',     emoji:'🔥',name:'Fire Flower',     desc:'Unstoppable energy.',      cost:7,cat:'rare'},
-  {id:'ice',      emoji:'❄️',name:'Frost Flower',    desc:'Cool under pressure.',     cost:7,cat:'rare'},
+  {id:'daisy',emoji:'🌼',name:'Daisy',desc:'Cheerful & bright.',cost:2,cat:'flowers'},
+  {id:'tulip',emoji:'🌷',name:'Tulip',desc:'Fresh start vibes.',cost:3,cat:'flowers'},
+  {id:'rose',emoji:'🌹',name:'Rose',desc:'You worked hard for this.',cost:4,cat:'flowers'},
+  {id:'sunflower',emoji:'🌻',name:'Sunflower',desc:'Faces the future.',cost:3,cat:'flowers'},
+  {id:'cherry',emoji:'🌸',name:'Cherry Blossom',desc:'Interview energy.',cost:5,cat:'flowers'},
+  {id:'hibiscus',emoji:'🌺',name:'Hibiscus',desc:'Tropical treat.',cost:4,cat:'flowers'},
+  {id:'lavender',emoji:'💜',name:'Lavender',desc:'Keeps you calm.',cost:3,cat:'flowers'},
+  {id:'pansy',emoji:'🏵️',name:'Pansy',desc:'Delicate but strong.',cost:3,cat:'flowers'},
+  {id:'bouquet',emoji:'💐',name:'Wildflowers',desc:'A little of everything.',cost:6,cat:'flowers'},
+  {id:'lotus',emoji:'🪷',name:'Lotus',desc:'Rises from mud.',cost:6,cat:'flowers'},
+  {id:'strawberry',emoji:'🍓',name:'Strawberry',desc:'Sweet reward.',cost:3,cat:'fruits'},
+  {id:'watermelon',emoji:'🍉',name:'Watermelon',desc:'Summer vibes.',cost:4,cat:'fruits'},
+  {id:'grapes',emoji:'🍇',name:'Grapes',desc:'Abundance incoming.',cost:4,cat:'fruits'},
+  {id:'peach',emoji:'🍑',name:'Peach',desc:'Soft & sweet.',cost:3,cat:'fruits'},
+  {id:'lemon',emoji:'🍋',name:'Lemon',desc:'When life gives you...',cost:3,cat:'fruits'},
+  {id:'orange',emoji:'🍊',name:'Orange',desc:'Bright & cheerful.',cost:3,cat:'fruits'},
+  {id:'mango',emoji:'🥭',name:'Mango',desc:'Tropical success.',cost:4,cat:'fruits'},
+  {id:'pineapple',emoji:'🍍',name:'Pineapple',desc:'Stand tall. Be sweet.',cost:5,cat:'fruits'},
+  {id:'blueberry',emoji:'🫐',name:'Blueberries',desc:'Small but powerful.',cost:3,cat:'fruits'},
+  {id:'apple',emoji:'🍎',name:'Apple',desc:'An apple a day...',cost:3,cat:'fruits'},
+  {id:'carrot',emoji:'🥕',name:'Carrot',desc:'Root yourself.',cost:2,cat:'veggies'},
+  {id:'corn',emoji:'🌽',name:'Corn',desc:'Grow tall & strong.',cost:2,cat:'veggies'},
+  {id:'broccoli',emoji:'🥦',name:'Broccoli',desc:'Good for the brain.',cost:2,cat:'veggies'},
+  {id:'tomato',emoji:'🍅',name:'Tomato',desc:'Technically a fruit.',cost:2,cat:'veggies'},
+  {id:'lettuce',emoji:'🥬',name:'Lettuce',desc:'Crisp & fresh.',cost:2,cat:'veggies'},
+  {id:'pepper',emoji:'🌶️',name:'Red Pepper',desc:'Spice things up.',cost:3,cat:'veggies'},
+  {id:'pumpkin',emoji:'🎃',name:'Pumpkin',desc:'Autumn energy.',cost:3,cat:'veggies'},
+  {id:'bamboo',emoji:'🎋',name:'Bamboo',desc:'Grows fast.',cost:4,cat:'trees'},
+  {id:'maple',emoji:'🍁',name:'Maple Tree',desc:'Strong roots.',cost:5,cat:'trees'},
+  {id:'bonsai',emoji:'🎍',name:'Bonsai',desc:'Rare & refined.',cost:8,cat:'trees'},
+  {id:'palm',emoji:'🌴',name:'Palm Tree',desc:'Vacation vibes.',cost:5,cat:'trees'},
+  {id:'pine',emoji:'🌲',name:'Pine Tree',desc:'Always evergreen.',cost:4,cat:'trees'},
+  {id:'oak',emoji:'🌳',name:'Oak Tree',desc:'Shade & strength.',cost:5,cat:'trees'},
+  {id:'fern',emoji:'🌱',name:'Baby Fern',desc:'Just getting started.',cost:1,cat:'herbs'},
+  {id:'herb',emoji:'🌿',name:'Fresh Herbs',desc:'Practical & lovely.',cost:2,cat:'herbs'},
+  {id:'wheat',emoji:'🌾',name:'Wheat',desc:'Growth takes time.',cost:2,cat:'herbs'},
+  {id:'vine',emoji:'🍃',name:'Trailing Vine',desc:'Spreads everywhere.',cost:3,cat:'herbs'},
+  {id:'clover',emoji:'🍀',name:'Four-Leaf Clover',desc:'Pure luck.',cost:5,cat:'herbs'},
+  {id:'rainbow',emoji:'🌈',name:'Rainbow Plant',desc:'After every storm.',cost:8,cat:'rare'},
+  {id:'star',emoji:'⭐',name:'Star Flower',desc:'You are a star.',cost:7,cat:'rare'},
+  {id:'sparkle',emoji:'✨',name:'Sparkle Bloom',desc:'Pure magic.',cost:9,cat:'rare'},
+  {id:'moon',emoji:'🌙',name:'Moon Flower',desc:'Blooms at midnight.',cost:8,cat:'rare'},
+  {id:'crystal',emoji:'💎',name:'Crystal Bloom',desc:'Priceless beauty.',cost:12,cat:'rare'}
 ];
- 
+
 const ALL_ANIMALS=[
-  {emoji:'🐝',name:'Honey Bee',       msg:'A little bee flew in! She approves of your hustle. 🍯',             rarity:'Common'},
-  {emoji:'🦋',name:'Butterfly',       msg:'A butterfly landed on your flowers. She loves it here! 🌸',         rarity:'Common'},
-  {emoji:'🐛',name:'Friendly Worm',   msg:'A worm in the soil helping your plants grow! 🌱',                   rarity:'Common'},
-  {emoji:'🐶',name:'Puppy',           msg:'A PUPPY ran into your garden!! She\'s so happy to see you! 🐾',     rarity:'Uncommon'},
-  {emoji:'🐼',name:'Panda',           msg:'A PANDA arrived!! She brought bamboo snacks! 🎋',                   rarity:'Uncommon'},
-  {emoji:'🐸',name:'Little Frog',     msg:'Ribbit! A frog hopped in. She heard this garden is the place to be!',rarity:'Uncommon'},
-  {emoji:'🐇',name:'Bunny',           msg:'A bunny hopped over! Nibbling clover and cheering you on! 🍀',      rarity:'Uncommon'},
-  {emoji:'🦔',name:'Hedgehog',        msg:'A hedgehog curled up in the corner. Shy but she trusts you! 🌿',    rarity:'Uncommon'},
-  {emoji:'🐱',name:'Kitten',          msg:'A fluffy kitten wandered in and made herself at home! 🌸',          rarity:'Uncommon'},
-  {emoji:'🦉',name:'Wise Owl',        msg:'An owl perched at dusk. She says you\'re doing amazing! 🌙',        rarity:'Rare'},
-  {emoji:'🦊',name:'Fox',             msg:'A fox crept in at golden hour. She respects the hustle. 🦊',        rarity:'Rare'},
-  {emoji:'🐿️',name:'Squirrel',       msg:'A squirrel brought you an acorn! She believes in you! 🌰',          rarity:'Rare'},
-  {emoji:'🦌',name:'Deer',            msg:'A deer stepped gracefully in. This is a blessed visit! 🌸',         rarity:'Rare'},
-  {emoji:'🐨',name:'Koala',           msg:'A koala napping among your flowers. So peaceful! 🌸',               rarity:'Rare'},
-  {emoji:'🦩',name:'Flamingo',        msg:'A flamingo arrived! Adding a pop of pink to your garden. 🌸',       rarity:'Rare'},
-  {emoji:'🐰',name:'White Rabbit',    msg:'A white rabbit with a bow tie! Main character energy!',             rarity:'Rare'},
-  {emoji:'🐧',name:'Penguin',         msg:'A penguin waddled in with a tiny bow tie. Formal support! 🎩',      rarity:'Rare'},
-  {emoji:'🦚',name:'Peacock',         msg:'A PEACOCK spread her feathers just for you! Stunning! ✨',           rarity:'Very Rare'},
-  {emoji:'🐼',name:'Twin Pandas',     msg:'TWO PANDAS!! Double the bamboo, double the love! 🎋🎋',             rarity:'Very Rare'},
-  {emoji:'🐕',name:'Golden Retriever',msg:'A golden retriever with a flower crown! She is perfect. 🌸',        rarity:'Very Rare'},
-  {emoji:'🦁',name:'Lion Cub',        msg:'A tiny lion cub! She sees the queen energy in you. 👑',             rarity:'Very Rare'},
-  {emoji:'🐯',name:'Tiger Cub',       msg:'A tiger cub! Bold, fierce, and adorable. 🐯',                       rarity:'Very Rare'},
-  {emoji:'🦓',name:'Zebra',           msg:'A zebra trotted in! Unique stripes for a unique job hunter. ✨',     rarity:'Very Rare'},
-  {emoji:'🐦‍🌈',name:'Rainbow Bird', msg:'A rare rainbow bird flew in! Your garden is truly magical! 🌈',      rarity:'Legendary'},
-  {emoji:'🐉',name:'Baby Dragon',     msg:'A BABY DRAGON landed!! She breathes gold sparks! ✨',               rarity:'Legendary'},
-  {emoji:'🦄',name:'Unicorn',         msg:'A UNICORN appeared!! Your garden is literally enchanted! 🌈✨',      rarity:'Legendary'},
-  {emoji:'🐼',name:'Panda Queen',     msg:'THE PANDA QUEEN herself!! She bows to your dedication. 👑🎋',       rarity:'LEGENDARY'},
+  {emoji:'🐝',name:'Honey Bee',msg:'A little bee flew in! She approves of your hustle. 🍯',rarity:'Common'},
+  {emoji:'🦋',name:'Butterfly',msg:'A butterfly landed on your flowers. She loves it here! 🌸',rarity:'Common'},
+  {emoji:'🐛',name:'Friendly Worm',msg:'A worm is helping your soil grow! 🌱',rarity:'Common'},
+  {emoji:'🐶',name:'Puppy',msg:'A puppy ran into your garden!! 🐾',rarity:'Uncommon'},
+  {emoji:'🐼',name:'Panda',msg:'A panda arrived with bamboo snacks! 🎋',rarity:'Uncommon'},
+  {emoji:'🐸',name:'Little Frog',msg:'Ribbit! A frog hopped in.',rarity:'Uncommon'},
+  {emoji:'🐇',name:'Bunny',msg:'A bunny hopped over to cheer you on! 🍀',rarity:'Uncommon'},
+  {emoji:'🐱',name:'Kitten',msg:'A fluffy kitten made herself at home! 🌸',rarity:'Uncommon'},
+  {emoji:'🦉',name:'Wise Owl',msg:'An owl says you are doing amazing. 🌙',rarity:'Rare'},
+  {emoji:'🦊',name:'Fox',msg:'A fox respects the hustle. 🦊',rarity:'Rare'},
+  {emoji:'🦌',name:'Deer',msg:'A deer stepped gracefully into your garden. 🌸',rarity:'Rare'},
+  {emoji:'🦚',name:'Peacock',msg:'A peacock showed up looking stunning! ✨',rarity:'Very Rare'},
+  {emoji:'🐉',name:'Baby Dragon',msg:'A baby dragon landed with gold sparks! ✨',rarity:'Legendary'},
+  {emoji:'🦄',name:'Unicorn',msg:'A unicorn appeared!! 🌈✨',rarity:'Legendary'}
 ];
- 
-// ── STORAGE ───────────────────────────────────────────────
+
+const COIN_MILESTONES={4:3,8:5,12:5,16:8,20:10,24:10,28:12,32:15,36:15,40:20,44:20,48:25,52:30,56:30,60:35,64:35,68:40,72:40,76:45,80:50,84:50,88:55,92:55,96:60,100:75};
 const todayKey=()=>new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 const timeNow=()=>new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
 const loadJobs=()=>JSON.parse(localStorage.getItem('emmajobs')||'{}');
 const saveJobs=d=>localStorage.setItem('emmajobs',JSON.stringify(d));
-const loadG=()=>JSON.parse(localStorage.getItem('emmagarden6')||'{"inventory":[],"plants":[],"animals":[],"purchaseLog":[]}');
+const loadG=()=>JSON.parse(localStorage.getItem('emmagarden6')||'{"coins":0,"inventory":[],"plants":[],"animals":[],"purchaseLog":[]}');
 const saveG=g=>localStorage.setItem('emmagarden6',JSON.stringify(g));
- 
-const COIN_MILESTONES={4:3,8:5,12:5,16:8,20:10,24:10,28:12,32:15,36:15,40:20,44:20,48:25,52:30,56:30,60:35,64:35,68:40,72:40,76:45,80:50,84:50,88:55,92:55,96:60,100:75};
 
-function totalApplications(){
-  const data=loadJobs();
-  return Object.values(data).reduce((sum,arr)=>sum+(Array.isArray(arr)?arr.length:0),0);
-}
+function totalApplications(){const data=loadJobs();return Object.values(data).reduce((sum,arr)=>sum+(Array.isArray(arr)?arr.length:0),0);}
+function updateMoneyUI(c){document.getElementById('money-count').textContent=c;document.getElementById('header-money').textContent=c;document.getElementById('shop-coins').textContent=c;}
+function normalizeGarden(){const g=loadG();if(typeof g.coins!=='number')g.coins=0;if(!Array.isArray(g.inventory))g.inventory=[];if(!Array.isArray(g.plants))g.plants=[];if(!Array.isArray(g.animals))g.animals=[];if(!Array.isArray(g.purchaseLog))g.purchaseLog=[];saveG(g);return g;}
 
-function totalEarnedCoins(){
-  const total=totalApplications();
-  let earned=total; // 1 coin per application
-
-  for(let i=4;i<=total;i+=4){
-    earned += COIN_MILESTONES[i] || 3;
-  }
-
-  return earned;
-}
-
-function seedCost(id){
-  const seed=SEEDS.find(s=>s.id===id);
-  return seed ? Number(seed.cost)||0 : 0;
-}
-
-function estimatedCoinsSpentFromGarden(g){
-  return [
-    ...(Array.isArray(g.inventory)?g.inventory:[]),
-    ...(Array.isArray(g.plants)?g.plants:[])
-  ].reduce((sum,item)=>sum+seedCost(item.id),0);
-}
-
-function loggedCoinsSpent(g){
-  if(!Array.isArray(g.purchaseLog)) return 0;
-  return g.purchaseLog.reduce((sum,p)=>sum+(Number(p.amount)||0),0);
-}
-
-function repairGardenState(){
-  const g=loadG();
-
-  g.inventory=Array.isArray(g.inventory)?g.inventory:[];
-  g.plants=Array.isArray(g.plants)?g.plants:[];
-  g.animals=Array.isArray(g.animals)?g.animals:[];
-  g.purchaseLog=Array.isArray(g.purchaseLog)?g.purchaseLog:[];
-
-  // SOURCE OF TRUTH:
-  // Coins earned = all job applications + milestone bonuses.
-  // Coins spent = the higher of purchaseLog spending OR currently-owned garden items.
-  // This repairs old saved data where purchases happened before the log existed.
-  const earned=totalEarnedCoins();
-  const estimatedSpent=estimatedCoinsSpentFromGarden(g);
-  const loggedSpent=loggedCoinsSpent(g);
-
-  g.spentCoins=Math.max(estimatedSpent,loggedSpent);
-  g.coins=Math.max(0,earned-g.spentCoins);
-  g.coinMathVersion='v6-earned-minus-spent';
-
-  saveG(g);
-  return g;
-}
-
-function availableCoins(){
-  return repairGardenState().coins;
-}
-
-function updateMoneyUI(c){
-  const value=Number(c)||0;
-  const money=document.getElementById('money-count');
-  const header=document.getElementById('header-money');
-  const shop=document.getElementById('shop-coins');
-
-  if(money) money.textContent=value;
-  if(header) header.textContent=value;
-  if(shop) shop.textContent=value;
-}
-
-function refreshCoinsEverywhere(){
-  updateMoneyUI(availableCoins());
-}
- 
-// ── ZOOM ──────────────────────────────────────────────────
-let zoom=1;
-const ZMIN=0.3,ZMAX=3,ZSTEP=0.2;
- 
+let zoom=1;const ZMIN=.4,ZMAX=2.6,ZSTEP=.2;
+function baseWidth(){return Math.max(900,document.getElementById('field-scroll')?.clientWidth||900);}
 function applyZoom(){
   const canvas=document.getElementById('field-canvas');
-  const scroll=document.getElementById('field-scroll');
-  if(!canvas||!scroll) return;
-
-  const baseW=900;
-  const baseH=500;
-
-  // IMPORTANT: make the logical garden at least as wide as the visible viewport.
-  // This removes the vertical seam and lets plants/animals drag across the whole page.
-  const logicalW=Math.max(baseW, Math.ceil(scroll.clientWidth / zoom));
-  const logicalH=Math.max(baseH, Math.ceil(scroll.clientHeight / zoom));
-
-  canvas.style.width=logicalW+'px';
-  canvas.style.height=logicalH+'px';
-  canvas.style.minWidth=logicalW+'px';
-
+  const spacer=document.getElementById('field-spacer');
+  const w=baseWidth();
+  const h=500;
+  canvas.style.width=w+'px';canvas.style.height=h+'px';
   canvas.style.transform=`scale(${zoom})`;
-
-  // Keeps the grass texture visually the same size while zooming.
-  canvas.style.backgroundSize=`
-    ${100/zoom}px ${100/zoom}px,
-    ${120/zoom}px ${120/zoom}px,
-    100% 100%
-  `;
-
-  // Scroll space should match the scaled visual size.
-  canvas.style.marginRight=Math.max(0,(logicalW*zoom)-logicalW)+'px';
-  canvas.style.marginBottom=Math.max(0,(logicalH*zoom)-logicalH)+'px';
-
+  canvas.style.backgroundSize=`${100/zoom}px ${100/zoom}px,${120/zoom}px ${120/zoom}px,100% 100%`;
+  spacer.style.width=(w*zoom)+'px';spacer.style.height=(h*zoom)+'px';
   document.getElementById('zoom-lbl').textContent=Math.round(zoom*100)+'%';
 }
 function zoomIn(){zoom=Math.min(ZMAX,+(zoom+ZSTEP).toFixed(1));applyZoom();}
 function zoomOut(){zoom=Math.max(ZMIN,+(zoom-ZSTEP).toFixed(1));applyZoom();}
 function zoomReset(){zoom=1;applyZoom();}
 window.addEventListener('resize',applyZoom);
- 
-// mouse wheel zoom on field
-document.addEventListener('wheel',e=>{
-  const canvas=document.getElementById('field-canvas');
-  if(canvas&&canvas.contains(e.target)){
-    e.preventDefault();
-    if(e.deltaY<0) zoomIn(); else zoomOut();
-  }
-},{passive:false});
- 
-// pinch zoom
-let lastPinch=null;
-document.addEventListener('touchmove',e=>{
-  if(e.touches.length===2&&document.getElementById('page-garden').classList.contains('active')){
-    e.preventDefault();
-    const dx=e.touches[0].clientX-e.touches[1].clientX;
-    const dy=e.touches[0].clientY-e.touches[1].clientY;
-    const d=Math.sqrt(dx*dx+dy*dy);
-    if(lastPinch){zoom=Math.min(ZMAX,Math.max(ZMIN,zoom+(d-lastPinch)*0.004));}
-    lastPinch=d;applyZoom();
-  }
-},{passive:false});
-document.addEventListener('touchend',()=>{lastPinch=null;});
- 
-// ── TRACKER ───────────────────────────────────────────────
+
+function showTab(name,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');el.classList.add('active');if(name==='shop')renderShop();if(name==='garden')renderGarden();}
+
 function render(){
-  const data=loadJobs(),today=todayKey();
+  const data=loadJobs();const today=todayKey();const g=normalizeGarden();
   document.getElementById('today-count').textContent=(data[today]||[]).length;
-  const total=Object.values(data).reduce((s,a)=>s+a.length,0);
-  document.getElementById('total-count').textContent=total;
-  updateMoneyUI(availableCoins());
+  document.getElementById('total-count').textContent=totalApplications();
+  updateMoneyUI(g.coins);
   const log=document.getElementById('log');log.innerHTML='';
   const days=Object.keys(data).sort((a,b)=>new Date(b)-new Date(a));
-  if(!days.length){log.innerHTML='<p class="empty">No applications yet — you\'ve got this! 🌱</p>';return;}
-  days.forEach(day=>{
-    const e=data[day];const b=document.createElement('div');b.className='day-block';
-    b.innerHTML=`<div class="day-head"><span class="date">${day===today?'📅 Today':day}</span><span class="badge">${e.length} app${e.length!==1?'s':''}</span></div><div class="day-entries">${e.map(t=>`<div class="entry">${t}</div>`).join('')}</div>`;
-    log.appendChild(b);
-  });
+  if(!days.length){log.innerHTML='<p class="empty">No applications yet — you got this! 🌱</p>';return;}
+  days.forEach(day=>{const entries=data[day]||[];const block=document.createElement('div');block.className='day-block';block.innerHTML=`<div class="day-head"><span class="date">${day===today?'📅 Today':day}</span><span class="badge">${entries.length} app${entries.length!==1?'s':''}</span></div><div class="day-entries">${entries.map(t=>`<div class="entry">${t}</div>`).join('')}</div>`;log.appendChild(block);});
 }
- 
-function showTab(name,el){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');el.classList.add('active');
-  if(name==='shop') renderShop();
-  if(name==='garden') renderGarden();
-}
- 
-// ── SHOP ──────────────────────────────────────────────────
+
 let curCat='all';
 function setCat(cat,el){curCat=cat;document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderShop();}
 function renderShop(){
-  const g=repairGardenState();
-  const coins=availableCoins();
-  document.getElementById('shop-coins').textContent=coins;
-  const grid=document.getElementById('seed-grid');grid.innerHTML='';
+  const g=normalizeGarden();updateMoneyUI(g.coins);const grid=document.getElementById('seed-grid');grid.innerHTML='';
   const list=curCat==='all'?SEEDS:SEEDS.filter(s=>s.cat===curCat);
-  list.forEach(s=>{
-    const owned=g.inventory.filter(i=>i.id===s.id).length;
-    const canBuy=coins>=s.cost;
-    const c=document.createElement('div');c.className='seed-card';
-    c.innerHTML=`<span class="emoji">${s.emoji}</span><div class="sname">${s.name}</div><div class="sdesc">${s.desc}</div><div class="sprice">💰 ${s.cost}${owned?`<span class="owned-badge">×${owned} in bag</span>`:''}</div><button class="buy-btn" ${canBuy?'':'disabled'} onclick="buySeed('${s.id}')">${canBuy?'Buy':'Need coins'}</button>`;
-    grid.appendChild(c);
-  });
+  list.forEach(s=>{const owned=g.inventory.filter(i=>i.id===s.id).length;const canBuy=g.coins>=s.cost;const card=document.createElement('div');card.className='seed-card';card.innerHTML=`<span class="emoji">${s.emoji}</span><div class="sname">${s.name}</div><div class="sdesc">${s.desc}</div><div class="sprice">💰 ${s.cost}${owned?`<span class="owned-badge">×${owned} in bag</span>`:''}</div><button class="buy-btn" ${canBuy?'':'disabled'} onclick="buySeed('${s.id}')">${canBuy?'Buy':'Need coins'}</button>`;grid.appendChild(card);});
 }
 function buySeed(id){
-  const s=SEEDS.find(x=>x.id===id);
-  if(!s) return;
-
-  let g=repairGardenState();
-
-  if(g.coins<s.cost){
-    showToast('Not enough coins yet!');
-    refreshCoinsEverywhere();
-    return;
-  }
-
-  g.purchaseLog.push({type:'seed:'+s.id,amount:s.cost,time:Date.now()});
+  const s=SEEDS.find(x=>x.id===id);if(!s)return;
+  const g=normalizeGarden();
+  if(g.coins<s.cost){showToast('Not enough coins yet!');return;}
+  g.coins-=s.cost;
+  g.purchaseLog.push({item:s.id,amount:s.cost,time:Date.now()});
   g.inventory.push({id:s.id,emoji:s.emoji,name:s.name});
-  saveG(g);
+  saveG(g);updateMoneyUI(g.coins);renderShop();playSparkle();miniConfetti();showToast(s.name+' added to bag! 🌱');
+}
 
-  refreshCoinsEverywhere();
-  renderShop();
-  playSparkle();
-  miniConfetti();
-  showToast(s.name+' added to bag! 🌱');
-}
- 
-// ── GARDEN ────────────────────────────────────────────────
-function renderGarden(){
-  applyZoom();
-  const g=repairGardenState();
-  renderField(g);renderAnimalsLog(g);renderInventory(g);
-}
- 
-// ── UNIVERSAL DRAG FOR ITEMS IN FIELD ─────────────────────
+function renderGarden(){applyZoom();const g=normalizeGarden();renderField(g);renderInventory(g);renderAnimalsLog(g);}
 function makeFieldDraggable(el,idx,isAnimal){
-  let sx,sy,sl,st,active=false;
- 
-  function start(cx,cy){
-    active=true;
-    sx=cx;sy=cy;
-    sl=parseFloat(el.style.left)||0;
-    st=parseFloat(el.style.top)||0;
-    el.classList.add('dragging');
-    el.style.zIndex=200;
-  }
-  function move(cx,cy){
-    if(!active) return;
-    const canvas=document.getElementById('field-canvas');
-    const itemW=el.offsetWidth||40;
-    const itemH=el.offsetHeight||40;
-    const maxX=Math.max(0,canvas.offsetWidth-itemW);
-    const maxY=Math.max(0,canvas.offsetHeight-itemH);
-    const dx=(cx-sx)/zoom, dy=(cy-sy)/zoom;
-    el.style.left=Math.max(0,Math.min(maxX,sl+dx))+'px';
-    el.style.top=Math.max(0,Math.min(maxY,st+dy))+'px';
-  }
-  function end(){
-    if(!active) return; active=false;
-    el.classList.remove('dragging');el.style.zIndex=isAnimal?15:10;
-    const g=loadG();
-    const x=parseFloat(el.style.left);const y=parseFloat(el.style.top);
-    if(isAnimal){if(g.animals[idx]){g.animals[idx].x=x;g.animals[idx].y=y;}}
-    else{if(g.plants[idx]){g.plants[idx].x=x;g.plants[idx].y=y;}}
-    saveG(g);
-  }
- 
-  el.addEventListener('mousedown',e=>{if(e.button!==0) return;e.preventDefault();e.stopPropagation();start(e.clientX,e.clientY);
-    const mm=ev=>move(ev.clientX,ev.clientY);
-    const mu=()=>{end();document.removeEventListener('mousemove',mm);document.removeEventListener('mouseup',mu);};
-    document.addEventListener('mousemove',mm);document.addEventListener('mouseup',mu);
-  });
-  el.addEventListener('touchstart',e=>{e.stopPropagation();if(e.touches.length===1){const t=e.touches[0];start(t.clientX,t.clientY);}},{passive:true});
-  el.addEventListener('touchmove',e=>{if(e.touches.length===1){e.preventDefault();const t=e.touches[0];move(t.clientX,t.clientY);}},{passive:false});
-  el.addEventListener('touchend',()=>end());
+  let sx=0,sy=0,sl=0,st=0,active=false;
+  function start(cx,cy){active=true;sx=cx;sy=cy;sl=parseFloat(el.style.left)||0;st=parseFloat(el.style.top)||0;el.classList.add('dragging');}
+  function move(cx,cy){if(!active)return;const canvas=document.getElementById('field-canvas');const maxX=canvas.offsetWidth-(el.offsetWidth||40);const maxY=canvas.offsetHeight-(el.offsetHeight||40);el.style.left=Math.max(0,Math.min(maxX,sl+(cx-sx)/zoom))+'px';el.style.top=Math.max(0,Math.min(maxY,st+(cy-sy)/zoom))+'px';}
+  function end(){if(!active)return;active=false;el.classList.remove('dragging');const g=normalizeGarden();const x=parseFloat(el.style.left);const y=parseFloat(el.style.top);if(isAnimal&&g.animals[idx]){g.animals[idx].x=x;g.animals[idx].y=y;}if(!isAnimal&&g.plants[idx]){g.plants[idx].x=x;g.plants[idx].y=y;}saveG(g);}
+  el.addEventListener('mousedown',e=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();start(e.clientX,e.clientY);const mm=ev=>move(ev.clientX,ev.clientY);const mu=()=>{end();document.removeEventListener('mousemove',mm);document.removeEventListener('mouseup',mu);};document.addEventListener('mousemove',mm);document.addEventListener('mouseup',mu);});
+  el.addEventListener('touchstart',e=>{e.stopPropagation();if(e.touches.length===1){const t=e.touches[0];start(t.clientX,t.clientY);}}, {passive:true});
+  el.addEventListener('touchmove',e=>{if(e.touches.length===1){e.preventDefault();const t=e.touches[0];move(t.clientX,t.clientY);}}, {passive:false});
+  el.addEventListener('touchend',end);
 }
- 
 function renderField(g){
-  const canvas=document.getElementById('field-canvas');
-  canvas.querySelectorAll('.gitem').forEach(e=>e.remove());
- 
-  // plants
-  (g.plants||[]).forEach((p,idx)=>{
-    const now=Date.now(),age=now-p.plantedAt;
-    let stage=0;if(age>=20000) stage=2; else if(age>=8000) stage=1;
-    const pct=stage===2?100:stage===1?Math.min(100,((age-8000)/12000)*100):Math.min(100,(age/8000)*100);
-    const emoji=stage===0?'🌰':stage===1?'🪴':p.emoji;
-    const sc=['seed-s','sprout-s',''][stage];
-    const el=document.createElement('div');
-    el.className=`gitem ${sc}`;
-    el.style.left=p.x+'px';el.style.top=p.y+'px';
-    el.innerHTML=`<div class="gi-e">${emoji}</div><div class="gi-lbl">${p.name}</div><div class="gi-bar"><div class="gi-fill" style="width:${pct}%"></div></div>`;
-    makeFieldDraggable(el,idx,false);
-    let clicks=0;
-    el.addEventListener('click',e=>{e.stopPropagation();clicks++;if(clicks>=2){const g=loadG();g.plants.splice(idx,1);saveG(g);renderGarden();showToast('Plant removed ✕');}setTimeout(()=>{clicks=0;},500);});
-    el.title='Drag to move · double-click to remove';
-    canvas.appendChild(el);
-    if(stage<2){const ms=stage===0?8000-age:20000-age;setTimeout(()=>{if(document.getElementById('page-garden').classList.contains('active'))renderGarden();},ms+100);}
-  });
- 
-  // animals — also draggable now!
-  (g.animals||[]).forEach((a,idx)=>{
-    const el=document.createElement('div');
-    el.className='gitem animal-item';
-    el.style.left=a.x+'px';el.style.top=a.y+'px';
-    el.style.animationDelay=(Math.random()*2)+'s';
-    el.innerHTML=`<div class="gi-e">${a.emoji}</div><div class="gi-lbl">${a.name}</div>`;
-    el.title='Drag '+a.name+' to move them!';
-    makeFieldDraggable(el,idx,true);
-    canvas.appendChild(el);
-  });
+  const canvas=document.getElementById('field-canvas');canvas.querySelectorAll('.gitem').forEach(e=>e.remove());
+  g.plants.forEach((p,idx)=>{const age=Date.now()-p.plantedAt;let stage=0;if(age>=20000)stage=2;else if(age>=8000)stage=1;const pct=stage===2?100:stage===1?Math.min(100,((age-8000)/12000)*100):Math.min(100,(age/8000)*100);const emoji=stage===0?'🌰':stage===1?'🪴':p.emoji;const sc=['seed-s','sprout-s',''][stage];const el=document.createElement('div');el.className=`gitem ${sc}`;el.style.left=(p.x||30)+'px';el.style.top=(p.y||30)+'px';el.innerHTML=`<div class="gi-e">${emoji}</div><div class="gi-lbl">${p.name}</div><div class="gi-bar"><div class="gi-fill" style="width:${pct}%"></div></div>`;makeFieldDraggable(el,idx,false);let clicks=0;el.addEventListener('click',e=>{e.stopPropagation();clicks++;if(clicks>=2){const g=normalizeGarden();g.plants.splice(idx,1);saveG(g);renderGarden();showToast('Plant removed ✕');}setTimeout(()=>clicks=0,500);});canvas.appendChild(el);if(stage<2){const ms=stage===0?8000-age:20000-age;setTimeout(()=>{if(document.getElementById('page-garden').classList.contains('active'))renderGarden();},ms+100);}});
+  g.animals.forEach((a,idx)=>{const el=document.createElement('div');el.className='gitem animal-item';el.style.left=(a.x||50)+'px';el.style.top=(a.y||50)+'px';el.innerHTML=`<div class="gi-e">${a.emoji}</div><div class="gi-lbl">${a.name}</div>`;makeFieldDraggable(el,idx,true);canvas.appendChild(el);});
 }
- 
-// ── DROP SEEDS FROM INVENTORY ─────────────────────────────
-const fieldCanvas=()=>document.getElementById('field-canvas');
- 
+
 document.getElementById('field-scroll').addEventListener('dragover',e=>e.preventDefault());
-document.getElementById('field-scroll').addEventListener('drop',e=>{
-  e.preventDefault();
-  const seedId=e.dataTransfer.getData('seedId');
-  if(!seedId) return;
-  const g=loadG();
-  const idx=g.inventory.findIndex(i=>i.id===seedId);
-  if(idx===-1) return;
-  const seed=g.inventory[idx];
-  const canvas=fieldCanvas();
-  const rect=canvas.getBoundingClientRect();
-  const x=Math.max(4,Math.min(canvas.offsetWidth-40,(e.clientX-rect.left)/zoom));
-  const y=Math.max(4,Math.min(canvas.offsetHeight-40,(e.clientY-rect.top)/zoom));
-  g.plants.push({id:seed.id,emoji:seed.emoji,name:seed.name,plantedAt:Date.now(),x,y});
-  g.inventory.splice(idx,1);saveG(g);
-  playSparkle();renderGarden();showToast(seed.name+' planted! 🌱');
-});
- 
-function renderInventory(g){
-  const inv=document.getElementById('inventory');inv.innerHTML='';
-  const groups={};
-  g.inventory.forEach((s)=>{if(!groups[s.id]) groups[s.id]={seed:s,cnt:0};groups[s.id].cnt++;});
-  if(!Object.keys(groups).length){inv.innerHTML='<span class="inv-empty">No seeds — buy some from the shop! 🛒</span>';return;}
-  Object.values(groups).forEach(({seed,cnt})=>{
-    const el=document.createElement('div');el.className='inv-seed';el.draggable=true;
-    el.innerHTML=`<span class="is-e">${seed.emoji}</span><span class="is-n">${seed.name}${cnt>1?' ×'+cnt:''}</span>`;
-    el.addEventListener('dragstart',e=>e.dataTransfer.setData('seedId',seed.id));
-    inv.appendChild(el);
-  });
-}
- 
-function renderAnimalsLog(g){
-  const grid=document.getElementById('animals-grid');grid.innerHTML='';
-  const animals=g.animals||[];
-  if(!animals.length){grid.innerHTML='<p style="font-size:.73rem;color:var(--clay-l);font-style:italic">Keep applying — surprise animals visit at every milestone! 🐾</p>';return;}
-  const colors={Common:'var(--moss)',Uncommon:'var(--gold)',Rare:'var(--rose)',['Very Rare']:'#9b6b9e',Legendary:'#c0952a',LEGENDARY:'#d4a800'};
-  animals.forEach(a=>{
-    const tag=document.createElement('div');tag.className='animal-tag';
-    tag.innerHTML=`<span class="at-e">${a.emoji}</span><div><div class="at-n">${a.name}</div><div class="at-r" style="color:${colors[a.rarity]||'var(--clay-l)'}">${a.rarity} · app #${a.apps}</div></div>`;
-    grid.appendChild(tag);
-  });
-}
- 
-// ── ANIMAL VISIT ──────────────────────────────────────────
-function triggerAnimalVisit(total){
-  const g=loadG();
-  if((g.animals||[]).some(a=>a.apps===total)) return;
-  const animal=ALL_ANIMALS[(g.animals||[]).length%ALL_ANIMALS.length];
-  const x=40+Math.random()*800;const y=20+Math.random()*400;
-  g.animals=g.animals||[];g.animals.push({...animal,apps:total,x,y});saveG(g);
-  setTimeout(()=>{
-    document.getElementById('arrival-emoji').textContent=animal.emoji;
-    document.getElementById('arrival-title').textContent=animal.name+' arrived! '+stars(animal.rarity);
-    document.getElementById('arrival-sub').textContent=animal.msg;
-    document.getElementById('animal-arrival').classList.add('show');
-    playAnimalSound();
-  },1200);
-}
-function stars(r){return{Common:'⭐',Uncommon:'⭐⭐',Rare:'⭐⭐⭐',['Very Rare']:'⭐⭐⭐⭐',Legendary:'✨✨✨✨✨',LEGENDARY:'🌟🌟🌟🌟🌟'}[r]||'⭐';}
+document.getElementById('field-scroll').addEventListener('drop',e=>{e.preventDefault();const seedId=e.dataTransfer.getData('seedId');if(!seedId)return;const g=normalizeGarden();const idx=g.inventory.findIndex(i=>i.id===seedId);if(idx===-1)return;const seed=g.inventory[idx];const canvas=document.getElementById('field-canvas');const rect=canvas.getBoundingClientRect();const x=Math.max(4,Math.min(canvas.offsetWidth-40,(e.clientX-rect.left)/zoom));const y=Math.max(4,Math.min(canvas.offsetHeight-40,(e.clientY-rect.top)/zoom));g.plants.push({id:seed.id,emoji:seed.emoji,name:seed.name,plantedAt:Date.now(),x,y});g.inventory.splice(idx,1);saveG(g);playSparkle();renderGarden();showToast(seed.name+' planted! 🌱');});
+function renderInventory(g){const inv=document.getElementById('inventory');inv.innerHTML='';const groups={};g.inventory.forEach(s=>{if(!groups[s.id])groups[s.id]={seed:s,cnt:0};groups[s.id].cnt++;});if(!Object.keys(groups).length){inv.innerHTML='<span class="inv-empty">No seeds — buy some from the shop! 🛒</span>';return;}Object.values(groups).forEach(({seed,cnt})=>{const el=document.createElement('div');el.className='inv-seed';el.draggable=true;el.innerHTML=`<span class="is-e">${seed.emoji}</span><span class="is-n">${seed.name}${cnt>1?' ×'+cnt:''}</span>`;el.addEventListener('dragstart',e=>e.dataTransfer.setData('seedId',seed.id));inv.appendChild(el);});}
+function renderAnimalsLog(g){const grid=document.getElementById('animals-grid');grid.innerHTML='';if(!g.animals.length){grid.innerHTML='<p style="font-size:.73rem;color:var(--clay-l);font-style:italic">Keep applying — surprise animals visit at every milestone! 🐾</p>';return;}g.animals.forEach(a=>{const tag=document.createElement('div');tag.className='animal-tag';tag.innerHTML=`<span class="at-e">${a.emoji}</span><div><div class="at-n">${a.name}</div><div class="at-r">${a.rarity} · app #${a.apps}</div></div>`;grid.appendChild(tag);});}
+function triggerAnimalVisit(total){const g=normalizeGarden();if(g.animals.some(a=>a.apps===total))return;const animal=ALL_ANIMALS[g.animals.length%ALL_ANIMALS.length];const canvas=document.getElementById('field-canvas');const maxX=Math.max(50,(canvas.offsetWidth||900)-60);const x=40+Math.random()*(maxX-40);const y=20+Math.random()*400;g.animals.push({...animal,apps:total,x,y});saveG(g);setTimeout(()=>{document.getElementById('arrival-emoji').textContent=animal.emoji;document.getElementById('arrival-title').textContent=animal.name+' arrived!';document.getElementById('arrival-sub').textContent=animal.msg;document.getElementById('animal-arrival').classList.add('show');playAnimalSound();},700);}
 function closeArrival(){document.getElementById('animal-arrival').classList.remove('show');if(document.getElementById('page-garden').classList.contains('active'))renderGarden();}
- 
-// ── APPLY / UNDO / REDO ───────────────────────────────────
+
 let redoStack=[];
 document.getElementById('apply-btn').addEventListener('click',()=>{
-  const data=loadJobs();
-  const today=todayKey();
-
-  if(!Array.isArray(data[today])) data[today]=[];
-
-  data[today].push(timeNow());
-  saveJobs(data);
-  redoStack=[];
-
-  const total=totalApplications();
-
-  if(total%4===0){
-    const bonus=COIN_MILESTONES[total]||3;
-    const b=document.getElementById('milestone-banner');
-    b.style.display='block';
-    b.textContent='🎉 '+total+' applications!! Bonus +'+bonus+' coins! 💰';
-    setTimeout(()=>{b.style.display='none';},3500);
-    triggerAnimalVisit(total);
-  }
-
-  repairGardenState();
-  render();
-  refreshCoinsEverywhere();
-
-  if(document.getElementById('page-shop').classList.contains('active')) renderShop();
-
-  launchConfetti();
-  playSparkle();
+  const data=loadJobs();const today=todayKey();if(!Array.isArray(data[today]))data[today]=[];data[today].push(timeNow());saveJobs(data);redoStack=[];
+  const total=totalApplications();const g=normalizeGarden();g.coins+=1;
+  if(total%4===0){const bonus=COIN_MILESTONES[total]||3;g.coins+=bonus;const b=document.getElementById('milestone-banner');b.style.display='block';b.textContent='🎉 '+total+' applications!! Bonus +'+bonus+' coins! 💰';setTimeout(()=>b.style.display='none',3500);triggerAnimalVisit(total);}
+  saveG(g);updateMoneyUI(g.coins);render();if(document.getElementById('page-shop').classList.contains('active'))renderShop();launchConfetti();playSparkle();
 });
-document.getElementById('undo-btn').addEventListener('click',()=>{
-  const data=loadJobs(),today=todayKey();
-  if(data[today]?.length>0){
-    redoStack.push({day:today,time:data[today].pop()});
-    if(!data[today].length) delete data[today];
-    saveJobs(data);repairGardenState();render();refreshCoinsEverywhere();
-  }
-});
-document.getElementById('redo-btn').addEventListener('click',()=>{
-  if(!redoStack.length){showToast('Nothing to redo!');return;}
-  const {day,time}=redoStack.pop();
-  const data=loadJobs();if(!data[day]) data[day]=[];
-  data[day].push(time);saveJobs(data);
-  const total=Object.values(data).reduce((s,a)=>s+a.length,0);
-  if(total%4===0){triggerAnimalVisit(total);}
-  render();
-});
-document.getElementById('reset-btn').addEventListener('click',()=>{
-  if(confirm('Reset ALL data?')){localStorage.removeItem('emmajobs');localStorage.removeItem('emmagarden6');redoStack=[];render();}
-});
- 
+document.getElementById('undo-btn').addEventListener('click',()=>{const data=loadJobs();const today=todayKey();if(data[today]?.length>0){redoStack.push({day:today,time:data[today].pop()});if(!data[today].length)delete data[today];saveJobs(data);const g=normalizeGarden();g.coins=Math.max(0,g.coins-1);saveG(g);render();updateMoneyUI(g.coins);}});
+document.getElementById('redo-btn').addEventListener('click',()=>{if(!redoStack.length){showToast('Nothing to redo!');return;}const {day,time}=redoStack.pop();const data=loadJobs();if(!data[day])data[day]=[];data[day].push(time);saveJobs(data);const total=totalApplications();const g=normalizeGarden();g.coins+=1;if(total%4===0){const bonus=COIN_MILESTONES[total]||3;g.coins+=bonus;triggerAnimalVisit(total);}saveG(g);render();updateMoneyUI(g.coins);});
+document.getElementById('reset-btn').addEventListener('click',()=>{if(confirm('Reset ALL data?')){localStorage.removeItem('emmajobs');localStorage.removeItem('emmagarden6');redoStack=[];render();}});
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
-function playSparkle(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();[523,659,784,1047,1319].forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.setValueAtTime(f,ctx.currentTime+i*.08);g.gain.setValueAtTime(.12,ctx.currentTime+i*.08);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+i*.08+.28);o.start(ctx.currentTime+i*.08);o.stop(ctx.currentTime+i*.08+.3);});}catch(e){}}
-function playAnimalSound(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();[392,494,587,740,880].forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='triangle';o.frequency.setValueAtTime(f,ctx.currentTime+i*.12);g.gain.setValueAtTime(.12,ctx.currentTime+i*.12);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+i*.12+.5);o.start(ctx.currentTime+i*.12);o.stop(ctx.currentTime+i*.12+.55);});}catch(e){}}
-function launchConfetti(){const cv=document.getElementById('confetti'),ctx=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;const cols=['#C4847A','#8B5A3A','#8A9E74','#D4C4A0','#C9A84C','#DBA99E','#E8DFC0'];const pts=Array.from({length:130},()=>({x:Math.random()*cv.width,y:Math.random()*-cv.height*.4,w:Math.random()*10+4,h:Math.random()*5+3,c:cols[Math.floor(Math.random()*cols.length)],r:Math.random()*Math.PI*2,vx:(Math.random()-.5)*3.5,vy:Math.random()*3.5+1.5,vr:(Math.random()-.5)*.15,op:1}));let f=0;(function draw(){ctx.clearRect(0,0,cv.width,cv.height);let alive=false;pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.07;p.r+=p.vr;if(f>55)p.op=Math.max(0,p.op-.013);if(p.y<cv.height+20)alive=true;ctx.save();ctx.globalAlpha=p.op;ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});f++;if(alive)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);})();}
-function miniConfetti(){const cv=document.getElementById('confetti'),ctx=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;const cols=['#C9A84C','#E8C96A','#8A9E74','#6B7C5A'];const pts=Array.from({length:40},()=>({x:innerWidth/2+(Math.random()-.5)*200,y:innerHeight/2+(Math.random()-.5)*100,w:Math.random()*7+3,h:Math.random()*4+2,c:cols[Math.floor(Math.random()*cols.length)],r:Math.random()*Math.PI*2,vx:(Math.random()-.5)*4,vy:Math.random()*-4-2,vr:(Math.random()-.5)*.2,op:1}));let f=0;(function draw(){ctx.clearRect(0,0,cv.width,cv.height);let alive=false;pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.1;p.r+=p.vr;if(f>30)p.op=Math.max(0,p.op-.025);if(p.op>0)alive=true;ctx.save();ctx.globalAlpha=p.op;ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});f++;if(alive)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);})();}
- 
-render();
-applyZoom();
+function playSparkle(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();[523,659,784,1047].forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.setValueAtTime(f,ctx.currentTime+i*.08);g.gain.setValueAtTime(.10,ctx.currentTime+i*.08);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+i*.08+.25);o.start(ctx.currentTime+i*.08);o.stop(ctx.currentTime+i*.08+.3);});}catch(e){}}
+function playAnimalSound(){playSparkle();}
+function launchConfetti(){const cv=document.getElementById('confetti'),ctx=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;const cols=['#C4847A','#8B5A3A','#8A9E74','#D4C4A0','#C9A84C','#DBA99E'];const pts=Array.from({length:100},()=>({x:Math.random()*cv.width,y:Math.random()*-cv.height*.3,w:Math.random()*10+4,h:Math.random()*5+3,c:cols[Math.floor(Math.random()*cols.length)],r:Math.random()*6.28,vx:(Math.random()-.5)*3,vy:Math.random()*3+1.5,vr:(Math.random()-.5)*.15,op:1}));let f=0;(function draw(){ctx.clearRect(0,0,cv.width,cv.height);let alive=false;pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.07;p.r+=p.vr;if(f>55)p.op=Math.max(0,p.op-.013);if(p.y<cv.height+20)alive=true;ctx.save();ctx.globalAlpha=p.op;ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});f++;if(alive)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);})();}
+function miniConfetti(){launchConfetti();}
+render();applyZoom();
 </script>
 </body>
 </html>

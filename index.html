@@ -66,21 +66,33 @@
     .zoom-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px;justify-content:flex-end;}
     .zoom-btn{background:var(--cream);border:1.5px solid var(--sand);border-radius:8px;min-width:32px;height:32px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--bark);font-weight:700;padding:0 10px;}
     .zoom-lbl{font-size:.72rem;color:var(--clay-l);min-width:38px;text-align:center;}
-    .field-outer{border-radius:18px;border:2.5px solid #5a8f2e;overflow:hidden;box-shadow:0 6px 28px rgba(92,61,46,.22);margin-bottom:14px;background:#6aa838;}
-    .field-sky{height:60px;background:linear-gradient(180deg,#87CEEB,#c8e6f5 60%,#d8ecc8);position:relative;overflow:hidden;}
-    .sky-sun{position:absolute;top:10px;right:22px;font-size:1.9rem;}
-    .field-scroll{overflow:auto;width:100%;height:380px;position:relative;background:#6aa838;}
-    .field-spacer{position:relative;width:900px;height:500px;}
-    .field-canvas{width:900px;height:500px;position:absolute;left:0;top:0;transform-origin:top left;background:repeating-linear-gradient(87deg,transparent 0,transparent 8px,rgba(60,100,30,.07) 8px,rgba(60,100,30,.07) 9px),repeating-linear-gradient(93deg,transparent 0,transparent 12px,rgba(80,120,40,.05) 12px,rgba(80,120,40,.05) 13px),linear-gradient(180deg,#8dc455,#7ab648 15%,#6aa838 35%,#5a9230 55%,#4e8028 75%,#426e22);background-size:100px 100px,120px 120px,100% 100%;}
-    .field-canvas:before{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse 120px 18px at 50% 80%,rgba(180,160,120,.35),transparent),radial-gradient(ellipse 100px 14px at 28% 88%,rgba(180,160,120,.28),transparent),radial-gradient(ellipse 90px 14px at 72% 84%,rgba(180,160,120,.25),transparent),radial-gradient(ellipse 100px 44px at 22% 58%,rgba(101,67,33,.25),transparent),radial-gradient(ellipse 120px 50px at 70% 62%,rgba(101,67,33,.2),transparent);}
+    .field-outer{border-radius:18px;border:2.5px solid #5a8f2e;overflow:hidden;box-shadow:0 6px 28px rgba(92,61,46,.22);margin-bottom:14px;}
+    /* field-scroll: fixed visible window, overflow scrolls when zoomed IN */
+    .field-scroll{overflow:auto;width:100%;height:360px;position:relative;}
+    /* field-canvas: always fills visible area, expands when zooming in */
+    .field-canvas{
+      position:relative;
+      min-width:100%;
+      min-height:360px;
+      background:
+        repeating-linear-gradient(87deg,transparent 0,transparent 8px,rgba(60,100,30,.07) 8px,rgba(60,100,30,.07) 9px),
+        repeating-linear-gradient(93deg,transparent 0,transparent 12px,rgba(80,120,40,.05) 12px,rgba(80,120,40,.05) 13px),
+        linear-gradient(180deg,#8dc455,#7ab648 15%,#6aa838 35%,#5a9230 55%,#4e8028 75%,#426e22);
+    }
+    .field-canvas:before{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;
+      background:
+        radial-gradient(ellipse 120px 18px at 50% 80%,rgba(180,160,120,.35),transparent),
+        radial-gradient(ellipse 100px 14px at 28% 88%,rgba(180,160,120,.28),transparent),
+        radial-gradient(ellipse 90px 14px at 72% 84%,rgba(180,160,120,.25),transparent),
+        radial-gradient(ellipse 100px 44px at 22% 58%,rgba(101,67,33,.25),transparent),
+        radial-gradient(ellipse 120px 50px at 70% 62%,rgba(101,67,33,.2),transparent);
+    }
     .field-fence{position:absolute;bottom:0;left:0;right:0;height:26px;z-index:5;background:repeating-linear-gradient(90deg,#8B5A3A 0,#8B5A3A 10px,#7A4A2A 10px,#7A4A2A 12px,transparent 12px,transparent 16px);opacity:.55;}
     .pstone{position:absolute;border-radius:50%;background:rgba(180,165,130,.5);z-index:2;}
     .gdecor{position:absolute;pointer-events:none;z-index:2;filter:drop-shadow(0 2px 3px rgba(0,0,0,.18));}
     .gitem{position:absolute;display:flex;flex-direction:column;align-items:center;cursor:grab;z-index:10;user-select:none;touch-action:none;}
     .gitem.dragging{cursor:grabbing;z-index:200;opacity:.9;}
-    .gitem .gi-e{font-size:1.8rem;line-height:1;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25));}
-    .gitem.seed-s .gi-e{font-size:.9rem;filter:grayscale(.3);}
-    .gitem.sprout-s .gi-e{font-size:1.2rem;}
+    .gitem .gi-e{line-height:1;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25));}
     .gi-lbl{font-size:.36rem;color:#fff;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.6);margin-top:1px;white-space:nowrap;}
     .gi-bar{width:24px;height:3px;background:rgba(255,255,255,.25);border-radius:2px;margin-top:1px;}
     .gi-fill{height:100%;background:var(--gold-l);border-radius:2px;}
@@ -101,7 +113,7 @@
 </head>
 <body>
 <canvas id="confetti"></canvas>
-
+ 
 <div class="animal-arrival" id="animal-arrival" onclick="closeArrival()">
   <div class="arrival-card" onclick="event.stopPropagation()">
     <span class="arrival-emoji" id="arrival-emoji">🐼</span>
@@ -110,18 +122,18 @@
     <button class="arrival-btn" onclick="closeArrival()">Welcome them! 🌿</button>
   </div>
 </div>
-
+ 
 <div class="header">
   <h1>emma<span>finds</span>ajob 🌿</h1>
   <div class="money-bar">💰 <span class="amt" id="header-money">0</span> coins</div>
 </div>
-
+ 
 <div class="tabs">
   <button class="tab active" onclick="showTab('tracker',this)">📋 Tracker</button>
   <button class="tab" onclick="showTab('shop',this)">🌾 Seeds</button>
   <button class="tab" onclick="showTab('garden',this)">🌱 Garden</button>
 </div>
-
+ 
 <div class="page active" id="page-tracker">
   <div id="milestone-banner"></div>
   <div class="stats">
@@ -137,7 +149,7 @@
   <div id="log"></div>
   <button id="reset-btn">reset all data</button>
 </div>
-
+ 
 <div class="page" id="page-shop">
   <div class="top-row"><h2>🌾 Seed Shop</h2><div class="coin-pill">💰 <span id="shop-coins">0</span></div></div>
   <div class="cat-tabs">
@@ -151,29 +163,32 @@
   </div>
   <div class="seed-grid" id="seed-grid"></div>
 </div>
-
+ 
 <div class="page" id="page-garden">
-  <div class="top-row"><h2>🌱 My Garden</h2><span class="hint">Drag seeds in · drag anything to move · double-click to remove</span></div>
-  <div class="zoom-bar"><button class="zoom-btn" onclick="zoomOut()">−</button><span class="zoom-lbl" id="zoom-lbl">100%</span><button class="zoom-btn" onclick="zoomIn()">+</button><button class="zoom-btn" onclick="zoomReset()">Reset</button></div>
+  <div class="top-row"><h2>🌱 My Garden</h2><span class="hint">Drag seeds in · drag to move · double-click to remove</span></div>
+  <div class="zoom-bar">
+    <button class="zoom-btn" onclick="zoomOut()">−</button>
+    <span class="zoom-lbl" id="zoom-lbl">100%</span>
+    <button class="zoom-btn" onclick="zoomIn()">+</button>
+    <button class="zoom-btn" onclick="zoomReset()">Reset</button>
+  </div>
   <div class="field-outer">
-    <div class="field-sky"><span class="sky-sun">☀️</span></div>
     <div class="field-scroll" id="field-scroll">
-      <div class="field-spacer" id="field-spacer">
-        <div class="field-canvas" id="field-canvas">
-          <div class="pstone" style="width:22px;height:13px;left:18%;bottom:20%"></div>
-          <div class="pstone" style="width:17px;height:11px;left:31%;bottom:15%"></div>
-          <div class="pstone" style="width:25px;height:14px;left:45%;bottom:18%"></div>
-          <div class="pstone" style="width:19px;height:12px;left:59%;bottom:13%"></div>
-          <div class="pstone" style="width:23px;height:13px;left:73%;bottom:19%"></div>
-          <div class="pstone" style="width:15px;height:10px;left:86%;bottom:14%"></div>
-          <div class="gdecor" style="font-size:2rem;left:1%;top:8%">🌳</div>
-          <div class="gdecor" style="font-size:2rem;right:1%;top:6%">🌳</div>
-          <div class="gdecor" style="font-size:1.3rem;left:2%;top:40%">🪨</div>
-          <div class="gdecor" style="font-size:1.3rem;right:2%;top:44%">🪨</div>
-          <div class="gdecor" style="font-size:1.2rem;left:5%;bottom:24%">🌿</div>
-          <div class="gdecor" style="font-size:1.2rem;right:5%;bottom:26%">🌿</div>
-          <div class="field-fence"></div>
-        </div>
+      <div class="field-canvas" id="field-canvas">
+        <!-- decorative stones positioned as % so they scale with field -->
+        <div class="pstone" style="width:22px;height:13px;left:18%;bottom:20%"></div>
+        <div class="pstone" style="width:17px;height:11px;left:31%;bottom:15%"></div>
+        <div class="pstone" style="width:25px;height:14px;left:45%;bottom:18%"></div>
+        <div class="pstone" style="width:19px;height:12px;left:59%;bottom:13%"></div>
+        <div class="pstone" style="width:23px;height:13px;left:73%;bottom:19%"></div>
+        <div class="pstone" style="width:15px;height:10px;left:86%;bottom:14%"></div>
+        <div class="gdecor" style="font-size:2rem;left:1%;top:8%">🌳</div>
+        <div class="gdecor" style="font-size:2rem;right:1%;top:6%">🌳</div>
+        <div class="gdecor" style="font-size:1.3rem;left:2%;top:40%">🪨</div>
+        <div class="gdecor" style="font-size:1.3rem;right:2%;top:44%">🪨</div>
+        <div class="gdecor" style="font-size:1.2rem;left:5%;bottom:24%">🌿</div>
+        <div class="gdecor" style="font-size:1.2rem;right:5%;bottom:26%">🌿</div>
+        <div class="field-fence"></div>
       </div>
     </div>
   </div>
@@ -182,9 +197,9 @@
   <div class="section-label">🎒 Seed Inventory — drag onto garden</div>
   <div class="inventory" id="inventory"></div>
 </div>
-
+ 
 <div id="toast"></div>
-
+ 
 <script>
 const SEEDS=[
   {id:'daisy',emoji:'🌼',name:'Daisy',desc:'Cheerful & bright.',cost:2,cat:'flowers'},
@@ -231,56 +246,122 @@ const SEEDS=[
   {id:'moon',emoji:'🌙',name:'Moon Flower',desc:'Blooms at midnight.',cost:8,cat:'rare'},
   {id:'crystal',emoji:'💎',name:'Crystal Bloom',desc:'Priceless beauty.',cost:12,cat:'rare'}
 ];
-
+ 
 const ALL_ANIMALS=[
   {emoji:'🐝',name:'Honey Bee',msg:'A little bee flew in! She approves of your hustle. 🍯',rarity:'Common'},
-  {emoji:'🦋',name:'Butterfly',msg:'A butterfly landed on your flowers. She loves it here! 🌸',rarity:'Common'},
+  {emoji:'🦋',name:'Butterfly',msg:'A butterfly landed on your flowers! 🌸',rarity:'Common'},
   {emoji:'🐛',name:'Friendly Worm',msg:'A worm is helping your soil grow! 🌱',rarity:'Common'},
+  {emoji:'🐞',name:'Ladybug',msg:'A ladybug brought extra luck! 🍀',rarity:'Common'},
+  {emoji:'🐌',name:'Garden Snail',msg:'Slow and steady wins the race! 🌿',rarity:'Common'},
+  {emoji:'🐜',name:'Tiny Ant',msg:'An ant admires your work ethic! 💪',rarity:'Common'},
+  {emoji:'🦗',name:'Cricket',msg:'A cricket is singing your praises tonight! 🎵',rarity:'Common'},
+  {emoji:'🪲',name:'Beetle',msg:'A shiny beetle wandered in. Good omen! ✨',rarity:'Common'},
   {emoji:'🐶',name:'Puppy',msg:'A puppy ran into your garden!! 🐾',rarity:'Uncommon'},
   {emoji:'🐼',name:'Panda',msg:'A panda arrived with bamboo snacks! 🎋',rarity:'Uncommon'},
-  {emoji:'🐸',name:'Little Frog',msg:'Ribbit! A frog hopped in.',rarity:'Uncommon'},
+  {emoji:'🐸',name:'Little Frog',msg:'Ribbit! A frog hopped in. 🌿',rarity:'Uncommon'},
   {emoji:'🐇',name:'Bunny',msg:'A bunny hopped over to cheer you on! 🍀',rarity:'Uncommon'},
   {emoji:'🐱',name:'Kitten',msg:'A fluffy kitten made herself at home! 🌸',rarity:'Uncommon'},
+  {emoji:'🦔',name:'Hedgehog',msg:'A hedgehog waddled in — unbearably cute! 🌰',rarity:'Uncommon'},
+  {emoji:'🐿️',name:'Squirrel',msg:'A squirrel is saving good things for you! 🌰',rarity:'Uncommon'},
+  {emoji:'🦦',name:'Otter',msg:'An otter rolled in just to hang out! 🌊',rarity:'Uncommon'},
+  {emoji:'🐹',name:'Hamster',msg:'A tiny hamster is running laps in your honor! 🏃',rarity:'Uncommon'},
+  {emoji:'🐭',name:'Field Mouse',msg:'A sweet little mouse snuck in to say hi! 🧀',rarity:'Uncommon'},
+  {emoji:'🐰',name:'White Rabbit',msg:'A white rabbit appeared! She believes in you! 🐰',rarity:'Uncommon'},
+  {emoji:'🦝',name:'Raccoon',msg:'A raccoon found your garden and gives it 5 stars! 🌟',rarity:'Uncommon'},
   {emoji:'🦉',name:'Wise Owl',msg:'An owl says you are doing amazing. 🌙',rarity:'Rare'},
-  {emoji:'🦊',name:'Fox',msg:'A fox respects the hustle. 🦊',rarity:'Rare'},
+  {emoji:'🦊',name:'Fox',msg:'A fox respects the hustle. Keep going! 🦊',rarity:'Rare'},
   {emoji:'🦌',name:'Deer',msg:'A deer stepped gracefully into your garden. 🌸',rarity:'Rare'},
-  {emoji:'🦚',name:'Peacock',msg:'A peacock showed up looking stunning! ✨',rarity:'Very Rare'},
+  {emoji:'🐺',name:'Wolf',msg:'A wolf howled to celebrate your grind! 🌕',rarity:'Rare'},
+  {emoji:'🐨',name:'Koala',msg:'A koala chose your garden for her nap! 🌿',rarity:'Rare'},
+  {emoji:'🦘',name:'Kangaroo',msg:'A kangaroo bounded in with a surprise! 🦘',rarity:'Rare'},
+  {emoji:'🦙',name:'Llama',msg:'A llama is lovingly judging your garden. Approves! 🌾',rarity:'Rare'},
+  {emoji:'🐻',name:'Bear',msg:'A bear wandered over and seems very chill! 🍯',rarity:'Rare'},
+  {emoji:'🐮',name:'Cow',msg:'A spotted cow mooed in approval! 🐄',rarity:'Rare'},
+  {emoji:'🦒',name:'Giraffe',msg:'A giraffe peeked over your fence! 🌿',rarity:'Rare'},
+  {emoji:'🐘',name:'Elephant',msg:'An elephant never forgets how hard you work! 🌸',rarity:'Rare'},
+  {emoji:'🦚',name:'Peacock',msg:'A peacock showed up looking absolutely stunning! ✨',rarity:'Very Rare'},
+  {emoji:'🦜',name:'Parrot',msg:'A parrot flew in and keeps saying "you got this"! 🌺',rarity:'Very Rare'},
+  {emoji:'🦩',name:'Flamingo',msg:'A flamingo strutted in! Standing tall, just like you! 🌸',rarity:'Very Rare'},
+  {emoji:'🦢',name:'Swan',msg:'A graceful swan glided into your garden! ✨',rarity:'Very Rare'},
+  {emoji:'🦅',name:'Eagle',msg:'An eagle soared in — you aim high! 🦅',rarity:'Very Rare'},
+  {emoji:'🦆',name:'Fancy Duck',msg:'A very distinguished duck visited. Quack! 🌿',rarity:'Very Rare'},
+  {emoji:'🦁',name:'Lion',msg:'A lion showed up. She sees a fellow queen! 👑',rarity:'Very Rare'},
+  {emoji:'🐯',name:'Tiger',msg:'A tiger purred into your garden! Fierce & focused! 🌿',rarity:'Very Rare'},
+  {emoji:'🦓',name:'Zebra',msg:'A zebra trotted in — standing out, just like you! 🌾',rarity:'Very Rare'},
   {emoji:'🐉',name:'Baby Dragon',msg:'A baby dragon landed with gold sparks! ✨',rarity:'Legendary'},
-  {emoji:'🦄',name:'Unicorn',msg:'A unicorn appeared!! 🌈✨',rarity:'Legendary'}
+  {emoji:'🦄',name:'Unicorn',msg:'A unicorn appeared!! 🌈✨',rarity:'Legendary'},
+  {emoji:'🐻‍❄️',name:'Polar Bear',msg:'A rare polar bear wandered in from afar! ❄️✨',rarity:'Legendary'},
+  {emoji:'🦕',name:'Mini Dino',msg:'A tiny dinosaur found your garden!! This is historic! 🦕✨',rarity:'Legendary'},
+  {emoji:'🐲',name:'Garden Dragon',msg:'A jade garden dragon has chosen your garden as home! 🐲✨',rarity:'Legendary'},
 ];
-
-const COIN_MILESTONES={4:3,8:5,12:5,16:8,20:10,24:10,28:12,32:15,36:15,40:20,44:20,48:25,52:30,56:30,60:35,64:35,68:40,72:40,76:45,80:50,84:50,88:55,92:55,96:60,100:75};
+ 
+const LOCKED_MILESTONES={10:5,25:15,50:30,75:22,100:50,150:40,200:80};
+function rollBonusCoins(total){
+  if(LOCKED_MILESTONES[total]!==undefined){const c=LOCKED_MILESTONES[total];return{coins:c,msg:`🎉 Application #${total}! Milestone bonus: +${c} coins!`,type:'milestone'};}
+  const r=Math.random();
+  if(r<0.06){const c=Math.floor(Math.random()*9)+8;return{coins:c,msg:`🌟 Lucky drop! Surprise bonus: +${c} coins!`,type:'jackpot'};}
+  if(r<0.19){const c=Math.floor(Math.random()*4)+3;return{coins:c,msg:`✨ Nice! Bonus coins: +${c}!`,type:'small'};}
+  return null;
+}
+const ANIMAL_MILESTONES=new Set([5,10,15,25,35,50,75,100,150,200]);
+function shouldTriggerAnimal(total){
+  if(ANIMAL_MILESTONES.has(total))return true;
+  if(total>3&&Math.random()<0.10)return true;
+  return false;
+}
+ 
+// ── STORAGE ───────────────────────────────────────────────────────────────────
 const todayKey=()=>new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 const timeNow=()=>new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
 const loadJobs=()=>JSON.parse(localStorage.getItem('emmajobs')||'{}');
 const saveJobs=d=>localStorage.setItem('emmajobs',JSON.stringify(d));
 const loadG=()=>JSON.parse(localStorage.getItem('emmagarden6')||'{"coins":0,"inventory":[],"plants":[],"animals":[],"purchaseLog":[]}');
 const saveG=g=>localStorage.setItem('emmagarden6',JSON.stringify(g));
-
 function totalApplications(){const data=loadJobs();return Object.values(data).reduce((sum,arr)=>sum+(Array.isArray(arr)?arr.length:0),0);}
 function updateMoneyUI(c){document.getElementById('money-count').textContent=c;document.getElementById('header-money').textContent=c;document.getElementById('shop-coins').textContent=c;}
 function normalizeGarden(){const g=loadG();if(typeof g.coins!=='number')g.coins=0;if(!Array.isArray(g.inventory))g.inventory=[];if(!Array.isArray(g.plants))g.plants=[];if(!Array.isArray(g.animals))g.animals=[];if(!Array.isArray(g.purchaseLog))g.purchaseLog=[];saveG(g);return g;}
-
-let zoom=1;const ZMIN=.4,ZMAX=2.6,ZSTEP=.2;
-function baseWidth(){return Math.max(900,document.getElementById('field-scroll')?.clientWidth||900);}
+function initCoinsIfNeeded(){
+  const total=totalApplications();const g=normalizeGarden();
+  if(g.coins===0&&total>0){g.coins=total;saveG(g);updateMoneyUI(g.coins);showToast('💰 Retroactive coins granted for your '+total+' applications!');}
+}
+ 
+// ── ZOOM — no CSS transform; field always fills container ─────────────────────
+// Items stored in "virtual" coords (0–1 as fraction of canvas size).
+// On render they're placed at virtualCoord * canvasPixelSize.
+let zoom=1;
+const ZMIN=0.4, ZMAX=2.6, ZSTEP=0.2;
+ 
+function getCanvasSize(){
+  const scroll=document.getElementById('field-scroll');
+  const sw=scroll.clientWidth||400;
+  const sh=scroll.clientHeight||360;
+  // At zoom≤1 canvas fills scroll exactly.
+  // At zoom>1 canvas expands so you can scroll.
+  const w=Math.max(sw, sw*zoom);
+  const h=Math.max(sh, sh*zoom);
+  return {w, h, sw, sh};
+}
+ 
 function applyZoom(){
   const canvas=document.getElementById('field-canvas');
-  const spacer=document.getElementById('field-spacer');
-  const w=baseWidth();
-  const h=500;
-  canvas.style.width=w+'px';canvas.style.height=h+'px';
-  canvas.style.transform=`scale(${zoom})`;
-  canvas.style.backgroundSize=`${100/zoom}px ${100/zoom}px,${120/zoom}px ${120/zoom}px,100% 100%`;
-  spacer.style.width=(w*zoom)+'px';spacer.style.height=(h*zoom)+'px';
+  const {w,h}=getCanvasSize();
+  canvas.style.width=w+'px';
+  canvas.style.height=h+'px';
+  canvas.style.transform='none'; // never scale the canvas itself
   document.getElementById('zoom-lbl').textContent=Math.round(zoom*100)+'%';
+  // re-render items at new zoom
+  if(document.getElementById('page-garden').classList.contains('active')){
+    const g=normalizeGarden();
+    renderField(g);
+  }
 }
 function zoomIn(){zoom=Math.min(ZMAX,+(zoom+ZSTEP).toFixed(1));applyZoom();}
 function zoomOut(){zoom=Math.max(ZMIN,+(zoom-ZSTEP).toFixed(1));applyZoom();}
 function zoomReset(){zoom=1;applyZoom();}
-window.addEventListener('resize',applyZoom);
-
+window.addEventListener('resize',()=>{if(document.getElementById('page-garden').classList.contains('active'))applyZoom();});
+ 
 function showTab(name,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');el.classList.add('active');if(name==='shop')renderShop();if(name==='garden')renderGarden();}
-
+ 
 function render(){
   const data=loadJobs();const today=todayKey();const g=normalizeGarden();
   document.getElementById('today-count').textContent=(data[today]||[]).length;
@@ -291,7 +372,7 @@ function render(){
   if(!days.length){log.innerHTML='<p class="empty">No applications yet — you got this! 🌱</p>';return;}
   days.forEach(day=>{const entries=data[day]||[];const block=document.createElement('div');block.className='day-block';block.innerHTML=`<div class="day-head"><span class="date">${day===today?'📅 Today':day}</span><span class="badge">${entries.length} app${entries.length!==1?'s':''}</span></div><div class="day-entries">${entries.map(t=>`<div class="entry">${t}</div>`).join('')}</div>`;log.appendChild(block);});
 }
-
+ 
 let curCat='all';
 function setCat(cat,el){curCat=cat;document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderShop();}
 function renderShop(){
@@ -301,54 +382,202 @@ function renderShop(){
 }
 function buySeed(id){
   const s=SEEDS.find(x=>x.id===id);if(!s)return;
-  const g=normalizeGarden();
-  if(g.coins<s.cost){showToast('Not enough coins yet!');return;}
-  g.coins-=s.cost;
-  g.purchaseLog.push({item:s.id,amount:s.cost,time:Date.now()});
-  g.inventory.push({id:s.id,emoji:s.emoji,name:s.name});
+  const g=normalizeGarden();if(g.coins<s.cost){showToast('Not enough coins yet!');return;}
+  g.coins-=s.cost;g.purchaseLog.push({item:s.id,amount:s.cost,time:Date.now()});g.inventory.push({id:s.id,emoji:s.emoji,name:s.name});
   saveG(g);updateMoneyUI(g.coins);renderShop();playSparkle();miniConfetti();showToast(s.name+' added to bag! 🌱');
 }
-
-function renderGarden(){applyZoom();const g=normalizeGarden();renderField(g);renderInventory(g);renderAnimalsLog(g);}
+ 
+// ── GARDEN RENDER ─────────────────────────────────────────────────────────────
+// Plant/animal positions stored as fractions (0–1) of the virtual canvas.
+// Rendered at fraction * currentCanvasPixelSize.
+function virtualToScreen(vx,vy){
+  const {w,h}=getCanvasSize();
+  return {x:vx*w, y:vy*h};
+}
+function screenToVirtual(sx,sy){
+  const {w,h}=getCanvasSize();
+  return {vx:sx/w, vy:sy/h};
+}
+ 
+// Migrate old absolute-px positions to fractional if needed.
+// Old positions were stored assuming a ~900x500 canvas.
+const LEGACY_W=900, LEGACY_H=500;
+function migratePlant(p){
+  if(p.vx!==undefined)return p; // already fractional
+  return {...p, vx:(p.x||0)/LEGACY_W, vy:(p.y||0)/LEGACY_H};
+}
+function migrateAnimal(a){
+  if(a.vx!==undefined)return a;
+  return {...a, vx:(a.x||0)/LEGACY_W, vy:(a.y||0)/LEGACY_H};
+}
+ 
+function renderGarden(){
+  // Ensure canvas size is correct first
+  const canvas=document.getElementById('field-canvas');
+  const {w,h}=getCanvasSize();
+  canvas.style.width=w+'px';canvas.style.height=h+'px';canvas.style.transform='none';
+  document.getElementById('zoom-lbl').textContent=Math.round(zoom*100)+'%';
+  const g=normalizeGarden();
+  // Migrate old data
+  g.plants=g.plants.map(migratePlant);
+  g.animals=g.animals.map(migrateAnimal);
+  saveG(g);
+  renderField(g);renderInventory(g);renderAnimalsLog(g);
+}
+ 
 function makeFieldDraggable(el,idx,isAnimal){
   let sx=0,sy=0,sl=0,st=0,active=false;
-  function start(cx,cy){active=true;sx=cx;sy=cy;sl=parseFloat(el.style.left)||0;st=parseFloat(el.style.top)||0;el.classList.add('dragging');}
-  function move(cx,cy){if(!active)return;const canvas=document.getElementById('field-canvas');const maxX=canvas.offsetWidth-(el.offsetWidth||40);const maxY=canvas.offsetHeight-(el.offsetHeight||40);el.style.left=Math.max(0,Math.min(maxX,sl+(cx-sx)/zoom))+'px';el.style.top=Math.max(0,Math.min(maxY,st+(cy-sy)/zoom))+'px';}
-  function end(){if(!active)return;active=false;el.classList.remove('dragging');const g=normalizeGarden();const x=parseFloat(el.style.left);const y=parseFloat(el.style.top);if(isAnimal&&g.animals[idx]){g.animals[idx].x=x;g.animals[idx].y=y;}if(!isAnimal&&g.plants[idx]){g.plants[idx].x=x;g.plants[idx].y=y;}saveG(g);}
+  function start(cx,cy){
+    active=true;sx=cx;sy=cy;
+    sl=parseFloat(el.style.left)||0;
+    st=parseFloat(el.style.top)||0;
+    el.classList.add('dragging');
+  }
+  function move(cx,cy){
+    if(!active)return;
+    const canvas=document.getElementById('field-canvas');
+    const maxX=canvas.offsetWidth-(el.offsetWidth||40);
+    const maxY=canvas.offsetHeight-(el.offsetHeight||40);
+    el.style.left=Math.max(0,Math.min(maxX,sl+(cx-sx)))+'px';
+    el.style.top=Math.max(0,Math.min(maxY,st+(cy-sy)))+'px';
+  }
+  function end(){
+    if(!active)return;active=false;el.classList.remove('dragging');
+    const g=normalizeGarden();
+    const screenX=parseFloat(el.style.left);
+    const screenY=parseFloat(el.style.top);
+    const {vx,vy}=screenToVirtual(screenX,screenY);
+    if(isAnimal&&g.animals[idx]){g.animals[idx].vx=vx;g.animals[idx].vy=vy;}
+    if(!isAnimal&&g.plants[idx]){g.plants[idx].vx=vx;g.plants[idx].vy=vy;}
+    saveG(g);
+  }
   el.addEventListener('mousedown',e=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();start(e.clientX,e.clientY);const mm=ev=>move(ev.clientX,ev.clientY);const mu=()=>{end();document.removeEventListener('mousemove',mm);document.removeEventListener('mouseup',mu);};document.addEventListener('mousemove',mm);document.addEventListener('mouseup',mu);});
-  el.addEventListener('touchstart',e=>{e.stopPropagation();if(e.touches.length===1){const t=e.touches[0];start(t.clientX,t.clientY);}}, {passive:true});
-  el.addEventListener('touchmove',e=>{if(e.touches.length===1){e.preventDefault();const t=e.touches[0];move(t.clientX,t.clientY);}}, {passive:false});
+  el.addEventListener('touchstart',e=>{e.stopPropagation();if(e.touches.length===1){const t=e.touches[0];start(t.clientX,t.clientY);}},{passive:true});
+  el.addEventListener('touchmove',e=>{if(e.touches.length===1){e.preventDefault();const t=e.touches[0];move(t.clientX,t.clientY);}},{passive:false});
   el.addEventListener('touchend',end);
 }
+ 
 function renderField(g){
-  const canvas=document.getElementById('field-canvas');canvas.querySelectorAll('.gitem').forEach(e=>e.remove());
-  g.plants.forEach((p,idx)=>{const age=Date.now()-p.plantedAt;let stage=0;if(age>=20000)stage=2;else if(age>=8000)stage=1;const pct=stage===2?100:stage===1?Math.min(100,((age-8000)/12000)*100):Math.min(100,(age/8000)*100);const emoji=stage===0?'🌰':stage===1?'🪴':p.emoji;const sc=['seed-s','sprout-s',''][stage];const el=document.createElement('div');el.className=`gitem ${sc}`;el.style.left=(p.x||30)+'px';el.style.top=(p.y||30)+'px';el.innerHTML=`<div class="gi-e">${emoji}</div><div class="gi-lbl">${p.name}</div><div class="gi-bar"><div class="gi-fill" style="width:${pct}%"></div></div>`;makeFieldDraggable(el,idx,false);let clicks=0;el.addEventListener('click',e=>{e.stopPropagation();clicks++;if(clicks>=2){const g=normalizeGarden();g.plants.splice(idx,1);saveG(g);renderGarden();showToast('Plant removed ✕');}setTimeout(()=>clicks=0,500);});canvas.appendChild(el);if(stage<2){const ms=stage===0?8000-age:20000-age;setTimeout(()=>{if(document.getElementById('page-garden').classList.contains('active'))renderGarden();},ms+100);}});
-  g.animals.forEach((a,idx)=>{const el=document.createElement('div');el.className='gitem animal-item';el.style.left=(a.x||50)+'px';el.style.top=(a.y||50)+'px';el.innerHTML=`<div class="gi-e">${a.emoji}</div><div class="gi-lbl">${a.name}</div>`;makeFieldDraggable(el,idx,true);canvas.appendChild(el);});
+  const canvas=document.getElementById('field-canvas');
+  canvas.querySelectorAll('.gitem').forEach(e=>e.remove());
+  // Base emoji size at zoom=1; scales with zoom
+  const baseSize=1.8;
+  g.plants.forEach((p,idx)=>{
+    const age=Date.now()-p.plantedAt;
+    let stage=0;if(age>=20000)stage=2;else if(age>=8000)stage=1;
+    const pct=stage===2?100:stage===1?Math.min(100,((age-8000)/12000)*100):Math.min(100,(age/8000)*100);
+    const emoji=stage===0?'🌰':stage===1?'🪴':p.emoji;
+    const sizeRem=(stage===0?0.5:stage===1?0.7:baseSize)*zoom;
+    const sc=['seed-s','sprout-s',''][stage];
+    const pos=virtualToScreen(p.vx||0,p.vy||0);
+    const el=document.createElement('div');
+    el.className=`gitem ${sc}`;
+    el.style.left=pos.x+'px';el.style.top=pos.y+'px';
+    el.innerHTML=`<div class="gi-e" style="font-size:${sizeRem}rem">${emoji}</div><div class="gi-lbl">${p.name}</div><div class="gi-bar"><div class="gi-fill" style="width:${pct}%"></div></div>`;
+    makeFieldDraggable(el,idx,false);
+    let clicks=0;
+    el.addEventListener('click',e=>{e.stopPropagation();clicks++;if(clicks>=2){const g=normalizeGarden();g.plants.splice(idx,1);saveG(g);renderGarden();showToast('Plant removed ✕');}setTimeout(()=>clicks=0,500);});
+    canvas.appendChild(el);
+    if(stage<2){const ms=stage===0?8000-age:20000-age;setTimeout(()=>{if(document.getElementById('page-garden').classList.contains('active'))renderGarden();},ms+100);}
+  });
+  g.animals.forEach((a,idx)=>{
+    const sizeRem=baseSize*zoom;
+    const pos=virtualToScreen(a.vx||0,a.vy||0);
+    const el=document.createElement('div');
+    el.className='gitem animal-item';
+    el.style.left=pos.x+'px';el.style.top=pos.y+'px';
+    el.innerHTML=`<div class="gi-e" style="font-size:${sizeRem}rem">${a.emoji}</div><div class="gi-lbl">${a.name}</div>`;
+    makeFieldDraggable(el,idx,true);
+    canvas.appendChild(el);
+  });
 }
-
+ 
 document.getElementById('field-scroll').addEventListener('dragover',e=>e.preventDefault());
-document.getElementById('field-scroll').addEventListener('drop',e=>{e.preventDefault();const seedId=e.dataTransfer.getData('seedId');if(!seedId)return;const g=normalizeGarden();const idx=g.inventory.findIndex(i=>i.id===seedId);if(idx===-1)return;const seed=g.inventory[idx];const canvas=document.getElementById('field-canvas');const rect=canvas.getBoundingClientRect();const x=Math.max(4,Math.min(canvas.offsetWidth-40,(e.clientX-rect.left)/zoom));const y=Math.max(4,Math.min(canvas.offsetHeight-40,(e.clientY-rect.top)/zoom));g.plants.push({id:seed.id,emoji:seed.emoji,name:seed.name,plantedAt:Date.now(),x,y});g.inventory.splice(idx,1);saveG(g);playSparkle();renderGarden();showToast(seed.name+' planted! 🌱');});
-function renderInventory(g){const inv=document.getElementById('inventory');inv.innerHTML='';const groups={};g.inventory.forEach(s=>{if(!groups[s.id])groups[s.id]={seed:s,cnt:0};groups[s.id].cnt++;});if(!Object.keys(groups).length){inv.innerHTML='<span class="inv-empty">No seeds — buy some from the shop! 🛒</span>';return;}Object.values(groups).forEach(({seed,cnt})=>{const el=document.createElement('div');el.className='inv-seed';el.draggable=true;el.innerHTML=`<span class="is-e">${seed.emoji}</span><span class="is-n">${seed.name}${cnt>1?' ×'+cnt:''}</span>`;el.addEventListener('dragstart',e=>e.dataTransfer.setData('seedId',seed.id));inv.appendChild(el);});}
-function renderAnimalsLog(g){const grid=document.getElementById('animals-grid');grid.innerHTML='';if(!g.animals.length){grid.innerHTML='<p style="font-size:.73rem;color:var(--clay-l);font-style:italic">Keep applying — surprise animals visit at every milestone! 🐾</p>';return;}g.animals.forEach(a=>{const tag=document.createElement('div');tag.className='animal-tag';tag.innerHTML=`<span class="at-e">${a.emoji}</span><div><div class="at-n">${a.name}</div><div class="at-r">${a.rarity} · app #${a.apps}</div></div>`;grid.appendChild(tag);});}
-function triggerAnimalVisit(total){const g=normalizeGarden();if(g.animals.some(a=>a.apps===total))return;const animal=ALL_ANIMALS[g.animals.length%ALL_ANIMALS.length];const canvas=document.getElementById('field-canvas');const maxX=Math.max(50,(canvas.offsetWidth||900)-60);const x=40+Math.random()*(maxX-40);const y=20+Math.random()*400;g.animals.push({...animal,apps:total,x,y});saveG(g);setTimeout(()=>{document.getElementById('arrival-emoji').textContent=animal.emoji;document.getElementById('arrival-title').textContent=animal.name+' arrived!';document.getElementById('arrival-sub').textContent=animal.msg;document.getElementById('animal-arrival').classList.add('show');playAnimalSound();},700);}
+document.getElementById('field-scroll').addEventListener('drop',e=>{
+  e.preventDefault();
+  const seedId=e.dataTransfer.getData('seedId');if(!seedId)return;
+  const g=normalizeGarden();
+  const idx=g.inventory.findIndex(i=>i.id===seedId);if(idx===-1)return;
+  const seed=g.inventory[idx];
+  const canvas=document.getElementById('field-canvas');
+  const rect=canvas.getBoundingClientRect();
+  const screenX=Math.max(4,Math.min(canvas.offsetWidth-40,e.clientX-rect.left));
+  const screenY=Math.max(4,Math.min(canvas.offsetHeight-40,e.clientY-rect.top));
+  const {vx,vy}=screenToVirtual(screenX,screenY);
+  g.plants.push({id:seed.id,emoji:seed.emoji,name:seed.name,plantedAt:Date.now(),vx,vy});
+  g.inventory.splice(idx,1);
+  saveG(g);playSparkle();renderGarden();showToast(seed.name+' planted! 🌱');
+});
+ 
+function renderInventory(g){
+  const inv=document.getElementById('inventory');inv.innerHTML='';
+  const groups={};g.inventory.forEach(s=>{if(!groups[s.id])groups[s.id]={seed:s,cnt:0};groups[s.id].cnt++;});
+  if(!Object.keys(groups).length){inv.innerHTML='<span class="inv-empty">No seeds — buy some from the shop! 🛒</span>';return;}
+  Object.values(groups).forEach(({seed,cnt})=>{const el=document.createElement('div');el.className='inv-seed';el.draggable=true;el.innerHTML=`<span class="is-e">${seed.emoji}</span><span class="is-n">${seed.name}${cnt>1?' ×'+cnt:''}</span>`;el.addEventListener('dragstart',e=>e.dataTransfer.setData('seedId',seed.id));inv.appendChild(el);});
+}
+function renderAnimalsLog(g){
+  const grid=document.getElementById('animals-grid');grid.innerHTML='';
+  if(!g.animals.length){grid.innerHTML='<p style="font-size:.73rem;color:var(--clay-l);font-style:italic">Keep applying — surprise animals visit at milestones and randomly! 🐾</p>';return;}
+  g.animals.forEach(a=>{const tag=document.createElement('div');tag.className='animal-tag';tag.innerHTML=`<span class="at-e">${a.emoji}</span><div><div class="at-n">${a.name}</div><div class="at-r">${a.rarity} · app #${a.apps}</div></div>`;grid.appendChild(tag);});
+}
+ 
+function triggerAnimalVisit(total){
+  const g=normalizeGarden();
+  if(g.animals.some(a=>a.apps===total))return;
+  const weights={Common:40,Uncommon:30,Rare:18,'Very Rare':9,Legendary:3};
+  const pool=[];ALL_ANIMALS.forEach(a=>{const w=weights[a.rarity]||10;for(let i=0;i<w;i++)pool.push(a);});
+  const animal=pool[Math.floor(Math.random()*pool.length)];
+  const vx=0.1+Math.random()*0.8;
+  const vy=0.05+Math.random()*0.8;
+  g.animals.push({...animal,apps:total,vx,vy});saveG(g);
+  setTimeout(()=>{
+    document.getElementById('arrival-emoji').textContent=animal.emoji;
+    document.getElementById('arrival-title').textContent=animal.name+' arrived!';
+    document.getElementById('arrival-sub').textContent=animal.msg;
+    document.getElementById('animal-arrival').classList.add('show');
+    playAnimalSound();
+  },700);
+}
 function closeArrival(){document.getElementById('animal-arrival').classList.remove('show');if(document.getElementById('page-garden').classList.contains('active'))renderGarden();}
-
+ 
 let redoStack=[];
 document.getElementById('apply-btn').addEventListener('click',()=>{
-  const data=loadJobs();const today=todayKey();if(!Array.isArray(data[today]))data[today]=[];data[today].push(timeNow());saveJobs(data);redoStack=[];
-  const total=totalApplications();const g=normalizeGarden();g.coins+=1;
-  if(total%4===0){const bonus=COIN_MILESTONES[total]||3;g.coins+=bonus;const b=document.getElementById('milestone-banner');b.style.display='block';b.textContent='🎉 '+total+' applications!! Bonus +'+bonus+' coins! 💰';setTimeout(()=>b.style.display='none',3500);triggerAnimalVisit(total);}
-  saveG(g);updateMoneyUI(g.coins);render();if(document.getElementById('page-shop').classList.contains('active'))renderShop();launchConfetti();playSparkle();
+  const data=loadJobs();const today=todayKey();
+  if(!Array.isArray(data[today]))data[today]=[];
+  data[today].push(timeNow());saveJobs(data);redoStack=[];
+  const total=totalApplications();const g=normalizeGarden();
+  g.coins+=1;
+  const bonus=rollBonusCoins(total);
+  if(bonus){g.coins+=bonus.coins;const b=document.getElementById('milestone-banner');b.style.display='block';b.textContent=bonus.msg;setTimeout(()=>b.style.display='none',3500);}
+  if(shouldTriggerAnimal(total))triggerAnimalVisit(total);
+  saveG(g);updateMoneyUI(g.coins);render();
+  if(document.getElementById('page-shop').classList.contains('active'))renderShop();
+  launchConfetti();playSparkle();
 });
-document.getElementById('undo-btn').addEventListener('click',()=>{const data=loadJobs();const today=todayKey();if(data[today]?.length>0){redoStack.push({day:today,time:data[today].pop()});if(!data[today].length)delete data[today];saveJobs(data);const g=normalizeGarden();g.coins=Math.max(0,g.coins-1);saveG(g);render();updateMoneyUI(g.coins);}});
-document.getElementById('redo-btn').addEventListener('click',()=>{if(!redoStack.length){showToast('Nothing to redo!');return;}const {day,time}=redoStack.pop();const data=loadJobs();if(!data[day])data[day]=[];data[day].push(time);saveJobs(data);const total=totalApplications();const g=normalizeGarden();g.coins+=1;if(total%4===0){const bonus=COIN_MILESTONES[total]||3;g.coins+=bonus;triggerAnimalVisit(total);}saveG(g);render();updateMoneyUI(g.coins);});
-document.getElementById('reset-btn').addEventListener('click',()=>{if(confirm('Reset ALL data?')){localStorage.removeItem('emmajobs');localStorage.removeItem('emmagarden6');redoStack=[];render();}});
+document.getElementById('undo-btn').addEventListener('click',()=>{
+  const data=loadJobs();const today=todayKey();
+  if(data[today]?.length>0){redoStack.push({day:today,time:data[today].pop()});if(!data[today].length)delete data[today];saveJobs(data);const g=normalizeGarden();g.coins=Math.max(0,g.coins-1);saveG(g);render();updateMoneyUI(g.coins);}
+});
+document.getElementById('redo-btn').addEventListener('click',()=>{
+  if(!redoStack.length){showToast('Nothing to redo!');return;}
+  const {day,time}=redoStack.pop();const data=loadJobs();if(!data[day])data[day]=[];data[day].push(time);saveJobs(data);
+  const total=totalApplications();const g=normalizeGarden();g.coins+=1;
+  const bonus=rollBonusCoins(total);if(bonus)g.coins+=bonus.coins;
+  if(shouldTriggerAnimal(total))triggerAnimalVisit(total);
+  saveG(g);render();updateMoneyUI(g.coins);
+});
+document.getElementById('reset-btn').addEventListener('click',()=>{
+  if(confirm('Reset ALL data?')){localStorage.removeItem('emmajobs');localStorage.removeItem('emmagarden6');redoStack=[];render();}
+});
+ 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
 function playSparkle(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();[523,659,784,1047].forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.setValueAtTime(f,ctx.currentTime+i*.08);g.gain.setValueAtTime(.10,ctx.currentTime+i*.08);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+i*.08+.25);o.start(ctx.currentTime+i*.08);o.stop(ctx.currentTime+i*.08+.3);});}catch(e){}}
 function playAnimalSound(){playSparkle();}
 function launchConfetti(){const cv=document.getElementById('confetti'),ctx=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;const cols=['#C4847A','#8B5A3A','#8A9E74','#D4C4A0','#C9A84C','#DBA99E'];const pts=Array.from({length:100},()=>({x:Math.random()*cv.width,y:Math.random()*-cv.height*.3,w:Math.random()*10+4,h:Math.random()*5+3,c:cols[Math.floor(Math.random()*cols.length)],r:Math.random()*6.28,vx:(Math.random()-.5)*3,vy:Math.random()*3+1.5,vr:(Math.random()-.5)*.15,op:1}));let f=0;(function draw(){ctx.clearRect(0,0,cv.width,cv.height);let alive=false;pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.07;p.r+=p.vr;if(f>55)p.op=Math.max(0,p.op-.013);if(p.y<cv.height+20)alive=true;ctx.save();ctx.globalAlpha=p.op;ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});f++;if(alive)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);})();}
 function miniConfetti(){launchConfetti();}
-render();applyZoom();
+ 
+render();
+initCoinsIfNeeded();
 </script>
 </body>
 </html>

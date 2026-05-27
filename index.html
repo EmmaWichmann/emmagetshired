@@ -94,7 +94,7 @@
       overflow:hidden;
       box-shadow:0 6px 28px rgba(92,61,46,.22);
       margin-bottom:14px;
-      background:#426e22;
+      background:linear-gradient(180deg,#8dc455 0%,#7ab648 15%,#6aa838 35%,#5a9230 55%,#4e8028 75%,#426e22 100%);
       position:relative;
     }
     /* sky always full width, doesn't zoom */
@@ -117,7 +117,7 @@
  
     /* the actual field canvas — gets scaled by JS */
     .field-canvas{
-      width:900px;
+      width:100%;min-width:900px;
       height:500px;
       position:relative;
       transform-origin:top left;

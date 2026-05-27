@@ -426,52 +426,56 @@ const COIN_MILESTONES={4:3,8:5,12:5,16:8,20:10,24:10,28:12,32:15,36:15,40:20,44:
 
 function totalApplications(){
   const data=loadJobs();
-  return Object.values(data).reduce((s,a)=>s+a.length,0);
+  return Object.values(data).reduce((sum,arr)=>sum+(Array.isArray(arr)?arr.length:0),0);
 }
 
 function totalEarnedCoins(){
   const total=totalApplications();
   let earned=total; // 1 coin per application
+
   for(let i=4;i<=total;i+=4){
     earned += COIN_MILESTONES[i] || 3;
   }
+
   return earned;
 }
 
 function seedCost(id){
   const seed=SEEDS.find(s=>s.id===id);
-  return seed ? seed.cost : 0;
+  return seed ? Number(seed.cost)||0 : 0;
+}
+
+function estimatedCoinsSpentFromGarden(g){
+  return [
+    ...(Array.isArray(g.inventory)?g.inventory:[]),
+    ...(Array.isArray(g.plants)?g.plants:[])
+  ].reduce((sum,item)=>sum+seedCost(item.id),0);
+}
+
+function loggedCoinsSpent(g){
+  if(!Array.isArray(g.purchaseLog)) return 0;
+  return g.purchaseLog.reduce((sum,p)=>sum+(Number(p.amount)||0),0);
 }
 
 function repairGardenState(){
   const g=loadG();
+
   g.inventory=Array.isArray(g.inventory)?g.inventory:[];
   g.plants=Array.isArray(g.plants)?g.plants:[];
   g.animals=Array.isArray(g.animals)?g.animals:[];
+  g.purchaseLog=Array.isArray(g.purchaseLog)?g.purchaseLog:[];
 
-  // Coin math source of truth:
-  // earned coins = job applications + milestone bonuses
-  // spent coins = purchaseLog total
-  // If this is an older saved garden without purchaseLog, estimate past spending
-  // from the seeds currently in the bag + the plants already in the garden.
-  if(!Array.isArray(g.purchaseLog)){
-    const estimatedPastSpending=[...g.inventory,...g.plants]
-      .reduce((sum,item)=>sum+seedCost(item.id),0);
+  // SOURCE OF TRUTH:
+  // Coins earned = all job applications + milestone bonuses.
+  // Coins spent = the higher of purchaseLog spending OR currently-owned garden items.
+  // This repairs old saved data where purchases happened before the log existed.
+  const earned=totalEarnedCoins();
+  const estimatedSpent=estimatedCoinsSpentFromGarden(g);
+  const loggedSpent=loggedCoinsSpent(g);
 
-    g.purchaseLog=[];
-
-    if(estimatedPastSpending>0){
-      g.purchaseLog.push({
-        type:'migration',
-        amount:estimatedPastSpending,
-        time:Date.now(),
-        note:'estimated from existing inventory and garden plants'
-      });
-    }
-  }
-
-  g.spentCoins=g.purchaseLog.reduce((sum,p)=>sum+(Number(p.amount)||0),0);
-  g.coins=Math.max(0,totalEarnedCoins()-g.spentCoins);
+  g.spentCoins=Math.max(estimatedSpent,loggedSpent);
+  g.coins=Math.max(0,earned-g.spentCoins);
+  g.coinMathVersion='v6-earned-minus-spent';
 
   saveG(g);
   return g;
@@ -482,9 +486,18 @@ function availableCoins(){
 }
 
 function updateMoneyUI(c){
-  document.getElementById('money-count').textContent=c;
-  document.getElementById('header-money').textContent=c;
-  document.getElementById('shop-coins').textContent=c;
+  const value=Number(c)||0;
+  const money=document.getElementById('money-count');
+  const header=document.getElementById('header-money');
+  const shop=document.getElementById('shop-coins');
+
+  if(money) money.textContent=value;
+  if(header) header.textContent=value;
+  if(shop) shop.textContent=value;
+}
+
+function refreshCoinsEverywhere(){
+  updateMoneyUI(availableCoins());
 }
  
 // ── ZOOM ──────────────────────────────────────────────────
@@ -598,8 +611,10 @@ function buySeed(id){
   if(!s) return;
 
   let g=repairGardenState();
+
   if(g.coins<s.cost){
     showToast('Not enough coins yet!');
+    refreshCoinsEverywhere();
     return;
   }
 
@@ -607,8 +622,7 @@ function buySeed(id){
   g.inventory.push({id:s.id,emoji:s.emoji,name:s.name});
   saveG(g);
 
-  repairGardenState();
-  updateMoneyUI(availableCoins());
+  refreshCoinsEverywhere();
   renderShop();
   playSparkle();
   miniConfetti();
@@ -768,8 +782,10 @@ function closeArrival(){document.getElementById('animal-arrival').classList.remo
 // ── APPLY / UNDO / REDO ───────────────────────────────────
 let redoStack=[];
 document.getElementById('apply-btn').addEventListener('click',()=>{
-  const data=loadJobs(),today=todayKey();
-  if(!data[today]) data[today]=[];
+  const data=loadJobs();
+  const today=todayKey();
+
+  if(!Array.isArray(data[today])) data[today]=[];
 
   data[today].push(timeNow());
   saveJobs(data);
@@ -788,7 +804,10 @@ document.getElementById('apply-btn').addEventListener('click',()=>{
 
   repairGardenState();
   render();
-  updateMoneyUI(availableCoins());
+  refreshCoinsEverywhere();
+
+  if(document.getElementById('page-shop').classList.contains('active')) renderShop();
+
   launchConfetti();
   playSparkle();
 });
@@ -797,7 +816,7 @@ document.getElementById('undo-btn').addEventListener('click',()=>{
   if(data[today]?.length>0){
     redoStack.push({day:today,time:data[today].pop()});
     if(!data[today].length) delete data[today];
-    saveJobs(data);render();
+    saveJobs(data);repairGardenState();render();refreshCoinsEverywhere();
   }
 });
 document.getElementById('redo-btn').addEventListener('click',()=>{

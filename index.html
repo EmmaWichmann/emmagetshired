@@ -270,7 +270,8 @@
   </div>
   <div class="apply-wrap">
     <button id="apply-btn">✓ I Applied!</button>
-    <button id="undo-btn">↩ Undo Last</button>
+    <button id="undo-btn">↩ Undo</button>
+    <button id="redo-btn">↪ Redo</button>
   </div>
   <div class="log-lbl">Application Log</div>
   <div id="log"></div>
@@ -643,9 +644,30 @@ document.getElementById('apply-btn').addEventListener('click',()=>{
   render();launchConfetti();playSparkle();
 });
  
+let redoStack=[];
+ 
 document.getElementById('undo-btn').addEventListener('click',()=>{
   const data=loadJobs(),today=todayKey();
-  if(data[today]?.length>0){data[today].pop();if(!data[today].length) delete data[today];saveJobs(data);const g=loadG();if(g.coins>0) g.coins--;saveG(g);render();}
+  if(data[today]?.length>0){
+    const removed=data[today].pop();
+    redoStack.push({day:today,time:removed});
+    if(!data[today].length) delete data[today];
+    saveJobs(data);
+    const g=loadG();if(g.coins>0) g.coins--;saveG(g);render();
+  }
+});
+ 
+document.getElementById('redo-btn').addEventListener('click',()=>{
+  if(!redoStack.length){showToast('Nothing to redo!');return;}
+  const {day,time}=redoStack.pop();
+  const data=loadJobs();
+  if(!data[day]) data[day]=[];
+  data[day].push(time);
+  saveJobs(data);
+  const g=loadG();g.coins+=1;
+  const total=Object.values(data).reduce((s,a)=>s+a.length,0);
+  if(total%4===0){const bonus=COIN_MILESTONES[total]||3;g.coins+=bonus;}
+  saveG(g);render();
 });
  
 document.getElementById('reset-btn').addEventListener('click',()=>{

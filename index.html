@@ -68,30 +68,8 @@
     .zoom-lbl{font-size:.72rem;color:var(--clay-l);min-width:38px;text-align:center;}
     .field-outer{border-radius:18px;border:2.5px solid #5a8f2e;overflow:hidden;box-shadow:0 6px 28px rgba(92,61,46,.22);margin-bottom:14px;}
     .field-scroll{overflow:auto;width:100%;height:400px;position:relative;}
-    .field-canvas{
-      position:relative;
-      min-width:100%;
-      min-height:400px;
-      background:
-        repeating-linear-gradient(87deg,transparent 0,transparent 8px,rgba(60,100,30,.05) 8px,rgba(60,100,30,.05) 9px),
-        repeating-linear-gradient(93deg,transparent 0,transparent 12px,rgba(80,120,40,.04) 12px,rgba(80,120,40,.04) 13px),
-        linear-gradient(180deg,
-          #87CEEB 0%,
-          #a8d8f0 18%,
-          #c5e8f5 26%,
-          #8dc455 30%,
-          #7ab648 42%,
-          #6aa838 55%,
-          #5a9230 70%,
-          #4e8028 85%,
-          #426e22 100%);
-    }
-    .field-canvas:before{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;
-      background:
-        radial-gradient(ellipse 120px 18px at 50% 80%,rgba(180,160,120,.3),transparent),
-        radial-gradient(ellipse 100px 14px at 28% 88%,rgba(180,160,120,.22),transparent),
-        radial-gradient(ellipse 90px 14px at 72% 84%,rgba(180,160,120,.2),transparent);
-    }
+    .field-canvas{position:relative;min-width:100%;min-height:400px;background:repeating-linear-gradient(87deg,transparent 0,transparent 8px,rgba(60,100,30,.05) 8px,rgba(60,100,30,.05) 9px),repeating-linear-gradient(93deg,transparent 0,transparent 12px,rgba(80,120,40,.04) 12px,rgba(80,120,40,.04) 13px),linear-gradient(180deg,#87CEEB 0%,#a8d8f0 18%,#c5e8f5 26%,#8dc455 30%,#7ab648 42%,#6aa838 55%,#5a9230 70%,#4e8028 85%,#426e22 100%);}
+    .field-canvas:before{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse 120px 18px at 50% 80%,rgba(180,160,120,.3),transparent),radial-gradient(ellipse 100px 14px at 28% 88%,rgba(180,160,120,.22),transparent),radial-gradient(ellipse 90px 14px at 72% 84%,rgba(180,160,120,.2),transparent);}
     .field-sun{position:absolute;top:6%;right:8%;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle,#FFE87C,#FFD700 55%,rgba(255,215,0,0) 100%);box-shadow:0 0 18px 6px rgba(255,220,60,.45);z-index:2;pointer-events:none;}
     .field-cloud{position:absolute;z-index:2;pointer-events:none;opacity:.82;}
     .field-cloud span{display:block;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06);}
@@ -104,20 +82,13 @@
     .gi-lbl{font-size:.36rem;color:#fff;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.6);margin-top:1px;white-space:nowrap;}
     .gi-bar{width:24px;height:3px;background:rgba(255,255,255,.25);border-radius:2px;margin-top:1px;}
     .gi-fill{height:100%;background:var(--gold-l);border-radius:2px;}
- 
-    /* Animal shop */
     .animal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:9px;}
     .animal-card{background:var(--cream);border:1.5px solid var(--sand);border-radius:13px;padding:12px 8px;text-align:center;}
     .animal-card .emoji{font-size:2rem;display:block;margin-bottom:4px;}
     .aname{font-family:'Playfair Display',serif;font-size:.75rem;color:var(--bark);font-weight:700;margin-bottom:2px;}
     .ararity{font-size:.58rem;color:var(--clay-l);margin-bottom:4px;}
     .aprice{font-size:.7rem;color:var(--gold);font-weight:700;margin-bottom:6px;}
-    .rarity-common{color:#6B7C5A;}
-    .rarity-uncommon{color:#8B5A3A;}
-    .rarity-rare{color:#C4847A;}
-    .rarity-veryrare{color:#9B59B6;}
-    .rarity-legendary{color:#E8C96A;}
- 
+    .rarity-common{color:#6B7C5A;}.rarity-uncommon{color:#8B5A3A;}.rarity-rare{color:#C4847A;}.rarity-veryrare{color:#9B59B6;}.rarity-legendary{color:#E8C96A;}
     .animals-grid{display:flex;flex-wrap:wrap;gap:7px;}
     .animal-tag{background:var(--cream);border:1.5px solid var(--sand);border-radius:12px;padding:7px 11px;display:flex;align-items:center;gap:7px;}
     .at-e{font-size:1.3rem;}.at-n{font-size:.7rem;font-weight:700;color:var(--bark);}.at-r{font-size:.57rem;color:var(--clay-l);}
@@ -127,7 +98,9 @@
     .animal-arrival{display:none;position:fixed;inset:0;z-index:2000;align-items:center;justify-content:center;background:rgba(44,31,20,.45);}
     .animal-arrival.show{display:flex;}
     .arrival-card{background:var(--cream);border:2px solid var(--rose);border-radius:24px;padding:28px 24px;text-align:center;max-width:280px;box-shadow:0 8px 40px rgba(92,61,46,.25);}
-    .arrival-emoji{font-size:4rem;display:block;margin-bottom:8px;}.arrival-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--bark);margin-bottom:5px;}.arrival-sub{font-size:.76rem;color:var(--clay-l);margin-bottom:14px;line-height:1.5;}
+    .arrival-emoji{font-size:4rem;display:block;margin-bottom:8px;}
+    .arrival-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--bark);margin-bottom:5px;}
+    .arrival-sub{font-size:.76rem;color:var(--clay-l);margin-bottom:14px;line-height:1.5;}
     .arrival-btn{background:var(--bark);color:var(--parchment);border:0;border-radius:999px;padding:9px 24px;font-family:'Playfair Display',serif;font-size:.9rem;cursor:pointer;}
     #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bark);color:var(--parchment);font-size:.78rem;font-weight:700;padding:9px 20px;border-radius:999px;opacity:0;transition:transform .4s,opacity .3s;z-index:5000;white-space:nowrap;}
     #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -157,7 +130,6 @@
   <button class="tab" onclick="showTab('garden',this)">🌱 Garden</button>
 </div>
  
-<!-- TRACKER -->
 <div class="page active" id="page-tracker">
   <div id="milestone-banner"></div>
   <div class="stats">
@@ -174,7 +146,6 @@
   <button id="reset-btn">reset all data</button>
 </div>
  
-<!-- SEEDS SHOP -->
 <div class="page" id="page-shop">
   <div class="top-row"><h2>🌾 Seed Shop</h2><div class="coin-pill">💰 <span id="shop-coins">0</span></div></div>
   <div class="cat-tabs">
@@ -189,10 +160,9 @@
   <div class="seed-grid" id="seed-grid"></div>
 </div>
  
-<!-- ANIMAL SHOP -->
 <div class="page" id="page-animals">
   <div class="top-row"><h2>🐾 Animal Shop</h2><div class="coin-pill">💰 <span id="animal-shop-coins">0</span></div></div>
-  <p style="font-size:.72rem;color:var(--clay-l);margin-bottom:12px;font-style:italic">Buy animals directly or earn them free by hitting milestones! Once purchased they move into your garden.</p>
+  <p style="font-size:.72rem;color:var(--clay-l);margin-bottom:12px;font-style:italic">Buy animals directly or earn them free by hitting milestones!</p>
   <div class="cat-tabs">
     <button class="cat-tab active" onclick="setAnimalCat('all',this)">All</button>
     <button class="cat-tab" onclick="setAnimalCat('Common',this)">🐝 Common</button>
@@ -204,7 +174,6 @@
   <div class="animal-grid" id="animal-shop-grid"></div>
 </div>
  
-<!-- GARDEN -->
 <div class="page" id="page-garden">
   <div class="top-row"><h2>🌱 My Garden</h2><span class="hint">Drag seeds in · drag to move · double-click to remove</span></div>
   <div class="zoom-bar">
@@ -217,21 +186,9 @@
     <div class="field-scroll" id="field-scroll">
       <div class="field-canvas" id="field-canvas">
         <div class="field-sun"></div>
-        <div class="field-cloud" style="top:4%;left:12%">
-          <span style="width:54px;height:22px;margin-left:10px"></span>
-          <span style="width:80px;height:28px;margin-top:-14px"></span>
-          <span style="width:44px;height:18px;margin-top:-10px;margin-left:34px"></span>
-        </div>
-        <div class="field-cloud" style="top:8%;left:42%">
-          <span style="width:40px;height:16px;margin-left:8px"></span>
-          <span style="width:62px;height:22px;margin-top:-11px"></span>
-          <span style="width:34px;height:14px;margin-top:-8px;margin-left:26px"></span>
-        </div>
-        <div class="field-cloud" style="top:3%;right:22%">
-          <span style="width:48px;height:19px;margin-left:12px"></span>
-          <span style="width:70px;height:25px;margin-top:-12px"></span>
-          <span style="width:38px;height:16px;margin-top:-9px;margin-left:30px"></span>
-        </div>
+        <div class="field-cloud" style="top:4%;left:12%"><span style="width:54px;height:22px;margin-left:10px"></span><span style="width:80px;height:28px;margin-top:-14px"></span><span style="width:44px;height:18px;margin-top:-10px;margin-left:34px"></span></div>
+        <div class="field-cloud" style="top:8%;left:42%"><span style="width:40px;height:16px;margin-left:8px"></span><span style="width:62px;height:22px;margin-top:-11px"></span><span style="width:34px;height:14px;margin-top:-8px;margin-left:26px"></span></div>
+        <div class="field-cloud" style="top:3%;right:22%"><span style="width:48px;height:19px;margin-left:12px"></span><span style="width:70px;height:25px;margin-top:-12px"></span><span style="width:38px;height:16px;margin-top:-9px;margin-left:30px"></span></div>
         <div class="pstone" style="width:22px;height:13px;left:18%;bottom:20%"></div>
         <div class="pstone" style="width:17px;height:11px;left:31%;bottom:15%"></div>
         <div class="pstone" style="width:25px;height:14px;left:45%;bottom:18%"></div>
@@ -304,7 +261,6 @@ const SEEDS=[
 ];
  
 const ALL_ANIMALS=[
-  // Common
   {id:'bee',emoji:'🐝',name:'Honey Bee',msg:'A little bee flew in! She approves of your hustle. 🍯',rarity:'Common',cost:3},
   {id:'butterfly',emoji:'🦋',name:'Butterfly',msg:'A butterfly landed on your flowers! 🌸',rarity:'Common',cost:3},
   {id:'worm',emoji:'🐛',name:'Friendly Worm',msg:'A worm is helping your soil grow! 🌱',rarity:'Common',cost:2},
@@ -313,9 +269,6 @@ const ALL_ANIMALS=[
   {id:'ant',emoji:'🐜',name:'Tiny Ant',msg:'An ant admires your work ethic! 💪',rarity:'Common',cost:2},
   {id:'cricket',emoji:'🦗',name:'Cricket',msg:'A cricket is singing your praises tonight! 🎵',rarity:'Common',cost:3},
   {id:'beetle',emoji:'🪲',name:'Beetle',msg:'A shiny beetle wandered in. Good omen! ✨',rarity:'Common',cost:3},
-  {id:'caterpillar',emoji:'🐛',name:'Caterpillar',msg:'Change is coming! A caterpillar chose your garden. 🌿',rarity:'Common',cost:2},
-  {id:'dragonfly',emoji:'🪲',name:'Dragonfly',msg:'A dragonfly zipped in for a quick hello! 💫',rarity:'Common',cost:3},
-  // Uncommon
   {id:'puppy',emoji:'🐶',name:'Puppy',msg:'A puppy ran into your garden!! 🐾',rarity:'Uncommon',cost:8},
   {id:'panda',emoji:'🐼',name:'Panda',msg:'A panda arrived with bamboo snacks! 🎋',rarity:'Uncommon',cost:10},
   {id:'frog',emoji:'🐸',name:'Little Frog',msg:'Ribbit! A frog hopped in. 🌿',rarity:'Uncommon',cost:7},
@@ -330,7 +283,6 @@ const ALL_ANIMALS=[
   {id:'raccoon',emoji:'🦝',name:'Raccoon',msg:'A raccoon found your garden and gives it 5 stars! 🌟',rarity:'Uncommon',cost:9},
   {id:'duck',emoji:'🦆',name:'Garden Duck',msg:'A duck waddled in and approves of everything! 🌿',rarity:'Uncommon',cost:7},
   {id:'chicken',emoji:'🐔',name:'Chicken',msg:'A chicken decided this is her garden now! 🌾',rarity:'Uncommon',cost:6},
-  // Rare
   {id:'owl',emoji:'🦉',name:'Wise Owl',msg:'An owl says you are doing amazing. 🌙',rarity:'Rare',cost:18},
   {id:'fox',emoji:'🦊',name:'Fox',msg:'A fox respects the hustle. Keep going! 🦊',rarity:'Rare',cost:20},
   {id:'deer',emoji:'🦌',name:'Deer',msg:'A deer stepped gracefully into your garden. 🌸',rarity:'Rare',cost:18},
@@ -344,23 +296,19 @@ const ALL_ANIMALS=[
   {id:'elephant',emoji:'🐘',name:'Elephant',msg:'An elephant never forgets how hard you work! 🌸',rarity:'Rare',cost:25},
   {id:'hippo',emoji:'🦛',name:'Hippo',msg:'A hippo splashed in from a nearby pond! 💦',rarity:'Rare',cost:20},
   {id:'rhino',emoji:'🦏',name:'Rhino',msg:'A rhino is guarding your garden! 💪',rarity:'Rare',cost:20},
-  {id:'camel',emoji:'🐪',name:'Camel',msg:'A camel wandered in from the desert. Resilient like you! 🌵',rarity:'Rare',cost:18},
-  // Very Rare
+  {id:'camel',emoji:'🐪',name:'Camel',msg:'A camel wandered in. Resilient like you! 🌵',rarity:'Rare',cost:18},
   {id:'peacock',emoji:'🦚',name:'Peacock',msg:'A peacock showed up looking absolutely stunning! ✨',rarity:'Very Rare',cost:35},
-  {id:'parrot',emoji:'🦜',name:'Parrot',msg:'A parrot flew in and keeps saying "you got this"! 🌺',rarity:'Very Rare',cost:30},
+  {id:'parrot',emoji:'🦜',name:'Parrot',msg:'A parrot flew in and keeps saying you got this! 🌺',rarity:'Very Rare',cost:30},
   {id:'flamingo',emoji:'🦩',name:'Flamingo',msg:'A flamingo strutted in! Standing tall, just like you! 🌸',rarity:'Very Rare',cost:32},
   {id:'swan',emoji:'🦢',name:'Swan',msg:'A graceful swan glided into your garden! ✨',rarity:'Very Rare',cost:30},
-  {id:'eagle',emoji:'🦅',name:'Eagle',msg:'An eagle soared in — you aim high! 🦅',rarity:'Very Rare',cost:35},
+  {id:'eagle',emoji:'🦅',name:'Eagle',msg:'An eagle soared in. You aim high! 🦅',rarity:'Very Rare',cost:35},
   {id:'lion',emoji:'🦁',name:'Lion',msg:'A lion showed up. She sees a fellow queen! 👑',rarity:'Very Rare',cost:40},
-  {id:'tiger',emoji:'🐯',name:'Tiger',msg:'A tiger purred into your garden! Fierce & focused! 🌿',rarity:'Very Rare',cost:40},
-  {id:'zebra',emoji:'🦓',name:'Zebra',msg:'A zebra trotted in — standing out, just like you! 🌾',rarity:'Very Rare',cost:35},
+  {id:'tiger',emoji:'🐯',name:'Tiger',msg:'A tiger purred into your garden! Fierce and focused! 🌿',rarity:'Very Rare',cost:40},
+  {id:'zebra',emoji:'🦓',name:'Zebra',msg:'A zebra trotted in, standing out just like you! 🌾',rarity:'Very Rare',cost:35},
   {id:'gorilla',emoji:'🦍',name:'Gorilla',msg:'A gorilla showed up and is very impressed! 💪',rarity:'Very Rare',cost:38},
   {id:'dolphin',emoji:'🐬',name:'Dolphin',msg:'A dolphin somehow made it to your garden! 🌊',rarity:'Very Rare',cost:38},
-  {id:'shark',emoji:'🦈',name:'Baby Shark',msg:'Baby shark doo doo doo — came to cheer you on! 🎵',rarity:'Very Rare',cost:40},
-  {id:'whale',emoji:'🐳',name:'Blue Whale',msg:'A whale came to tell you that you are massive! 🌊',rarity:'Very Rare',cost:42},
-  {id:'turtle',emoji:'🐢',name:'Sea Turtle',msg:'A sea turtle paddled in — slow and certain! 🌿',rarity:'Very Rare',cost:32},
   {id:'penguin',emoji:'🐧',name:'Penguin',msg:'A dapper penguin waddled in looking very professional! 🎩',rarity:'Very Rare',cost:35},
-  // Legendary
+  {id:'turtle',emoji:'🐢',name:'Sea Turtle',msg:'A sea turtle paddled in. Slow and certain! 🌿',rarity:'Very Rare',cost:32},
   {id:'dragon',emoji:'🐉',name:'Baby Dragon',msg:'A baby dragon landed with gold sparks! ✨',rarity:'Legendary',cost:75},
   {id:'unicorn',emoji:'🦄',name:'Unicorn',msg:'A unicorn appeared!! 🌈✨',rarity:'Legendary',cost:80},
   {id:'polarbear',emoji:'🐻‍❄️',name:'Polar Bear',msg:'A rare polar bear wandered in from afar! ❄️✨',rarity:'Legendary',cost:70},
@@ -372,10 +320,10 @@ const ALL_ANIMALS=[
  
 const LOCKED_MILESTONES={10:5,25:15,50:30,75:22,100:50,150:40,200:80};
 function rollBonusCoins(total){
-  if(LOCKED_MILESTONES[total]!==undefined){const c=LOCKED_MILESTONES[total];return{coins:c,msg:`🎉 Application #${total}! Milestone bonus: +${c} coins!`,type:'milestone'};}
+  if(LOCKED_MILESTONES[total]!==undefined){const c=LOCKED_MILESTONES[total];return{coins:c,msg:'🎉 Application #'+total+'! Milestone bonus: +'+c+' coins!'};}
   const r=Math.random();
-  if(r<0.06){const c=Math.floor(Math.random()*9)+8;return{coins:c,msg:`🌟 Lucky drop! Surprise bonus: +${c} coins!`,type:'jackpot'};}
-  if(r<0.19){const c=Math.floor(Math.random()*4)+3;return{coins:c,msg:`✨ Nice! Bonus coins: +${c}!`,type:'small'};}
+  if(r<0.06){const c=Math.floor(Math.random()*9)+8;return{coins:c,msg:'🌟 Lucky drop! Surprise bonus: +'+c+' coins!'};}
+  if(r<0.19){const c=Math.floor(Math.random()*4)+3;return{coins:c,msg:'✨ Nice! Bonus coins: +'+c+'!'};}
   return null;
 }
 const ANIMAL_MILESTONES=new Set([5,10,15,25,35,50,75,100,150,200]);
@@ -391,36 +339,51 @@ const loadJobs=()=>JSON.parse(localStorage.getItem('emmajobs')||'{}');
 const saveJobs=d=>localStorage.setItem('emmajobs',JSON.stringify(d));
 const loadG=()=>JSON.parse(localStorage.getItem('emmagarden6')||'{"coins":0,"inventory":[],"plants":[],"animals":[],"purchaseLog":[]}');
 const saveG=g=>localStorage.setItem('emmagarden6',JSON.stringify(g));
-function totalApplications(){const data=loadJobs();return Object.values(data).reduce((sum,arr)=>sum+(Array.isArray(arr)?arr.length:0),0);}
-function updateMoneyUI(c){document.getElementById('money-count').textContent=c;document.getElementById('header-money').textContent=c;document.getElementById('shop-coins').textContent=c;document.getElementById('animal-shop-coins').textContent=c;}
-function normalizeGarden(){const g=loadG();if(typeof g.coins!=='number')g.coins=0;if(!Array.isArray(g.inventory))g.inventory=[];if(!Array.isArray(g.plants))g.plants=[];if(!Array.isArray(g.animals))g.animals=[];if(!Array.isArray(g.purchaseLog))g.purchaseLog=[];saveG(g);return g;}
+function totalApplications(){return Object.values(loadJobs()).reduce((s,a)=>s+(Array.isArray(a)?a.length:0),0);}
+function updateMoneyUI(c){['money-count','header-money','shop-coins','animal-shop-coins'].forEach(id=>document.getElementById(id).textContent=c);}
+function normalizeGarden(){
+  const g=loadG();
+  if(typeof g.coins!=='number')g.coins=0;
+  if(!Array.isArray(g.inventory))g.inventory=[];
+  if(!Array.isArray(g.plants))g.plants=[];
+  if(!Array.isArray(g.animals))g.animals=[];
+  if(!Array.isArray(g.purchaseLog))g.purchaseLog=[];
+  return g;
+}
+function saveNorm(g){saveG(g);}
+ 
+// *** THE FIX: ensure every animal has valid vx/vy before saving/rendering ***
+function fixAnimalPositions(animals){
+  return animals.map((a,idx)=>{
+    if(!a.vx||a.vx<=0||a.vx===undefined||isNaN(a.vx)||
+       !a.vy||a.vy<=0||a.vy===undefined||isNaN(a.vy)){
+      return {...a,
+        vx: 0.12 + (idx * 0.17) % 0.72,
+        vy: 0.32 + (idx % 4) * 0.14
+      };
+    }
+    return a;
+  });
+}
+ 
 function initCoinsIfNeeded(){
   const total=totalApplications();const g=normalizeGarden();
-  if(g.coins===0&&total>0){g.coins=total;saveG(g);updateMoneyUI(g.coins);showToast('💰 Retroactive coins granted for your '+total+' applications!');}
+  if(g.coins===0&&total>0){g.coins=total;saveG(g);updateMoneyUI(g.coins);showToast('💰 Retroactive coins for your '+total+' applications!');}
+  else{updateMoneyUI(g.coins);}
 }
  
 let zoom=1;
 const ZMIN=0.4,ZMAX=2.6,ZSTEP=0.2;
- 
 function getCanvasSize(){
   const scroll=document.getElementById('field-scroll');
-  const sw=scroll.offsetWidth||scroll.clientWidth||400;
-  const sh=scroll.offsetHeight||scroll.clientHeight||400;
-  const w=Math.max(sw,sw*zoom);
-  const h=Math.max(sh,sh*zoom);
-  return{w,h,sw,sh};
+  const sw=scroll.offsetWidth||400;const sh=scroll.offsetHeight||400;
+  return{w:Math.max(sw,sw*zoom),h:Math.max(sh,sh*zoom),sw,sh};
 }
- 
 function applyZoom(){
-  const canvas=document.getElementById('field-canvas');
-  const{w,h}=getCanvasSize();
-  canvas.style.width=w+'px';
-  canvas.style.height=h+'px';
+  const c=document.getElementById('field-canvas');const{w,h}=getCanvasSize();
+  c.style.width=w+'px';c.style.height=h+'px';
   document.getElementById('zoom-lbl').textContent=Math.round(zoom*100)+'%';
-  if(document.getElementById('page-garden').classList.contains('active')){
-    const g=normalizeGarden();
-    renderField(g);
-  }
+  if(document.getElementById('page-garden').classList.contains('active')){renderField(normalizeGarden());}
 }
 function zoomIn(){zoom=Math.min(ZMAX,+(zoom+ZSTEP).toFixed(1));applyZoom();}
 function zoomOut(){zoom=Math.max(ZMIN,+(zoom-ZSTEP).toFixed(1));applyZoom();}
@@ -432,9 +395,9 @@ function showTab(name,el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   el.classList.add('active');
-  if(name==='shop') renderShop();
-  if(name==='animals') renderAnimalShop();
-  if(name==='garden') requestAnimationFrame(()=>requestAnimationFrame(renderGarden));
+  if(name==='shop')renderShop();
+  if(name==='animals')renderAnimalShop();
+  if(name==='garden')requestAnimationFrame(()=>requestAnimationFrame(renderGarden));
 }
  
 function render(){
@@ -445,58 +408,63 @@ function render(){
   const log=document.getElementById('log');log.innerHTML='';
   const days=Object.keys(data).sort((a,b)=>new Date(b)-new Date(a));
   if(!days.length){log.innerHTML='<p class="empty">No applications yet — you got this! 🌱</p>';return;}
-  days.forEach(day=>{const entries=data[day]||[];const block=document.createElement('div');block.className='day-block';block.innerHTML=`<div class="day-head"><span class="date">${day===today?'📅 Today':day}</span><span class="badge">${entries.length} app${entries.length!==1?'s':''}</span></div><div class="day-entries">${entries.map(t=>`<div class="entry">${t}</div>`).join('')}</div>`;log.appendChild(block);});
+  days.forEach(day=>{
+    const entries=data[day]||[];
+    const block=document.createElement('div');block.className='day-block';
+    block.innerHTML='<div class="day-head"><span class="date">'+(day===today?'📅 Today':day)+'</span><span class="badge">'+entries.length+' app'+(entries.length!==1?'s':'')+'</span></div><div class="day-entries">'+entries.map(t=>'<div class="entry">'+t+'</div>').join('')+'</div>';
+    log.appendChild(block);
+  });
 }
  
 let curCat='all';
 function setCat(cat,el){curCat=cat;document.querySelectorAll('#page-shop .cat-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderShop();}
 function renderShop(){
-  const g=normalizeGarden();updateMoneyUI(g.coins);const grid=document.getElementById('seed-grid');grid.innerHTML='';
+  const g=normalizeGarden();updateMoneyUI(g.coins);
+  const grid=document.getElementById('seed-grid');grid.innerHTML='';
   const list=curCat==='all'?SEEDS:SEEDS.filter(s=>s.cat===curCat);
-  list.forEach(s=>{const owned=g.inventory.filter(i=>i.id===s.id).length;const canBuy=g.coins>=s.cost;const card=document.createElement('div');card.className='seed-card';card.innerHTML=`<span class="emoji">${s.emoji}</span><div class="sname">${s.name}</div><div class="sdesc">${s.desc}</div><div class="sprice">💰 ${s.cost}${owned?`<span class="owned-badge">×${owned} in bag</span>`:''}</div><button class="buy-btn" ${canBuy?'':'disabled'} onclick="buySeed('${s.id}')">${canBuy?'Buy':'Need coins'}</button>`;grid.appendChild(card);});
+  list.forEach(s=>{
+    const owned=g.inventory.filter(i=>i.id===s.id).length;
+    const canBuy=g.coins>=s.cost;
+    const card=document.createElement('div');card.className='seed-card';
+    card.innerHTML='<span class="emoji">'+s.emoji+'</span><div class="sname">'+s.name+'</div><div class="sdesc">'+s.desc+'</div><div class="sprice">💰 '+s.cost+(owned?'<span class="owned-badge">x'+owned+' in bag</span>':'')+'</div><button class="buy-btn" '+(canBuy?'':'disabled')+' onclick="buySeed(\''+s.id+'\')">'+(canBuy?'Buy':'Need coins')+'</button>';
+    grid.appendChild(card);
+  });
 }
 function buySeed(id){
   const s=SEEDS.find(x=>x.id===id);if(!s)return;
-  const g=normalizeGarden();if(g.coins<s.cost){showToast('Not enough coins yet!');return;}
-  g.coins-=s.cost;g.purchaseLog.push({item:s.id,amount:s.cost,time:Date.now()});g.inventory.push({id:s.id,emoji:s.emoji,name:s.name});
+  const g=normalizeGarden();if(g.coins<s.cost){showToast('Not enough coins!');return;}
+  g.coins-=s.cost;g.inventory.push({id:s.id,emoji:s.emoji,name:s.name});
   saveG(g);updateMoneyUI(g.coins);renderShop();playSparkle();miniConfetti();showToast(s.name+' added to bag! 🌱');
 }
  
-// ANIMAL SHOP
 let curAnimalCat='all';
 function setAnimalCat(cat,el){curAnimalCat=cat;document.querySelectorAll('#page-animals .cat-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderAnimalShop();}
- 
 const RARITY_COLORS={'Common':'rarity-common','Uncommon':'rarity-uncommon','Rare':'rarity-rare','Very Rare':'rarity-veryrare','Legendary':'rarity-legendary'};
- 
 function renderAnimalShop(){
   const g=normalizeGarden();updateMoneyUI(g.coins);
   const grid=document.getElementById('animal-shop-grid');grid.innerHTML='';
   const list=curAnimalCat==='all'?ALL_ANIMALS:ALL_ANIMALS.filter(a=>a.rarity===curAnimalCat);
   list.forEach(a=>{
-    const alreadyOwned=g.animals.some(x=>x.id===a.id);
-    const canBuy=g.coins>=a.cost&&!alreadyOwned;
-    const rarityClass=RARITY_COLORS[a.rarity]||'';
+    const owned=g.animals.some(x=>x.id===a.id);
+    const canBuy=g.coins>=a.cost&&!owned;
+    const rc=RARITY_COLORS[a.rarity]||'';
     const card=document.createElement('div');card.className='animal-card';
-    card.innerHTML=`<span class="emoji">${a.emoji}</span><div class="aname">${a.name}</div><div class="ararity ${rarityClass}">${a.rarity}</div><div class="aprice">💰 ${a.cost}</div><button class="buy-btn" ${canBuy?'':'disabled'} onclick="buyAnimal('${a.id}')">${alreadyOwned?'In garden ✓':canBuy?'Adopt':'Need coins'}</button>`;
+    card.innerHTML='<span class="emoji">'+a.emoji+'</span><div class="aname">'+a.name+'</div><div class="ararity '+rc+'">'+a.rarity+'</div><div class="aprice">💰 '+a.cost+'</div><button class="buy-btn" '+(canBuy?'':'disabled')+' onclick="buyAnimal(\''+a.id+'\')">'+(owned?'In garden ✓':canBuy?'Adopt':'Need coins')+'</button>';
     grid.appendChild(card);
   });
 }
- 
 function buyAnimal(id){
   const a=ALL_ANIMALS.find(x=>x.id===id);if(!a)return;
   const g=normalizeGarden();
   if(g.animals.some(x=>x.id===a.id)){showToast(a.name+' already lives here! 🌿');return;}
-  if(g.coins<a.cost){showToast('Not enough coins yet!');return;}
+  if(g.coins<a.cost){showToast('Not enough coins!');return;}
   g.coins-=a.cost;
-  const vx=0.1+Math.random()*0.7;
-  const vy=0.3+Math.random()*0.5;
-  g.animals.push({...a,apps:'shop',vx,vy});
+  // Give it a guaranteed good position right away
+  const idx=g.animals.length;
+  const newAnimal={...a,apps:'shop',vx:0.12+(idx*0.17)%0.72,vy:0.32+(idx%4)*0.14};
+  g.animals.push(newAnimal);
   saveG(g);updateMoneyUI(g.coins);
-  // Show arrival popup
-  document.getElementById('arrival-emoji').textContent=a.emoji;
-  document.getElementById('arrival-title').textContent=a.name+' moved in!';
-  document.getElementById('arrival-sub').textContent=a.msg;
-  document.getElementById('animal-arrival').classList.add('show');
+  showArrivalPopup(a);
   playSparkle();launchConfetti();
   renderAnimalShop();
 }
@@ -504,25 +472,19 @@ function buyAnimal(id){
 function virtualToScreen(vx,vy){const{w,h}=getCanvasSize();return{x:vx*w,y:vy*h};}
 function screenToVirtual(sx,sy){const{w,h}=getCanvasSize();return{vx:sx/w,vy:sy/h};}
  
-const LEGACY_W=900,LEGACY_H=500;
-function migratePlant(p){if(p.vx!==undefined)return p;return{...p,vx:(p.x||0)/LEGACY_W,vy:(p.y||0)/LEGACY_H};}
-function migrateAnimal(a,idx){
-  // If no vx or vx is 0 (stuck at corner), give it a proper spread position
-  if(a.vx===undefined||a.vx===null||a.vx===0){
-    return{...a,vx:0.1+(idx*0.15)%0.75,vy:0.35+(idx%3)*0.18};
-  }
-  return a;
-}
- 
 function renderGarden(){
   const canvas=document.getElementById('field-canvas');
   const{w,h}=getCanvasSize();
-  canvas.style.width=w+'px';
-  canvas.style.height=h+'px';
+  canvas.style.width=w+'px';canvas.style.height=h+'px';
   document.getElementById('zoom-lbl').textContent=Math.round(zoom*100)+'%';
   const g=normalizeGarden();
-  g.plants=g.plants.map(migratePlant);
-  g.animals=g.animals.map((a,idx)=>migrateAnimal(a,idx));
+  // Fix plants with missing coords
+  g.plants=g.plants.map((p,i)=>{
+    if(!p.vx||p.vx<=0)return{...p,vx:0.15+(i*0.18)%0.70,vy:0.35+(i%3)*0.15};
+    return p;
+  });
+  // Fix animals with missing coords
+  g.animals=fixAnimalPositions(g.animals);
   saveG(g);
   renderField(g);
   renderInventory(g);
@@ -556,7 +518,6 @@ function makeFieldDraggable(el,idx,isAnimal){
  
 function renderField(g){
   const canvas=document.getElementById('field-canvas');
-  // Remove only dynamic items, keep static decorations
   canvas.querySelectorAll('.gitem').forEach(e=>e.remove());
   const baseSize=1.8;
   g.plants.forEach((p,idx)=>{
@@ -565,25 +526,22 @@ function renderField(g){
     const pct=stage===2?100:stage===1?Math.min(100,((age-8000)/12000)*100):Math.min(100,(age/8000)*100);
     const emoji=stage===0?'🌰':stage===1?'🪴':p.emoji;
     const sizeRem=(stage===0?0.5:stage===1?0.7:baseSize)*zoom;
-    const pos=virtualToScreen(p.vx||0,p.vy||0);
-    const el=document.createElement('div');
-    el.className='gitem';
+    const pos=virtualToScreen(p.vx,p.vy);
+    const el=document.createElement('div');el.className='gitem';
     el.style.left=pos.x+'px';el.style.top=pos.y+'px';
-    el.innerHTML=`<div class="gi-e" style="font-size:${sizeRem}rem">${emoji}</div><div class="gi-lbl">${p.name}</div><div class="gi-bar"><div class="gi-fill" style="width:${pct}%"></div></div>`;
+    el.innerHTML='<div class="gi-e" style="font-size:'+sizeRem+'rem">'+emoji+'</div><div class="gi-lbl">'+p.name+'</div><div class="gi-bar"><div class="gi-fill" style="width:'+pct+'%"></div></div>';
     makeFieldDraggable(el,idx,false);
     let clicks=0;
     el.addEventListener('click',e=>{e.stopPropagation();clicks++;if(clicks>=2){const g2=normalizeGarden();g2.plants.splice(idx,1);saveG(g2);renderGarden();showToast('Plant removed ✕');}setTimeout(()=>clicks=0,500);});
     canvas.appendChild(el);
     if(stage<2){const ms=stage===0?8000-age:20000-age;setTimeout(()=>{if(document.getElementById('page-garden').classList.contains('active'))renderGarden();},ms+100);}
   });
-  // *** FIX: Always render animals from saved data ***
+  // Always render all animals
   g.animals.forEach((a,idx)=>{
-    const sizeRem=baseSize*zoom;
-    const pos=virtualToScreen(a.vx>0?a.vx:0.1+(idx*0.15)%0.75, a.vy>0?a.vy:0.35+(idx%3)*0.18);
-    const el=document.createElement('div');
-    el.className='gitem animal-item';
+    const pos=virtualToScreen(a.vx,a.vy);
+    const el=document.createElement('div');el.className='gitem animal-item';
     el.style.left=pos.x+'px';el.style.top=pos.y+'px';
-    el.innerHTML=`<div class="gi-e" style="font-size:${sizeRem}rem">${a.emoji}</div><div class="gi-lbl">${a.name}</div>`;
+    el.innerHTML='<div class="gi-e" style="font-size:'+(baseSize*zoom)+'rem">'+a.emoji+'</div><div class="gi-lbl">'+a.name+'</div>';
     makeFieldDraggable(el,idx,true);
     canvas.appendChild(el);
   });
@@ -598,9 +556,9 @@ document.getElementById('field-scroll').addEventListener('drop',e=>{
   const seed=g.inventory[idx];
   const canvas=document.getElementById('field-canvas');
   const rect=canvas.getBoundingClientRect();
-  const screenX=Math.max(4,Math.min(canvas.offsetWidth-40,e.clientX-rect.left));
-  const screenY=Math.max(4,Math.min(canvas.offsetHeight-40,e.clientY-rect.top));
-  const{vx,vy}=screenToVirtual(screenX,screenY);
+  const sx=Math.max(4,Math.min(canvas.offsetWidth-40,e.clientX-rect.left));
+  const sy=Math.max(4,Math.min(canvas.offsetHeight-40,e.clientY-rect.top));
+  const{vx,vy}=screenToVirtual(sx,sy);
   g.plants.push({id:seed.id,emoji:seed.emoji,name:seed.name,plantedAt:Date.now(),vx,vy});
   g.inventory.splice(idx,1);
   saveG(g);playSparkle();renderGarden();showToast(seed.name+' planted! 🌱');
@@ -610,23 +568,32 @@ function renderInventory(g){
   const inv=document.getElementById('inventory');inv.innerHTML='';
   const groups={};g.inventory.forEach(s=>{if(!groups[s.id])groups[s.id]={seed:s,cnt:0};groups[s.id].cnt++;});
   if(!Object.keys(groups).length){inv.innerHTML='<span class="inv-empty">No seeds — buy some from the shop! 🛒</span>';return;}
-  Object.values(groups).forEach(({seed,cnt})=>{const el=document.createElement('div');el.className='inv-seed';el.draggable=true;el.innerHTML=`<span class="is-e">${seed.emoji}</span><span class="is-n">${seed.name}${cnt>1?' ×'+cnt:''}</span>`;el.addEventListener('dragstart',e=>e.dataTransfer.setData('seedId',seed.id));inv.appendChild(el);});
+  Object.values(groups).forEach(({seed,cnt})=>{
+    const el=document.createElement('div');el.className='inv-seed';el.draggable=true;
+    el.innerHTML='<span class="is-e">'+seed.emoji+'</span><span class="is-n">'+seed.name+(cnt>1?' x'+cnt:'')+'</span>';
+    el.addEventListener('dragstart',e=>e.dataTransfer.setData('seedId',seed.id));
+    inv.appendChild(el);
+  });
 }
  
 function renderAnimalsLog(g){
-  const grid=document.getElementById('animals-grid');
-  grid.innerHTML='';
+  const grid=document.getElementById('animals-grid');grid.innerHTML='';
   if(!g.animals||!g.animals.length){
-    grid.innerHTML='<p style="font-size:.73rem;color:var(--clay-l);font-style:italic">Keep applying or visit the Animal Shop to adopt visitors! 🐾</p>';
-    return;
+    grid.innerHTML='<p style="font-size:.73rem;color:var(--clay-l);font-style:italic">Keep applying or visit the Animal Shop! 🐾</p>';return;
   }
   g.animals.forEach(a=>{
-    const tag=document.createElement('div');
-    tag.className='animal-tag';
+    const tag=document.createElement('div');tag.className='animal-tag';
     const src=a.apps==='shop'?'purchased':'app #'+a.apps;
-    tag.innerHTML=`<span class="at-e">${a.emoji}</span><div><div class="at-n">${a.name}</div><div class="at-r">${a.rarity} · ${src}</div></div>`;
+    tag.innerHTML='<span class="at-e">'+a.emoji+'</span><div><div class="at-n">'+a.name+'</div><div class="at-r">'+a.rarity+' · '+src+'</div></div>';
     grid.appendChild(tag);
   });
+}
+ 
+function showArrivalPopup(animal){
+  document.getElementById('arrival-emoji').textContent=animal.emoji;
+  document.getElementById('arrival-title').textContent=animal.name+' arrived!';
+  document.getElementById('arrival-sub').textContent=animal.msg;
+  document.getElementById('animal-arrival').classList.add('show');
 }
  
 function triggerAnimalVisit(total){
@@ -634,32 +601,31 @@ function triggerAnimalVisit(total){
   if(g.animals.some(a=>a.apps===total))return;
   const weights={Common:40,Uncommon:30,Rare:18,'Very Rare':9,Legendary:3};
   const pool=[];ALL_ANIMALS.forEach(a=>{const w=weights[a.rarity]||10;for(let i=0;i<w;i++)pool.push(a);});
-  // Pick animal not already owned
   let animal;
   for(let tries=0;tries<20;tries++){
-    const candidate=pool[Math.floor(Math.random()*pool.length)];
-    if(!g.animals.some(x=>x.id===candidate.id)){animal=candidate;break;}
+    const c=pool[Math.floor(Math.random()*pool.length)];
+    if(!g.animals.some(x=>x.id===c.id)){animal=c;break;}
   }
   if(!animal)animal=pool[Math.floor(Math.random()*pool.length)];
-  const vx=0.1+Math.random()*0.7;
-  const vy=0.3+Math.random()*0.5;
-  g.animals.push({...animal,apps:total,vx,vy});saveG(g);
-  setTimeout(()=>{
-    document.getElementById('arrival-emoji').textContent=animal.emoji;
-    document.getElementById('arrival-title').textContent=animal.name+' arrived!';
-    document.getElementById('arrival-sub').textContent=animal.msg;
-    document.getElementById('animal-arrival').classList.add('show');
-    playAnimalSound();
-  },700);
+  // Give it a guaranteed valid position
+  const idx=g.animals.length;
+  const newAnimal={...animal,apps:total,vx:0.12+(idx*0.17)%0.72,vy:0.32+(idx%4)*0.14};
+  g.animals.push(newAnimal);
+  saveG(g);
+  setTimeout(()=>{showArrivalPopup(animal);playAnimalSound();},700);
 }
  
+// *** THE KEY FIX: closeArrival always ensures garden is ready regardless of tab ***
 function closeArrival(){
   document.getElementById('animal-arrival').classList.remove('show');
-  // Always re-render garden so new animal appears immediately
+  // Fix and save animal positions first
+  const g=normalizeGarden();
+  g.animals=fixAnimalPositions(g.animals);
+  saveG(g);
+  // Render garden if on that tab, otherwise just save so they show up when they navigate there
   if(document.getElementById('page-garden').classList.contains('active')){
     requestAnimationFrame(()=>renderGarden());
   }
-  // Also refresh animal shop if open
   if(document.getElementById('page-animals').classList.contains('active')){
     renderAnimalShop();
   }

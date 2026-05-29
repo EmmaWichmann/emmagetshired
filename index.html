@@ -506,7 +506,13 @@ function screenToVirtual(sx,sy){const{w,h}=getCanvasSize();return{vx:sx/w,vy:sy/
  
 const LEGACY_W=900,LEGACY_H=500;
 function migratePlant(p){if(p.vx!==undefined)return p;return{...p,vx:(p.x||0)/LEGACY_W,vy:(p.y||0)/LEGACY_H};}
-function migrateAnimal(a){if(a.vx!==undefined)return a;return{...a,vx:(a.x||0)/LEGACY_W,vy:(a.y||0)/LEGACY_H};}
+function migrateAnimal(a,idx){
+  // If no vx or vx is 0 (stuck at corner), give it a proper spread position
+  if(a.vx===undefined||a.vx===null||a.vx===0){
+    return{...a,vx:0.1+(idx*0.15)%0.75,vy:0.35+(idx%3)*0.18};
+  }
+  return a;
+}
  
 function renderGarden(){
   const canvas=document.getElementById('field-canvas');
@@ -516,7 +522,7 @@ function renderGarden(){
   document.getElementById('zoom-lbl').textContent=Math.round(zoom*100)+'%';
   const g=normalizeGarden();
   g.plants=g.plants.map(migratePlant);
-  g.animals=g.animals.map(migrateAnimal);
+  g.animals=g.animals.map((a,idx)=>migrateAnimal(a,idx));
   saveG(g);
   renderField(g);
   renderInventory(g);
@@ -573,7 +579,7 @@ function renderField(g){
   // *** FIX: Always render animals from saved data ***
   g.animals.forEach((a,idx)=>{
     const sizeRem=baseSize*zoom;
-    const pos=virtualToScreen(a.vx!=null?a.vx:0.1+idx*0.12, a.vy!=null?a.vy:0.4+Math.random()*0.3);
+    const pos=virtualToScreen(a.vx>0?a.vx:0.1+(idx*0.15)%0.75, a.vy>0?a.vy:0.35+(idx%3)*0.18);
     const el=document.createElement('div');
     el.className='gitem animal-item';
     el.style.left=pos.x+'px';el.style.top=pos.y+'px';

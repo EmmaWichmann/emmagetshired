@@ -350,20 +350,37 @@ function normalizeGarden(){
   if(!Array.isArray(g.purchaseLog))g.purchaseLog=[];
   return g;
 }
-function saveNorm(g){saveG(g);}
  
-// *** THE FIX: ensure every animal has valid vx/vy before saving/rendering ***
+// =====================================================================
+// FIX: Use percentage-based positions stored as 0-1 fractions of a
+// FIXED reference canvas size (600x400). This means positions are
+// always meaningful regardless of which tab is visible when the animal
+// is added. On render we convert: px = fraction * canvas.offsetWidth
+// =====================================================================
+const REF_W = 600;
+const REF_H = 400;
+ 
 function fixAnimalPositions(animals){
   return animals.map((a,idx)=>{
-    if(!a.vx||a.vx<=0||a.vx===undefined||isNaN(a.vx)||
-       !a.vy||a.vy<=0||a.vy===undefined||isNaN(a.vy)){
-      return {...a,
-        vx: 0.12 + (idx * 0.17) % 0.72,
-        vy: 0.32 + (idx % 4) * 0.14
-      };
-    }
-    return a;
+    const vx = (typeof a.vx==='number'&&a.vx>0&&a.vx<=1) ? a.vx : 0.12+(idx*0.17)%0.72;
+    const vy = (typeof a.vy==='number'&&a.vy>0&&a.vy<=1) ? a.vy : 0.32+(idx%4)*0.14;
+    return {...a, vx, vy};
   });
+}
+ 
+// Convert virtual (0-1) to real pixels using ACTUAL canvas size
+// Falls back to REF_W/REF_H if canvas isn't visible yet
+function virtualToScreen(vx, vy){
+  const canvas = document.getElementById('field-canvas');
+  const w = canvas.offsetWidth  || REF_W;
+  const h = canvas.offsetHeight || REF_H;
+  return { x: vx * w, y: vy * h };
+}
+function screenToVirtual(sx, sy){
+  const canvas = document.getElementById('field-canvas');
+  const w = canvas.offsetWidth  || REF_W;
+  const h = canvas.offsetHeight || REF_H;
+  return { vx: sx/w, vy: sy/h };
 }
  
 function initCoinsIfNeeded(){
@@ -376,7 +393,8 @@ let zoom=1;
 const ZMIN=0.4,ZMAX=2.6,ZSTEP=0.2;
 function getCanvasSize(){
   const scroll=document.getElementById('field-scroll');
-  const sw=scroll.offsetWidth||400;const sh=scroll.offsetHeight||400;
+  const canvas=document.getElementById('field-canvas');
+  const sw=scroll.offsetWidth||REF_W;const sh=scroll.offsetHeight||REF_H;
   return{w:Math.max(sw,sw*zoom),h:Math.max(sh,sh*zoom),sw,sh};
 }
 function applyZoom(){
@@ -397,7 +415,8 @@ function showTab(name,el){
   el.classList.add('active');
   if(name==='shop')renderShop();
   if(name==='animals')renderAnimalShop();
-  if(name==='garden')requestAnimationFrame(()=>requestAnimationFrame(renderGarden));
+  // FIX: use setTimeout so the tab is fully visible + has real dimensions before rendering
+  if(name==='garden') setTimeout(renderGarden, 50);
 }
  
 function render(){
@@ -459,9 +478,9 @@ function buyAnimal(id){
   if(g.animals.some(x=>x.id===a.id)){showToast(a.name+' already lives here! 🌿');return;}
   if(g.coins<a.cost){showToast('Not enough coins!');return;}
   g.coins-=a.cost;
-  // Give it a guaranteed good position right away
   const idx=g.animals.length;
-  const newAnimal={...a,apps:'shop',vx:0.12+(idx*0.17)%0.72,vy:0.32+(idx%4)*0.14};
+  // FIX: store positions as fractions of REF canvas, not pixels
+  const newAnimal={...a, apps:'shop', vx:0.12+(idx*0.17)%0.72, vy:0.32+(idx%4)*0.14};
   g.animals.push(newAnimal);
   saveG(g);updateMoneyUI(g.coins);
   showArrivalPopup(a);
@@ -469,21 +488,16 @@ function buyAnimal(id){
   renderAnimalShop();
 }
  
-function virtualToScreen(vx,vy){const{w,h}=getCanvasSize();return{x:vx*w,y:vy*h};}
-function screenToVirtual(sx,sy){const{w,h}=getCanvasSize();return{vx:sx/w,vy:sy/h};}
- 
 function renderGarden(){
   const canvas=document.getElementById('field-canvas');
   const{w,h}=getCanvasSize();
   canvas.style.width=w+'px';canvas.style.height=h+'px';
   document.getElementById('zoom-lbl').textContent=Math.round(zoom*100)+'%';
   const g=normalizeGarden();
-  // Fix plants with missing coords
   g.plants=g.plants.map((p,i)=>{
     if(!p.vx||p.vx<=0)return{...p,vx:0.15+(i*0.18)%0.70,vy:0.35+(i%3)*0.15};
     return p;
   });
-  // Fix animals with missing coords
   g.animals=fixAnimalPositions(g.animals);
   saveG(g);
   renderField(g);
@@ -607,24 +621,27 @@ function triggerAnimalVisit(total){
     if(!g.animals.some(x=>x.id===c.id)){animal=c;break;}
   }
   if(!animal)animal=pool[Math.floor(Math.random()*pool.length)];
-  // Give it a guaranteed valid position
   const idx=g.animals.length;
-  const newAnimal={...animal,apps:total,vx:0.12+(idx*0.17)%0.72,vy:0.32+(idx%4)*0.14};
+  // FIX: store as fractions, guaranteed valid 0-1 range
+  const newAnimal={...animal, apps:total, vx:0.12+(idx*0.17)%0.72, vy:0.32+(idx%4)*0.14};
   g.animals.push(newAnimal);
   saveG(g);
   setTimeout(()=>{showArrivalPopup(animal);playAnimalSound();},700);
 }
  
-// *** THE KEY FIX: closeArrival always ensures garden is ready regardless of tab ***
+// FIX: closeArrival now always refreshes the garden list AND re-renders field
+// if on garden tab. If NOT on garden tab, animal is safely stored and will
+// appear correctly the next time the user taps the Garden tab.
 function closeArrival(){
   document.getElementById('animal-arrival').classList.remove('show');
-  // Fix and save animal positions first
   const g=normalizeGarden();
   g.animals=fixAnimalPositions(g.animals);
   saveG(g);
-  // Render garden if on that tab, otherwise just save so they show up when they navigate there
+  // Always refresh the animals log section (bottom of garden page)
+  renderAnimalsLog(g);
+  // If garden is active, re-render the field with correct pixel size
   if(document.getElementById('page-garden').classList.contains('active')){
-    requestAnimationFrame(()=>renderGarden());
+    setTimeout(renderGarden, 30);
   }
   if(document.getElementById('page-animals').classList.contains('active')){
     renderAnimalShop();

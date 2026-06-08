@@ -383,8 +383,18 @@ const loadJobs=()=>JSON.parse(localStorage.getItem('emmajobs')||'{}');
 const saveJobs=d=>localStorage.setItem('emmajobs',JSON.stringify(d));
  
 function loadG(){
-  const g=JSON.parse(localStorage.getItem('emmagarden7')||'null');
-  if(!g)return{coins:0,inventory:[],plants:[],animals:[],purchaseLog:[]};
+  // Migrate from old storage keys if needed
+  let raw=localStorage.getItem('emmagarden7');
+  if(!raw){
+    // Try old keys in order of recency
+    raw=localStorage.getItem('emmagarden6')||localStorage.getItem('emmagarden5')||null;
+    if(raw){
+      // Migrate: save under new key, keep old for safety
+      localStorage.setItem('emmagarden7',raw);
+    }
+  }
+  const g=JSON.parse(raw||'null');
+  if(!g)return{coins:0,inventory:[],plants:[],animals:[]};
   if(typeof g.coins!=='number')g.coins=0;
   if(!Array.isArray(g.inventory))g.inventory=[];
   if(!Array.isArray(g.plants))g.plants=[];
@@ -643,13 +653,16 @@ function showArrival(animal){
 }
 function closeArrival(){
   document.getElementById('arrival-overlay').classList.remove('show');
-  // Only re-render UI that's currently visible. Garden will render correctly
-  // on its own when the tab is opened (showTab calls renderGarden with a delay).
   const g=loadG();
+  // Always refresh the animals list at the bottom of the garden page
   renderOwnedAnimals(g);
+  // Refresh animal shop if open
   if(document.getElementById('page-animals').classList.contains('active'))renderAnimalShop();
-  // If the garden is already open, refresh it now (canvas dimensions are valid)
-  if(document.getElementById('page-garden').classList.contains('active'))renderGarden();
+  // If garden tab is open, re-render with a small delay so DOM settles after popup close
+  // If garden tab is NOT open, data is saved — animals will appear correctly when tab opens
+  if(document.getElementById('page-garden').classList.contains('active')){
+    setTimeout(renderGarden, 50);
+  }
 }
  
 // ── Garden render ─────────────────────────────────────────────────────

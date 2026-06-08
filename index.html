@@ -637,9 +637,7 @@ function closeArrival(){
   const g=normalizeGarden();
   g.animals=fixAnimalPositions(g.animals);
   saveG(g);
-  // Always refresh the animals log section (bottom of garden page)
   renderAnimalsLog(g);
-  // If garden is active, re-render the field with correct pixel size
   if(document.getElementById('page-garden').classList.contains('active')){
     setTimeout(renderGarden, 30);
   }

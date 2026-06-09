@@ -652,11 +652,12 @@ document.getElementById('apply-btn').addEventListener('click',()=>{
   if(!Array.isArray(data[today]))data[today]=[];
   data[today].push(timeNow());saveJobs(data);redoStack=[];
   const total=totalApplications();const g=normalizeGarden();
-  g.coins+=1;
+ g.coins+=1;
   const bonus=rollBonusCoins(total);
   if(bonus){g.coins+=bonus.coins;const b=document.getElementById('milestone-banner');b.style.display='block';b.textContent=bonus.msg;setTimeout(()=>b.style.display='none',3500);}
+  saveG(g);
   if(shouldTriggerAnimal(total))triggerAnimalVisit(total);
-  saveG(g);updateMoneyUI(g.coins);render();
+  updateMoneyUI(g.coins);render();
   if(document.getElementById('page-shop').classList.contains('active'))renderShop();
   if(document.getElementById('page-animals').classList.contains('active'))renderAnimalShop();
   launchConfetti();playSparkle();

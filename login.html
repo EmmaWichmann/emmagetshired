@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bloom — log in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Source+Serif+4:ital,wght@0,400;0,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-theme="earth">
+<div class="wrap">
+  <div class="modal-standalone">
+    <h1 style="margin:0 0 6px;">🌱 bloom</h1>
+    <p style="color:var(--clay);font-style:italic;margin:0 0 22px;">this one's just for you</p>
+    {% if error %}<p style="color:var(--danger);font-size:.85rem;">{{ error }}</p>{% endif %}
+    <form method="POST">
+      <input type="password" name="password" placeholder="password" autofocus
+        style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--sand);
+        background:var(--cream);color:var(--bark);font-family:inherit;margin-bottom:14px;box-sizing:border-box;">
+      <button type="submit" class="btn-primary" style="width:100%;padding:12px;">enter</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bloom 🌱 — python + sql edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700&family=Source+Serif+4:ital,wght@0,400;0,500;0,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-theme="{{ theme }}">
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">python + flask + sqlite edition</div>
+    <h1>🌱 bloom</h1>
+    <p>little by little, baby steps</p>
+  </header>
+
+  <nav class="tabs">
+    <a class="tab-btn {{ 'active' if active_tab=='tracker' }}" href="{{ url_for('tracker') }}">Tracker</a>
+    <a class="tab-btn {{ 'active' if active_tab=='stats' }}" href="{{ url_for('stats') }}">Stats</a>
+    <a class="tab-btn {{ 'active' if active_tab=='settings' }}" href="{{ url_for('settings') }}">Settings</a>
+    <a class="tab-btn" href="{{ url_for('logout') }}">Log out</a>
+  </nav>
+
+  <p class="affirmation-strip">✨ {{ affirmation }}</p>
+
+  {% if active_tab == 'tracker' %}
+  <section>
+    <div class="growth-card">
+      <div class="growth-top">
+        <span class="growth-stage">{{ stage_label }}</span>
+        <span class="growth-pts">{{ total }} pts total</span>
+      </div>
+      <div class="vine-track">
+        <div class="vine-fill" style="width:{{ pct }}%"></div>
+        <div class="vine-emoji" style="left:{{ pct }}%">{{ stage_emoji }}</div>
+      </div>
+      <div class="stage-labels">
+        <span>Seedling</span><span>Sprouting</span><span>Budding</span><span>Blooming</span><span>Thriving</span>
+      </div>
+    </div>
+
+    {% if streak > 0 %}
+    <div style="text-align:center;">
+      <span class="streak-pill">🔥 {{ streak }} day{{ 's' if streak > 1 }} in a row</span>
+    </div>
+    {% endif %}
+
+    <div class="mood-row">
+      <span class="mood-label">today I feel</span>
+      <div class="mood-btns">
+        {% for m in ['😩','😐','🙂','✨'] %}
+        <form method="POST" action="{{ url_for('set_mood', mood=m) }}">
+          <button type="submit" class="mood-btn {{ 'picked' if today_mood == m }}">{{ m }}</button>
+        </form>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card-links">
+      <a href="{{ url_for('wrapped_card') }}" target="_blank">📦 this month's wrapped</a>
+      <a href="{{ url_for('streak_card') }}" target="_blank">🔥 streak card</a>
+    </div>
+
+    <div class="promise-strip">
+      "Relax, things will work out." · "Baby steps, little by little." · "Take care of yourself."
+    </div>
+
+    <div class="section-head"><h2>Log today</h2><div class="line"></div></div>
+    <div class="cats">
+      {% for c in categories %}
+        {% if c['id'] == 'speech' %}
+          <a class="cat-btn" href="{{ url_for('speech') }}">
+            <span class="cat-count">{{ counts.get(c['id'], 0) }}</span>
+            <span class="cat-emoji">{{ c['emoji'] }}</span>
+            <span class="cat-name">{{ c['name'] }}</span>
+            <span class="cat-sub">{{ c['sub'] }}</span>
+          </a>
+        {% else %}
+          <form method="POST" action="{{ url_for('log_category', cat_id=c['id']) }}">
+            <button type="submit" class="cat-btn">
+              <span class="cat-count">{{ counts.get(c['id'], 0) }}</span>
+              <span class="cat-emoji">{{ c['emoji'] }}</span>
+              <span class="cat-name">{{ c['name'] }}</span>
+              <span class="cat-sub">{{ c['sub'] }}</span>
+            </button>
+          </form>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="section-head"><h2>Rewards to unlock</h2><div class="line"></div></div>
+    <div class="rewards">
+      {% for r in rewards %}
+      <div class="reward {{ 'unlocked' if r['claimed'] else ('' if total >= r['pts'] else 'locked') }}">
+        <span class="r-pts">{{ r['pts'] }}</span>
+        <span class="r-text">{{ r['text'] }}{{ ' — claimed 🎉' if r['claimed'] }}</span>
+        {% if not r['claimed'] and total >= r['pts'] %}
+        <form method="POST" action="{{ url_for('claim_reward', reward_id=r['id']) }}">
+          <button class="r-claim" type="submit">claim</button>
+        </form>
+        {% endif %}
+        <form method="POST" action="{{ url_for('delete_reward', reward_id=r['id']) }}">
+          <button class="r-edit" type="submit">✕</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    <form method="POST" action="{{ url_for('add_reward') }}" class="add-reward">
+      <input type="number" name="pts" placeholder="pts" min="1" required>
+      <input type="text" name="text" placeholder="add your own reward..." required>
+      <button type="submit">+ Add</button>
+    </form>
+  </section>
+  {% endif %}
+
+  {% if active_tab == 'stats' %}
+  <section>
+    <div class="stat-row">
+      <div class="stat-box"><div class="num">{{ streak }}</div><div class="lbl">Day streak</div></div>
+      <div class="stat-box"><div class="num">{{ total_logs }}</div><div class="lbl">Total logs</div></div>
+      <div class="stat-box"><div class="num">{{ active_days }}</div><div class="lbl">Active days</div></div>
+    </div>
+
+    <div class="stat-card">
+      <h3>This week</h3>
+      <div class="bar-chart">
+        {% for d in weekly %}
+        <div class="bar-col">
+          <div class="bar" style="height:{{ (d['total'] / max_weekly * 100) if max_weekly else 0 }}px;">
+            {% if d['total'] > 0 %}<span class="bar-val">{{ d['total'] }}</span>{% endif %}
+          </div>
+          <span class="bar-lbl">{{ d['date'][5:] }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <h3>What you've been logging</h3>
+      <div class="breakdown-list">
+        {% for row in breakdown %}
+        {% if row['total'] > 0 %}
+        <div class="breakdown-row">
+          <span class="bd-dot" style="background:{{ row['color'] }}"></span>
+          <span class="bd-label">{{ row['emoji'] }} {{ row['name'] }}</span>
+          <div class="bd-track"><div class="bd-fill" style="width:{{ (row['total'] / total_breakdown * 100) }}%; background:{{ row['color'] }}"></div></div>
+          <span class="bd-val">{{ row['total'] }}</span>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% if total_breakdown == 0 %}
+        <p style="color:var(--clay);font-size:.85rem;">Log something to see your breakdown 🌱</p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if active_tab == 'settings' %}
+  <section>
+    <div class="section-head"><h2>Theme</h2><div class="line"></div></div>
+    <div class="theme-picker">
+      {% for t in themes %}
+      <form method="POST" action="{{ url_for('set_theme', name=t) }}">
+        <button type="submit" class="theme-swatch {{ t }} {{ 'active' if theme == t }}">{{ t }}</button>
+      </form>
+      {% endfor %}
+    </div>
+
+    <div class="section-head"><h2>API access</h2><div class="line"></div></div>
+    <p style="font-size:.8rem;color:var(--clay);">Your stats as JSON, for scripts or a future app: <code>/api/stats</code></p>
+
+    <div class="section-head"><h2>Edit categories</h2><div class="line"></div></div>
+    {% for c in categories %}
+    <form method="POST" action="{{ url_for('update_category', cat_id=c['id']) }}" class="cat-edit-row">
+      <span>{{ c['emoji'] }}</span>
+      <input type="text" name="name" value="{{ c['name'] }}">
+      <input type="number" name="pts" value="{{ c['pts'] }}" min="1">
+      <button type="submit" class="r-claim">save</button>
+    </form>
+    {% endfor %}
+
+    <div class="section-head"><h2>Danger zone</h2><div class="line"></div></div>
+    <div class="danger-zone">
+      <p>This clears every log and reward. Category names/points are kept. This cannot be undone.</p>
+      <form method="POST" action="{{ url_for('reset') }}" onsubmit="return confirm('Really reset all your logs and rewards?');">
+        <button class="btn-danger" type="submit">Reset all data</button>
+      </form>
+    </div>
+  </section>
+  {% endif %}
+
+  <div class="footer-note">bloom — python + flask + sqlite · built while learning SQL</div>
+</div>
+</body>
+</html>

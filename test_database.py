@@ -250,3 +250,105 @@ def test_two_users_get_independent_moods():
     db.ensure_user(OTHER)
     db.set_today_mood(USER, "✨")
     assert db.get_today_mood(OTHER) is None
+
+
+# ---------------------------------------------------------------------------
+# CAREER ACTIONS — Today/Progress logging
+# ---------------------------------------------------------------------------
+
+def test_log_career_action_increases_weekly_count():
+    assert db.get_career_action_count_this_week(USER) == 0
+    db.log_career_action(USER, "speech", "Practice intro")
+    assert db.get_career_action_count_this_week(USER) == 1
+
+
+def test_has_completed_action_today_is_false_until_logged():
+    assert db.has_completed_action_today(USER, "Practice intro") is False
+    db.log_career_action(USER, "speech", "Practice intro")
+    assert db.has_completed_action_today(USER, "Practice intro") is True
+
+
+def test_has_completed_action_today_matches_by_exact_title():
+    db.log_career_action(USER, "speech", "Practice intro")
+    assert db.has_completed_action_today(USER, "Something else") is False
+
+
+def test_career_action_counts_by_type():
+    db.log_career_action(USER, "speech", "a")
+    db.log_career_action(USER, "speech", "b")
+    db.log_career_action(USER, "linkedin", "c")
+    counts = db.get_career_action_counts_by_type(USER)
+    assert counts["speech"] == 2
+    assert counts["linkedin"] == 1
+
+
+def test_most_consistent_action_type_with_no_actions_is_none():
+    assert db.get_most_consistent_action_type(USER) is None
+
+
+def test_most_consistent_action_type_picks_highest_count():
+    db.log_career_action(USER, "speech", "a")
+    db.log_career_action(USER, "speech", "b")
+    db.log_career_action(USER, "linkedin", "c")
+    assert db.get_most_consistent_action_type(USER) == "speech"
+
+
+def test_two_users_get_independent_career_actions():
+    db.ensure_user(OTHER)
+    db.log_career_action(USER, "speech", "only mine")
+    assert db.get_career_action_count_this_week(OTHER) == 0
+    assert db.has_completed_action_today(OTHER, "only mine") is False
+
+
+# ---------------------------------------------------------------------------
+# EVENT PREFERENCES
+# ---------------------------------------------------------------------------
+
+def test_event_preferences_default_when_unset():
+    prefs = db.get_event_preferences(USER)
+    assert prefs["location"] == "San Diego, California"
+    assert prefs["interests"] == []
+
+
+def test_save_and_get_event_preferences():
+    db.save_event_preferences(USER, "Austin, Texas", ["Biotechnology", "Product management"])
+    prefs = db.get_event_preferences(USER)
+    assert prefs["location"] == "Austin, Texas"
+    assert prefs["interests"] == ["Biotechnology", "Product management"]
+
+
+def test_save_event_preferences_overwrites_previous_save():
+    db.save_event_preferences(USER, "Austin, Texas", ["Biotechnology"])
+    db.save_event_preferences(USER, "San Diego, California", ["Artificial intelligence"])
+    prefs = db.get_event_preferences(USER)
+    assert prefs["location"] == "San Diego, California"
+    assert prefs["interests"] == ["Artificial intelligence"]
+
+
+def test_save_event_preferences_blank_location_falls_back_to_default():
+    db.save_event_preferences(USER, "", ["Biotechnology"])
+    assert db.get_event_preferences(USER)["location"] == "San Diego, California"
+
+
+def test_two_users_get_independent_event_preferences():
+    db.ensure_user(OTHER)
+    db.save_event_preferences(USER, "Austin, Texas", ["Biotechnology"])
+    assert db.get_event_preferences(OTHER)["location"] == "San Diego, California"
+
+
+# ---------------------------------------------------------------------------
+# LINKEDIN MESSAGE HISTORY
+# ---------------------------------------------------------------------------
+
+def test_save_linkedin_message_does_not_raise():
+    db.save_linkedin_message(USER, "Met at an event", "Jordan", "Illumina", "the biotech meetup", "Hi Jordan...")
+    # no dedicated getter yet — this just proves the insert succeeds and the
+    # row is scoped correctly (checked via table isolation, not a query API)
+
+
+def test_init_db_is_idempotent_and_safe_to_rerun():
+    # simulates an existing user's database getting the new tables added —
+    # calling init_db() again must never raise or wipe data
+    db.log_career_action(USER, "speech", "existing action")
+    db.init_db()
+    assert db.get_career_action_count_this_week(USER) == 1

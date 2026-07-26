@@ -87,6 +87,31 @@ def init_db():
         mood     TEXT NOT NULL,
         PRIMARY KEY (user_id, log_date)
     );
+
+    CREATE TABLE IF NOT EXISTS career_actions (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id    TEXT NOT NULL,
+        action_type TEXT NOT NULL,
+        title      TEXT NOT NULL,
+        log_date   TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS event_preferences (
+        user_id   TEXT PRIMARY KEY,
+        location  TEXT NOT NULL DEFAULT 'San Diego, California',
+        interests TEXT NOT NULL DEFAULT ''
+    );
+
+    CREATE TABLE IF NOT EXISTS linkedin_messages (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id     TEXT NOT NULL,
+        purpose     TEXT NOT NULL,
+        person_name TEXT,
+        company     TEXT,
+        detail      TEXT,
+        message     TEXT NOT NULL,
+        log_date    TEXT NOT NULL
+    );
     """)
     conn.commit()
     conn.close()
@@ -439,6 +464,112 @@ def set_custom_theme(user_id, hex_color):
         "INSERT INTO user_settings (user_id, theme, custom_bg) VALUES (?, 'custom', ?) "
         "ON CONFLICT(user_id) DO UPDATE SET theme = 'custom', custom_bg = excluded.custom_bg",
         (user_id, hex_color),
+    )
+    conn.commit()
+    conn.close()
+
+
+# ---------------------------------------------------------------------------
+# CAREER ACTIONS — one row per completed career move (Today card, Walk and
+# Speak, LinkedIn Message Creator, Career Event Finder). This is the single
+# source of truth the Progress page reads from.
+# ---------------------------------------------------------------------------
+
+def log_career_action(user_id, action_type, title):
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO career_actions (user_id, action_type, title, log_date) VALUES (?, ?, ?, ?)",
+        (user_id, action_type, title, date.today().isoformat()),
+    )
+    conn.commit()
+    conn.close()
+
+
+def has_completed_action_today(user_id, title):
+    """Used by the Today page to know whether to show the recommended
+    action or a 'done for today' state."""
+    conn = get_db()
+    row = conn.execute(
+        "SELECT COUNT(*) AS n FROM career_actions WHERE user_id = ? AND title = ? AND log_date = ?",
+        (user_id, title, date.today().isoformat()),
+    ).fetchone()
+    conn.close()
+    return row["n"] > 0
+
+
+def get_career_action_count_this_week(user_id):
+    conn = get_db()
+    row = conn.execute(
+        "SELECT COUNT(*) AS n FROM career_actions WHERE user_id = ? AND log_date >= date('now', '-6 days')",
+        (user_id,),
+    ).fetchone()
+    conn.close()
+    return row["n"]
+
+
+def get_career_action_counts_by_type(user_id):
+    """GROUP BY action_type -> all-time count per type, e.g. {'speech': 4, 'linkedin': 2}."""
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT action_type, COUNT(*) AS n FROM career_actions WHERE user_id = ? GROUP BY action_type",
+        (user_id,),
+    ).fetchall()
+    conn.close()
+    return {row["action_type"]: row["n"] for row in rows}
+
+
+def get_most_consistent_action_type(user_id):
+    """The action_type this user has logged most often, or None if they
+    haven't logged anything yet."""
+    counts = get_career_action_counts_by_type(user_id)
+    if not counts:
+        return None
+    return max(counts, key=counts.get)
+
+
+# ---------------------------------------------------------------------------
+# EVENT PREFERENCES — saved location + career interests for the Career
+# Event Finder's outbound search links.
+# ---------------------------------------------------------------------------
+
+DEFAULT_EVENT_LOCATION = "San Diego, California"
+
+
+def get_event_preferences(user_id):
+    conn = get_db()
+    row = conn.execute(
+        "SELECT location, interests FROM event_preferences WHERE user_id = ?", (user_id,)
+    ).fetchone()
+    conn.close()
+    if row is None:
+        return {"location": DEFAULT_EVENT_LOCATION, "interests": []}
+    interests = [i for i in row["interests"].split(",") if i] if row["interests"] else []
+    return {"location": row["location"], "interests": interests}
+
+
+def save_event_preferences(user_id, location, interests):
+    """interests: a list of strings, stored comma-separated."""
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO event_preferences (user_id, location, interests) VALUES (?, ?, ?) "
+        "ON CONFLICT(user_id) DO UPDATE SET location = excluded.location, interests = excluded.interests",
+        (user_id, location or DEFAULT_EVENT_LOCATION, ",".join(interests)),
+    )
+    conn.commit()
+    conn.close()
+
+
+# ---------------------------------------------------------------------------
+# LINKEDIN MESSAGES — a record of every message the LinkedIn Message
+# Creator has generated for this user.
+# ---------------------------------------------------------------------------
+
+def save_linkedin_message(user_id, purpose, person_name, company, detail, message):
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO linkedin_messages (user_id, purpose, person_name, company, detail, message, log_date) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (user_id, purpose, person_name, company, detail, message, date.today().isoformat()),
     )
     conn.commit()
     conn.close()

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Progress — EmmaGetsHired</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700&family=Source+Serif+4:ital,wght@0,400;0,500;0,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-theme="{{ theme }}"{% if theme == 'custom' and custom_bg %} style="--parchment:{{ custom_bg }};"{% endif %}>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">EmmaGetsHired</div>
+    <h1>Progress</h1>
+    <p>Every small move, counted automatically.</p>
+  </header>
+
+  {% include '_nav.html' %}
+
+  {% include '_growth_trail.html' %}
+
+  <div class="stat-card growth-stage-card">
+    <h3>This week's growth stage</h3>
+    <div class="growth-stage-figure" aria-hidden="true">
+      <svg class="growth-stage-svg" viewBox="0 0 60 60" focusable="false">
+        <line class="stage-ground" x1="9" y1="51" x2="51" y2="51" stroke="var(--sand)" stroke-width="2" stroke-linecap="round"/>
+
+        {% if growth_stage.key == 'seed' %}
+        <ellipse cx="30" cy="47" rx="6" ry="4" fill="var(--bark)"/>
+
+        {% elif growth_stage.key == 'sprout' %}
+        <path d="M30 51 L30 34" fill="none" stroke="var(--moss)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M30 36 q 7 -7 12 -1 q -7 6 -12 1 Z" fill="var(--moss)"/>
+
+        {% elif growth_stage.key == 'leafy-stem' %}
+        <path d="M30 51 L30 22" fill="none" stroke="var(--moss)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M30 38 q -8 -7 -13 -1 q 8 6 13 1 Z" fill="var(--moss)"/>
+        <path d="M30 28 q 8 -7 13 -1 q -8 6 -13 1 Z" fill="var(--clay)"/>
+
+        {% elif growth_stage.key == 'flower-bud' %}
+        <path d="M30 51 L30 20" fill="none" stroke="var(--moss)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M30 38 q -8 -7 -13 -1 q 8 6 13 1 Z" fill="var(--moss)"/>
+        <path d="M30 28 q 8 -7 13 -1 q -8 6 -13 1 Z" fill="var(--clay)"/>
+        <ellipse cx="30" cy="15" rx="5" ry="7" fill="var(--clay)"/>
+
+        {% elif growth_stage.key == 'open-flower' %}
+        <path d="M30 51 L30 20" fill="none" stroke="var(--moss)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M30 38 q -8 -7 -13 -1 q 8 6 13 1 Z" fill="var(--moss)"/>
+        <path d="M30 28 q 8 -7 13 -1 q -8 6 -13 1 Z" fill="var(--clay)"/>
+        <g>
+          <circle cx="24" cy="13" r="4.5" fill="var(--moss)"/>
+          <circle cx="36" cy="13" r="4.5" fill="var(--moss)"/>
+          <circle cx="30" cy="8" r="4.5" fill="var(--clay)"/>
+          <circle cx="30" cy="18" r="4.5" fill="var(--clay)"/>
+          <circle cx="30" cy="13" r="3" fill="var(--bark)"/>
+        </g>
+        {% endif %}
+      </svg>
+    </div>
+    <p class="today-desc growth-stage-label">{{ growth_stage.label }}</p>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-box"><div class="num">{{ weekly_count }}</div><div class="lbl">Actions this week</div></div>
+    <div class="stat-box"><div class="num">{{ speech_count }}</div><div class="lbl">Speech practices</div></div>
+  </div>
+  <div class="stat-row">
+    <div class="stat-box"><div class="num">{{ linkedin_count }}</div><div class="lbl">LinkedIn messages</div></div>
+    <div class="stat-box"><div class="num">{{ event_count }}</div><div class="lbl">Event searches</div></div>
+  </div>
+
+  <div class="stat-card">
+    <h3>Most consistent activity</h3>
+    <p class="today-desc">{{ progress_insight }}</p>
+  </div>
+
+  <div class="stat-card">
+    <h3>{{ "Tomorrow's" if next_action_is_tomorrow else "Next up" }}</h3>
+    <p class="today-desc"><strong>{{ next_action.title }}</strong></p>
+    <a class="btn-secondary" href="{{ url_for('today') }}">Go to Today</a>
+  </div>
+
+  <div class="footer-note">EmmaGetsHired — <a href="{{ url_for('cover') }}">home</a> · <a href="{{ url_for('about') }}">about</a></div>
+</div>
+</body>
+</html>

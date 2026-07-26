@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Today — EmmaGetsHired</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700&family=Source+Serif+4:ital,wght@0,400;0,500;0,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-theme="{{ theme }}"{% if theme == 'custom' and custom_bg %} style="--parchment:{{ custom_bg }};"{% endif %}>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">EmmaGetsHired</div>
+    <h1>Today</h1>
+    <p>One small career move at a time.</p>
+  </header>
+
+  {% include '_nav.html' %}
+
+  <p class="affirmation-strip">✨ {{ affirmation }}</p>
+
+  {% set show_bloom = completed %}
+  {% include '_growth_trail.html' %}
+
+  {% if completed %}
+  <div class="today-card today-done">
+    <div class="today-check">✓</div>
+    <h2>Nice work — you showed up today.</h2>
+    <p class="today-desc">You completed: <strong>{{ action.title }}</strong></p>
+    <div class="today-actions">
+      <a class="btn-primary" href="{{ url_for('career_tools') }}">Explore Career Tools</a>
+      <a class="btn-ghost" href="{{ url_for('progress') }}">See your progress</a>
+    </div>
+  </div>
+  {% else %}
+  <div class="today-card">
+    <div class="today-eyebrow">Today's one small move · ~5–15 min</div>
+    <h2>{{ action.title }}</h2>
+    <p class="today-desc">{{ action.description }}</p>
+    <div class="today-actions">
+      <a class="btn-primary" href="{{ url_for(action.cta_endpoint) }}">{{ action.cta_label }}</a>
+      <form method="POST" action="{{ url_for('today_complete') }}">
+        <button class="btn-secondary" type="submit">Mark Complete</button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="footer-note">EmmaGetsHired — <a href="{{ url_for('cover') }}">home</a> · <a href="{{ url_for('about') }}">about</a></div>
+</div>
+</body>
+</html>

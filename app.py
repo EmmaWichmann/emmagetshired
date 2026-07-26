@@ -21,10 +21,11 @@ import uuid
 import random
 import logging
 from datetime import date
+from urllib.parse import quote, quote_plus
 
 from flask import (
     Flask, render_template, request, redirect, url_for,
-    g, send_file, jsonify,
+    g, send_file, jsonify, flash,
 )
 
 import database as db
@@ -32,6 +33,11 @@ import card_generator as cards
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("ONEMORETIME_SECRET_KEY", "dev-key-change-this")
+
+# Runs at import time (not just under `python app.py`) so gunicorn/production
+# deployments also get any new tables created safely — CREATE TABLE IF NOT
+# EXISTS means this is a no-op for tables that already exist.
+db.init_db()
 
 # ---------------------------------------------------------------------------
 # LOGGING — writes to app.log so you can see what happened if something
@@ -129,7 +135,7 @@ def set_custom_theme():
 
 AFFIRMATIONS = [
     "I am safe, calm, and confident when I speak.",
-    "I choose to nurture my mind, body, and soul with kindness and compassion.",
+    "One thoughtful career move is enough for today.",
     "I embrace each day as an opportunity for growth and healing.",
     "You don't have to get it right. You just have to try one more time.",
 ]
@@ -192,6 +198,221 @@ SPEECH_SETS = {
          "a": "Whatever comes out is the right answer."},
     ],
 }
+
+
+# ---------------------------------------------------------------------------
+# CAREER COPILOT — the new Today / Career Tools / Progress experience.
+# Everything below this point is career-action specific; the tracker/stats/
+# settings code above stays as-is so nothing breaks, it's just no longer
+# linked from the main nav.
+# ---------------------------------------------------------------------------
+
+# One small career move at a time. Which one shows up on Today rotates by
+# calendar day (deterministic, not random-per-refresh) so a visitor sees the
+# same recommendation all day and a different one tomorrow.
+TODAY_ACTIONS = [
+    {
+        "id": "intro-practice",
+        "title": "Practice your 30-second introduction out loud",
+        "description": "Say your intro like you're meeting someone new today. Out loud, not in your head — that's what makes it stick.",
+        "action_type": "speech",
+        "cta_label": "Start Walk and Speak",
+        "cta_endpoint": "walk_and_speak",
+    },
+    {
+        "id": "linkedin-message",
+        "title": "Create one LinkedIn networking message",
+        "description": "Pick one person you'd like to reach out to and let the message creator do the heavy lifting.",
+        "action_type": "linkedin",
+        "cta_label": "Open LinkedIn Message Creator",
+        "cta_endpoint": "linkedin_tool",
+    },
+    {
+        "id": "biotech-event",
+        "title": "Search for one San Diego biotech event",
+        "description": "Find one event worth showing up to. You don't have to go — just find it.",
+        "action_type": "event",
+        "cta_label": "Open Career Event Finder",
+        "cta_endpoint": "events_tool",
+    },
+    {
+        "id": "review-job",
+        "title": "Review one job description",
+        "description": "Read one posting closely. Notice what stands out, what's missing, what you'd want to tailor for.",
+        "action_type": "job_review",
+        "cta_label": "Open Career Tools",
+        "cta_endpoint": "career_tools",
+    },
+    {
+        "id": "explain-transition",
+        "title": "Practice explaining your career transition",
+        "description": "One clear, honest sentence about why you moved from medicine and science into tech.",
+        "action_type": "speech",
+        "cta_label": "Start Walk and Speak",
+        "cta_endpoint": "walk_and_speak",
+    },
+    {
+        "id": "follow-up-contact",
+        "title": "Follow up with one professional contact",
+        "description": "A short, low-pressure check-in message to someone already in your network.",
+        "action_type": "networking",
+        "cta_label": "Open LinkedIn Message Creator",
+        "cta_endpoint": "linkedin_tool",
+    },
+]
+
+
+def get_today_action():
+    idx = date.today().toordinal() % len(TODAY_ACTIONS)
+    return TODAY_ACTIONS[idx]
+
+
+def get_tomorrow_action():
+    idx = (date.today().toordinal() + 1) % len(TODAY_ACTIONS)
+    return TODAY_ACTIONS[idx]
+
+
+# Walk and Speak — the speech-practice feature, reused and repositioned
+# with prompts focused on the career-transition story instead of general
+# life/interview topics (that original set stays at SPEECH_SETS above).
+WALK_AND_SPEAK_PROMPTS = [
+    {"q": "Tell me about yourself.",
+     "a": "‘I have a background in psychology and physiology, and I spent time in a cancer research program before starting a doctoral program. One semester in, I realized my strengths were pulling me toward building things, not studying them — so I taught myself to code and I've been building ever since.’"},
+    {"q": "Explain your transition from medicine and science into technology.",
+     "a": "‘I left a D.O./M.S. program after one semester because I recognized a pattern I needed to change, not push through. My science background gave me precision and patience with data — I'm applying that same rigor to building software now.’"},
+    {"q": "Introduce yourself at a networking event.",
+     "a": "‘Hi, I'm Emma — I'm in San Diego, transitioning from a science background into software. What brought you here tonight?’"},
+    {"q": "Why are you interested in this company?",
+     "a": "Pick one real reason — a product you use, a mission that matches your own, a problem you'd like to help solve — and say it in one sentence."},
+    {"q": "Ask someone for career advice.",
+     "a": "‘I'd love to hear how you got started in this field — do you have 15 minutes sometime for me to ask a few questions?’"},
+    {"q": "Describe a project you built.",
+     "a": "Pick one — onemoretime, Outfit Archive, or Coding Learning Hub — and describe what it does and why you built it, in two sentences."},
+    {"q": "Recover confidently after a stutter.",
+     "a": "Nothing dramatic — pause, breathe, and keep going. ‘Let me start that again’ is a complete, professional sentence."},
+    {"q": "Explain a technical idea simply.",
+     "a": "Pick something you understand well and explain it the way you'd explain it to a curious friend, not a computer science professor."},
+]
+
+WALK_AND_SPEAK_LOG_TITLE = "Practiced out loud with Walk and Speak"
+
+
+# LinkedIn Message Creator — template-based, no external AI API.
+LINKEDIN_PURPOSES = [
+    "Met at an event",
+    "Ask for career advice",
+    "Recruiter outreach",
+    "Follow up after connecting",
+    "Thank someone",
+    "Ask about an opportunity",
+]
+
+
+def generate_linkedin_message(purpose, name, company, detail):
+    name = name.strip() or "there"
+    company = company.strip()
+    detail = detail.strip()
+    company_part = f" at {company}" if company else ""
+
+    if purpose == "Met at an event":
+        met_part = f" at {detail}" if detail else ""
+        return (f"Hi {name}, it was great meeting you{met_part}! "
+                f"I'd love to stay connected here on LinkedIn — hope our paths cross again soon.")
+
+    if purpose == "Ask for career advice":
+        context = f"{detail} " if detail else ""
+        return (f"Hi {name}, I've been following your work{company_part} and would really value your perspective. "
+                f"{context}Would you be open to a quick 15-minute chat sometime? No pressure at all if you're busy.")
+
+    if purpose == "Recruiter outreach":
+        context = f"{detail} " if detail else ""
+        return (f"Hi {name}, I saw you recruit for roles{company_part}. {context}"
+                f"I'm currently exploring new opportunities and would love to learn more about what you're hiring for — "
+                f"happy to share my background if that's helpful.")
+
+    if purpose == "Follow up after connecting":
+        context = f"{detail} " if detail else ""
+        return (f"Hi {name}, thanks for connecting! {context}"
+                f"Looking forward to staying in touch — let me know if there's ever a way I can be useful to you too.")
+
+    if purpose == "Thank someone":
+        for_part = f" for {detail}" if detail else ""
+        return f"Hi {name}, I just wanted to say thank you{for_part}. It meant a lot, and I really appreciate you taking the time."
+
+    if purpose == "Ask about an opportunity":
+        role_part = f" for {detail}" if detail else ""
+        return (f"Hi {name}, I noticed{company_part or ' your company'} might be hiring{role_part}. "
+                f"I'm really interested and would love to learn more — is there someone I should connect with?")
+
+    return f"Hi {name}, {detail}".strip()
+
+
+# Career Event Finder — outbound search links only, no scraping, no paid API.
+EVENT_INTEREST_OPTIONS = [
+    "Biotechnology",
+    "Life sciences",
+    "Artificial intelligence",
+    "Medical devices",
+    "Product management",
+    "Healthcare technology",
+    "Women in technology",
+]
+
+
+def build_event_search_url(engine, query, location):
+    combined = f"{query} events in {location}".strip()
+    if engine == "google":
+        return f"https://www.google.com/search?q={quote_plus(combined)}"
+    if engine == "linkedin":
+        return f"https://www.linkedin.com/search/results/events/?keywords={quote_plus(f'{query} {location}'.strip())}"
+    if engine == "meetup":
+        return f"https://www.meetup.com/find/?keywords={quote_plus(query)}&location={quote_plus(location)}"
+    if engine == "eventbrite":
+        # path segments, not a query string — "+" wouldn't decode as a space here, so use quote()
+        return f"https://www.eventbrite.com/d/{quote(location)}/{quote(query)}/"
+    return None
+
+
+ACTION_TYPE_LABELS = {
+    "speech": "Walk and Speak practice",
+    "linkedin": "LinkedIn messages",
+    "event": "Event searches",
+    "job_review": "Job description reviews",
+    "networking": "Networking follow-ups",
+}
+
+# Below this total, or whenever the top activity types are tied, there isn't
+# enough of a lead to honestly call one "most consistent" — a tie between two
+# single-action types shouldn't get named as if one clearly won.
+MOMENTUM_MIN_ACTIONS = 3
+
+
+def get_progress_insight(counts):
+    total = sum(counts.values())
+    if total == 0:
+        return "Your first small career move will appear here."
+
+    top_count = max(counts.values())
+    leaders = [t for t, c in counts.items() if c == top_count]
+    if total < MOMENTUM_MIN_ACTIONS or len(leaders) > 1:
+        return "You are building momentum across multiple career activities."
+
+    label = ACTION_TYPE_LABELS.get(leaders[0], leaders[0])
+    return f"You've kept up with {label} the most. Keep it going."
+
+
+def get_growth_stage(weekly_count):
+    """Maps this week's career-action count to the small growth-stage
+    graphic + label shown on Progress."""
+    if weekly_count <= 0:
+        return {"key": "seed", "label": "Your next step begins here."}
+    if weekly_count == 1:
+        return {"key": "sprout", "label": "Your first step is growing."}
+    if weekly_count <= 3:
+        return {"key": "leafy-stem", "label": "Your momentum is taking root."}
+    if weekly_count <= 5:
+        return {"key": "flower-bud", "label": "Your consistency is beginning to bloom."}
+    return {"key": "open-flower", "label": "Your career garden is growing."}
 
 
 def get_stage(total_pts):
@@ -387,6 +608,139 @@ def speech_done():
 
 
 # ---------------------------------------------------------------------------
+# TODAY — one recommended career action at a time, auto-logged on completion.
+# ---------------------------------------------------------------------------
+
+@app.route("/today")
+def today():
+    action = get_today_action()
+    completed = db.has_completed_action_today(g.user_id, action["title"])
+    return render_template("today.html", active_tab="today", action=action, completed=completed)
+
+
+@app.route("/today/complete", methods=["POST"])
+def today_complete():
+    action = get_today_action()
+    if not db.has_completed_action_today(g.user_id, action["title"]):
+        db.log_career_action(g.user_id, action["action_type"], action["title"])
+        logger.info(f"Career action completed: {action['title']}")
+    return redirect(url_for("today"))
+
+
+# ---------------------------------------------------------------------------
+# CAREER TOOLS — the calm hub linking to each tool.
+# ---------------------------------------------------------------------------
+
+@app.route("/tools")
+def career_tools():
+    return render_template("tools.html", active_tab="tools")
+
+
+# ---------------------------------------------------------------------------
+# WALK AND SPEAK — speech practice, reused and repositioned with prompts
+# focused on the career-transition story.
+# ---------------------------------------------------------------------------
+
+@app.route("/tools/speak")
+def walk_and_speak():
+    prompt = random.choice(WALK_AND_SPEAK_PROMPTS)
+    return render_template("walk_and_speak.html", active_tab="tools", prompt=prompt)
+
+
+@app.route("/tools/speak/done", methods=["POST"])
+def walk_and_speak_done():
+    db.log_career_action(g.user_id, "speech", WALK_AND_SPEAK_LOG_TITLE)
+    flash("Logged — nice work saying that out loud.")
+    return redirect(url_for("walk_and_speak"))
+
+
+# ---------------------------------------------------------------------------
+# LINKEDIN MESSAGE CREATOR — template-based, no external AI API.
+# ---------------------------------------------------------------------------
+
+@app.route("/tools/linkedin")
+def linkedin_tool():
+    return render_template("linkedin.html", active_tab="tools", purposes=LINKEDIN_PURPOSES, message=None, form={})
+
+
+@app.route("/tools/linkedin/generate", methods=["POST"])
+def linkedin_generate():
+    purpose = request.form.get("purpose", "").strip()
+    name = request.form.get("name", "").strip()
+    company = request.form.get("company", "").strip()
+    detail = request.form.get("detail", "").strip()
+    form = {"purpose": purpose, "name": name, "company": company, "detail": detail}
+
+    if purpose not in LINKEDIN_PURPOSES:
+        return render_template("linkedin.html", active_tab="tools", purposes=LINKEDIN_PURPOSES, message=None, form=form)
+
+    message = generate_linkedin_message(purpose, name, company, detail)
+    db.save_linkedin_message(g.user_id, purpose, name, company, detail, message)
+    db.log_career_action(g.user_id, "linkedin", f"LinkedIn message: {purpose}")
+    return render_template("linkedin.html", active_tab="tools", purposes=LINKEDIN_PURPOSES, message=message, form=form)
+
+
+# ---------------------------------------------------------------------------
+# CAREER EVENT FINDER — saved location/interests + outbound search links.
+# No scraping, no paid API: just building a search-engine URL.
+# ---------------------------------------------------------------------------
+
+@app.route("/tools/events")
+def events_tool():
+    prefs = db.get_event_preferences(g.user_id)
+    return render_template("events.html", active_tab="tools", interest_options=EVENT_INTEREST_OPTIONS, prefs=prefs)
+
+
+@app.route("/tools/events/save", methods=["POST"])
+def events_save():
+    location = request.form.get("location", "").strip() or db.DEFAULT_EVENT_LOCATION
+    interests = request.form.getlist("interests")
+    db.save_event_preferences(g.user_id, location, interests)
+    flash("Saved your location and interests.")
+    return redirect(url_for("events_tool"))
+
+
+@app.route("/tools/events/go/<engine>")
+def events_go(engine):
+    prefs = db.get_event_preferences(g.user_id)
+    location = prefs["location"] or db.DEFAULT_EVENT_LOCATION
+    query = " ".join(prefs["interests"]) if prefs["interests"] else "career"
+    url = build_event_search_url(engine, query, location)
+    if url is None:
+        return redirect(url_for("events_tool"))
+    db.log_career_action(g.user_id, "event", f"Searched {engine.title()} for events")
+    return redirect(url)
+
+
+# ---------------------------------------------------------------------------
+# PROGRESS — automatic career-action stats, no manual tracker entry.
+# ---------------------------------------------------------------------------
+
+@app.route("/progress")
+def progress():
+    user_id = g.user_id
+    counts = db.get_career_action_counts_by_type(user_id)
+    weekly_count = db.get_career_action_count_this_week(user_id)
+
+    today_action = get_today_action()
+    completed_today = db.has_completed_action_today(user_id, today_action["title"])
+    next_action = get_tomorrow_action() if completed_today else today_action
+
+    return render_template(
+        "progress.html",
+        active_tab="progress",
+        weekly_count=weekly_count,
+        speech_count=counts.get("speech", 0),
+        linkedin_count=counts.get("linkedin", 0),
+        event_count=counts.get("event", 0),
+        progress_insight=get_progress_insight(counts),
+        growth_stage=get_growth_stage(weekly_count),
+        next_action=next_action,
+        next_action_is_tomorrow=completed_today,
+    )
+
+
+# ---------------------------------------------------------------------------
 # SHAREABLE CARDS — "wrapped" monthly recap + streak flex card.
 # Both return a real PNG image, generated on the fly with Pillow.
 # ---------------------------------------------------------------------------
@@ -441,5 +795,4 @@ def api_log(cat_id):
 
 
 if __name__ == "__main__":
-    db.init_db()
     app.run(debug=True)

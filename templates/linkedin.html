@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkedIn Message Creator — EmmaGetsHired</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700&family=Source+Serif+4:ital,wght@0,400;0,500;0,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-theme="{{ theme }}"{% if theme == 'custom' and custom_bg %} style="--parchment:{{ custom_bg }};"{% endif %}>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Career Tools</div>
+    <h1>LinkedIn Message Creator</h1>
+    <p>Fill in a few details, get a message you can send.</p>
+  </header>
+
+  {% include '_nav.html' %}
+
+  <form method="POST" action="{{ url_for('linkedin_generate') }}" class="tool-form">
+    <label for="purpose">Message purpose</label>
+    <select id="purpose" name="purpose" required>
+      <option value="" disabled {{ 'selected' if not form.get('purpose') }}>Choose one...</option>
+      {% for p in purposes %}
+      <option value="{{ p }}" {{ 'selected' if form.get('purpose') == p }}>{{ p }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="name">Their name</label>
+    <input type="text" id="name" name="name" placeholder="e.g. Jordan" value="{{ form.get('name', '') }}" required>
+
+    <label for="company">Company or organization</label>
+    <input type="text" id="company" name="company" placeholder="e.g. Illumina" value="{{ form.get('company', '') }}">
+
+    <label for="detail">How we met, or why I'm reaching out</label>
+    <input type="text" id="detail" name="detail" placeholder="e.g. the San Diego Biotech Meetup" value="{{ form.get('detail', '') }}">
+
+    <button class="btn-primary btn-large" type="submit">Generate message</button>
+  </form>
+
+  {% if message %}
+  <div class="result-card">
+    <div class="result-label">Your message</div>
+    <p id="generated-message" class="result-text">{{ message }}</p>
+    <button class="btn-secondary btn-large" type="button" onclick="copyMessage()">📋 Copy message</button>
+    <p id="copy-confirm" class="copy-confirm" hidden>Copied!</p>
+  </div>
+  {% endif %}
+
+  <div class="footer-note">EmmaGetsHired — <a href="{{ url_for('career_tools') }}">career tools</a> · <a href="{{ url_for('cover') }}">home</a></div>
+</div>
+
+<script>
+function copyMessage() {
+  const text = document.getElementById('generated-message').innerText;
+  navigator.clipboard.writeText(text).then(function () {
+    const confirmEl = document.getElementById('copy-confirm');
+    confirmEl.hidden = false;
+    setTimeout(function () { confirmEl.hidden = true; }, 2000);
+  });
+}
+</script>
+</body>
+</html>

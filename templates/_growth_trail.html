@@ -1,0 +1,19 @@
+<div class="growth-trail" aria-hidden="true">
+  <svg class="growth-trail-svg" viewBox="0 0 220 36" preserveAspectRatio="none" focusable="false">
+    <path class="trail-stem" pathLength="1" fill="none" stroke="var(--moss)" stroke-width="2" stroke-linecap="round"
+          d="M4 28 Q 60 6, 110 18 T 216 10"/>
+    <path class="trail-leaf trail-leaf-1" fill="var(--moss)"
+          d="M66 16 q 9 -11 17 -3 q -9 9 -17 3 Z"/>
+    <path class="trail-leaf trail-leaf-2" fill="var(--clay)"
+          d="M148 14 q 8 -9 15 -1 q -7 7 -15 1 Z"/>
+    {% if show_bloom %}
+    <g class="trail-bloom">
+      <circle cx="202" cy="7" r="2.6" fill="var(--moss)"/>
+      <circle cx="210" cy="7" r="2.6" fill="var(--moss)"/>
+      <circle cx="206" cy="4" r="2.6" fill="var(--clay)"/>
+      <circle cx="206" cy="10" r="2.6" fill="var(--clay)"/>
+      <circle cx="206" cy="7" r="1.7" fill="var(--bark)"/>
+    </g>
+    {% endif %}
+  </svg>
+</div>

@@ -1,0 +1,13 @@
+<nav class="tabs">
+  <a class="tab-btn {{ 'active' if active_tab=='today' }}" href="{{ url_for('today') }}">Today</a>
+  <a class="tab-btn {{ 'active' if active_tab=='tools' }}" href="{{ url_for('career_tools') }}">Career Tools</a>
+  <a class="tab-btn {{ 'active' if active_tab=='progress' }}" href="{{ url_for('progress') }}">Progress</a>
+</nav>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+  <div class="flash-note">
+    {% for m in messages %}<p>✓ {{ m }}</p>{% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}

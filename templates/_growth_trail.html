@@ -1,19 +1,54 @@
-<div class="growth-trail" aria-hidden="true">
-  <svg class="growth-trail-svg" viewBox="0 0 220 36" preserveAspectRatio="none" focusable="false">
-    <path class="trail-stem" pathLength="1" fill="none" stroke="var(--moss)" stroke-width="2" stroke-linecap="round"
-          d="M4 28 Q 60 6, 110 18 T 216 10"/>
-    <path class="trail-leaf trail-leaf-1" fill="var(--moss)"
-          d="M66 16 q 9 -11 17 -3 q -9 9 -17 3 Z"/>
-    <path class="trail-leaf trail-leaf-2" fill="var(--clay)"
-          d="M148 14 q 8 -9 15 -1 q -7 7 -15 1 Z"/>
+<div class="growth-trail{{ ' trail-short' if trail_variant == 'short' }}" aria-hidden="true">
+  <svg class="growth-trail-svg" viewBox="0 0 240 60" preserveAspectRatio="xMinYMid meet" focusable="false">
+    <path class="trail-stem" pathLength="1" fill="none" stroke="var(--bark)" stroke-width="1.75" stroke-linecap="round"
+          d="M10 46 C 40 40, 55 50, 80 38 C 100 28, 95 15, 120 22 C 150 30, 160 18, 200 14"/>
+
+    {% if stage_key == 'seed' %}
+    <ellipse class="stage-seed" cx="203" cy="17" rx="3.6" ry="3" fill="var(--bark)"/>
+
+    {% elif stage_key == 'sprout' %}
+    <path class="stage-sprout" fill="none" stroke="var(--moss)" stroke-width="1.6" stroke-linecap="round"
+          d="M200 14 q 7 -10 3 -19"/>
+
+    {% elif stage_key == 'leafy-stem' %}
+    <path class="stage-leaf-a" fill="none" stroke="var(--moss)" stroke-width="1.6" stroke-linecap="round"
+          d="M196 18 q -10 -8 -18 -2 q 8 8 18 2 Z"/>
+    <path class="stage-leaf-b" fill="none" stroke="var(--moss)" stroke-width="1.6" stroke-linecap="round"
+          d="M204 10 q 10 -8 18 -2 q -8 8 -18 2 Z"/>
+
+    {% elif stage_key == 'flower-bud' %}
+    <path class="stage-leaf-a" fill="none" stroke="var(--moss)" stroke-width="1.6" stroke-linecap="round"
+          d="M196 18 q -10 -8 -18 -2 q 8 8 18 2 Z"/>
+    <path class="stage-leaf-b" fill="none" stroke="var(--moss)" stroke-width="1.6" stroke-linecap="round"
+          d="M204 10 q 10 -8 18 -2 q -8 8 -18 2 Z"/>
+    <path class="stage-bud" fill="none" stroke="var(--moss)" stroke-width="1.6" stroke-linecap="round"
+          d="M203 6 q -4 -10 4 -14 q 8 4 4 14 Z"/>
+
+    {% elif stage_key == 'open-flower' %}
+    <path class="stage-leaf-a" fill="none" stroke="var(--moss)" stroke-width="1.6" stroke-linecap="round"
+          d="M196 18 q -10 -8 -18 -2 q 8 8 18 2 Z"/>
+    <path class="stage-leaf-b" fill="none" stroke="var(--moss)" stroke-width="1.6" stroke-linecap="round"
+          d="M204 10 q 10 -8 18 -2 q -8 8 -18 2 Z"/>
+    <g class="stage-flower">
+      <path fill="none" stroke="var(--moss)" stroke-width="1.6" stroke-linecap="round" d="M210 10 q -5 -8 0 -14"/>
+      <path fill="none" stroke="var(--moss)" stroke-width="1.6" stroke-linecap="round" d="M210 10 q 5 -8 0 -14"/>
+      <path fill="none" stroke="var(--moss)" stroke-width="1.6" stroke-linecap="round" d="M210 10 q -7 2 -11 9"/>
+      <path fill="none" stroke="var(--moss)" stroke-width="1.6" stroke-linecap="round" d="M210 10 q 7 2 11 9"/>
+      <circle cx="210" cy="10" r="2.2" fill="var(--gold)"/>
+    </g>
+
+    {% else %}
+    <path class="trail-detail" fill="none" stroke="var(--moss)" stroke-width="1.6" stroke-linecap="round"
+          d="M200 14 q 10 -14 22 -6 q -10 12 -22 6 Z"/>
     {% if show_bloom %}
     <g class="trail-bloom">
-      <circle cx="202" cy="7" r="2.6" fill="var(--moss)"/>
-      <circle cx="210" cy="7" r="2.6" fill="var(--moss)"/>
-      <circle cx="206" cy="4" r="2.6" fill="var(--clay)"/>
-      <circle cx="206" cy="10" r="2.6" fill="var(--clay)"/>
-      <circle cx="206" cy="7" r="1.7" fill="var(--bark)"/>
+      <path fill="none" stroke="var(--moss)" stroke-width="1.4" stroke-linecap="round" d="M222 8 q -5 -7 0 -12"/>
+      <path fill="none" stroke="var(--moss)" stroke-width="1.4" stroke-linecap="round" d="M222 8 q 5 -7 0 -12"/>
+      <path fill="none" stroke="var(--moss)" stroke-width="1.4" stroke-linecap="round" d="M222 8 q -6 2 -10 8"/>
+      <path fill="none" stroke="var(--moss)" stroke-width="1.4" stroke-linecap="round" d="M222 8 q 6 2 10 8"/>
+      <circle cx="222" cy="8" r="1.8" fill="var(--gold)"/>
     </g>
+    {% endif %}
     {% endif %}
   </svg>
 </div>

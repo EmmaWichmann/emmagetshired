@@ -257,8 +257,21 @@ def test_today_tools_and_progress_all_render_the_growth_trail(client):
     for path in ("/today", "/tools", "/progress"):
         resp = test_client.get(path)
         assert resp.status_code == 200
-        assert b'class="growth-trail" aria-hidden="true"' in resp.data
+        assert b'class="growth-trail' in resp.data
+        assert b'aria-hidden="true"' in resp.data
         assert b"trail-stem" in resp.data
+
+
+def test_tools_page_uses_short_trail_variant(client):
+    test_client, _ = client
+    resp = test_client.get("/tools")
+    assert b"trail-short" in resp.data
+
+
+def test_today_uses_full_trail_variant_not_short(client):
+    test_client, _ = client
+    resp = test_client.get("/today")
+    assert b"trail-short" not in resp.data
 
 
 def test_today_incomplete_state_has_no_bloom(client):
@@ -281,8 +294,34 @@ def test_progress_page_shows_growth_stage_figure_and_label(client):
     db.log_career_action(uid, "speech", "a")
     db.log_career_action(uid, "linkedin", "b")  # 2 actions this week -> leafy-stem
     resp = test_client.get("/progress")
-    assert b"growth-stage-svg" in resp.data
+    assert b"growth-trail-svg" in resp.data
+    assert b"stage-leaf-a" in resp.data
+    assert b"stage-leaf-b" in resp.data
     assert b"Your momentum is taking root." in resp.data
+
+
+def test_progress_stage_terminal_matches_each_weekly_range(client):
+    test_client, _ = client
+    test_client.get("/today")
+    uid = test_client.get_cookie("uid").value
+
+    resp = test_client.get("/progress")
+    assert b"stage-seed" in resp.data  # 0 actions
+
+    db.log_career_action(uid, "speech", "a")
+    resp = test_client.get("/progress")
+    assert b"stage-sprout" in resp.data  # 1 action
+
+    db.log_career_action(uid, "speech", "b")
+    db.log_career_action(uid, "speech", "c")
+    db.log_career_action(uid, "speech", "d")
+    resp = test_client.get("/progress")
+    assert b"stage-bud" in resp.data  # 4 actions
+
+    db.log_career_action(uid, "speech", "e")
+    db.log_career_action(uid, "speech", "f")
+    resp = test_client.get("/progress")
+    assert b"stage-flower" in resp.data  # 6 actions
 
 
 def test_mark_complete_still_logs_exactly_one_action_with_growth_trail_present(client):

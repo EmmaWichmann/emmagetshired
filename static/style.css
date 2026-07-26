@@ -239,40 +239,41 @@ form .btn-large{width:100%;}
 }
 
 /* ---------------------------------------------------------------------- */
-/* GROWTH TRAIL — signature animation. Decorative-only; every element      */
-/* below renders in its final, fully-visible state by default so a        */
-/* reduced-motion visitor (or a browser with CSS animations disabled)     */
-/* sees the complete plant immediately. The @media(prefers-reduced-motion:*/
-/* no-preference) block below is the ONLY place any animation is added.   */
+/* GROWTH TRAIL — signature animation. A single continuous hand-drawn line */
+/* (thin brown stroke) reused on Today, Career Tools, and Progress, where  */
+/* it doubles as the weekly growth-stage illustration. Decorative-only;    */
+/* every element below renders in its final, fully-visible state by       */
+/* default so a reduced-motion visitor sees the completed illustration    */
+/* immediately. The @media(prefers-reduced-motion: no-preference) block   */
+/* below is the ONLY place any animation is added.                        */
 /* ---------------------------------------------------------------------- */
 
 .growth-trail{margin:6px 0 18px;line-height:0;}
-.growth-trail-svg{width:100%;height:28px;display:block;}
+.growth-trail-svg{width:100%;height:auto;aspect-ratio:240/60;display:block;}
+.growth-trail.trail-short{max-width:170px;}
 .trail-stem{stroke-dasharray:1;stroke-dashoffset:0;}
-.trail-leaf{transform-origin:center;transform-box:fill-box;}
+.trail-detail,.trail-bloom{transform-origin:center;transform-box:fill-box;}
 
-/* Progress page's weekly growth-stage figure — static illustration, no draw
-   animation of its own; it just rides the shared card entrance below. */
+/* Progress page's weekly growth-stage figure — same shared line component,
+   with the stage-specific terminal detail swapped in server-side. No draw
+   animation of its own beyond what .trail-stem already provides; it rides
+   the shared card entrance below for its one-time appearance. */
 .growth-stage-card{text-align:center;}
-.growth-stage-figure{margin:6px 0;}
-.growth-stage-svg{width:72px;height:72px;display:block;margin:0 auto;}
-.growth-stage-label{margin:6px 0 0;}
+.growth-stage-label{margin:10px 0 0;}
 
 @media (prefers-reduced-motion: no-preference){
   @keyframes trail-draw{ from{stroke-dashoffset:1;} to{stroke-dashoffset:0;} }
-  @keyframes leaf-in{ from{opacity:0;transform:scale(.4);} to{opacity:1;transform:scale(1);} }
-  @keyframes bloom-in{ from{opacity:0;transform:scale(.3);} to{opacity:1;transform:scale(1);} }
+  @keyframes detail-in{ from{opacity:0;transform:scale(.5);} to{opacity:1;transform:scale(1);} }
+  @keyframes bloom-in{ from{opacity:0;transform:scale(.4);} to{opacity:1;transform:scale(1);} }
   @keyframes card-rise{ from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
 
-  /* 1. stem draws left-to-right once (~1s), 2. leaves fade+scale in right
-     after, so the whole sequence lands inside the 1–1.5s window, 3. every
-     animation uses fill-mode "both" and no iteration-count, so nothing
-     loops and everything stays put once finished. */
-  .trail-stem{animation:trail-draw 1s ease-out both;}
-  .trail-leaf{opacity:0;transform:scale(.4);animation:leaf-in .35s ease-out both;}
-  .trail-leaf-1{animation-delay:.75s;}
-  .trail-leaf-2{animation-delay:.9s;}
-  .trail-bloom{opacity:0;transform:scale(.3);transform-origin:center;transform-box:fill-box;animation:bloom-in .5s ease-out .1s both;}
+  /* 1. the line draws once, left to right (1.3s — within the 1.2–1.6s
+     window), 2. the small leaf/flower detail at its tip fades in right as
+     the line finishes, 3. every animation uses fill-mode "both" and no
+     iteration-count, so nothing loops and everything stays put once done. */
+  .trail-stem{animation:trail-draw 1.3s ease-out both;}
+  .trail-detail{opacity:0;transform:scale(.5);animation:detail-in .45s ease-out 1.15s both;}
+  .trail-bloom{opacity:0;transform:scale(.4);animation:bloom-in .5s ease-out .1s both;}
 
   /* Subtle one-time entrance for the main cards: fade in + rise <=8px,
      staggered slightly where several appear together. */

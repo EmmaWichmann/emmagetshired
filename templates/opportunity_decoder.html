@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career Opportunity Decoder — EmmaGetsHired</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700&family=Source+Serif+4:ital,wght@0,400;0,500;0,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-theme="{{ theme }}"{% if theme == 'custom' and custom_bg %} style="--parchment:{{ custom_bg }};"{% endif %}>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Career Tools</div>
+    <h1>Career Opportunity Decoder</h1>
+    <p>Paste one job posting — get the facts, the value, and one next step.</p>
+  </header>
+
+  {% include '_nav.html' %}
+
+  <p class="tool-disclaimer">{{ disclaimer }}</p>
+
+  <form method="POST" action="{{ url_for('opportunity_decoder_decode') }}" class="tool-form">
+    <label for="job_title">Job title (optional)</label>
+    <input type="text" id="job_title" name="job_title" placeholder="e.g. Frontend Developer" value="{{ form.get('job_title', '') }}">
+
+    <label for="company">Company (optional)</label>
+    <input type="text" id="company" name="company" placeholder="e.g. Illumina" value="{{ form.get('company', '') }}">
+
+    <label for="posting_text">Job posting</label>
+    <textarea id="posting_text" name="posting_text" rows="12" placeholder="Paste the full job posting here." required>{{ form.get('posting_text', '') }}</textarea>
+
+    <button class="btn-primary btn-large" type="submit">Decode Opportunity</button>
+  </form>
+
+  <p class="privacy-note">🔒 {{ privacy_note }}</p>
+
+  {% if error %}
+  <div class="result-card">
+    <p class="today-desc">{{ error }}</p>
+  </div>
+  {% endif %}
+
+  {% if result %}
+  <div class="result-card">
+    <div class="result-label">Extracted details</div>
+    <div class="opp-detail-grid">
+      <div class="opp-detail-item"><span class="opp-detail-label">Job title</span><span class="opp-detail-value">{{ result.job_title }}</span></div>
+      <div class="opp-detail-item"><span class="opp-detail-label">Company</span><span class="opp-detail-value">{{ result.company }}</span></div>
+      <div class="opp-detail-item"><span class="opp-detail-label">Location</span><span class="opp-detail-value">{{ result.location }}</span></div>
+      <div class="opp-detail-item"><span class="opp-detail-label">Work arrangement</span><span class="opp-detail-value">{{ result.work_arrangement }}</span></div>
+      <div class="opp-detail-item"><span class="opp-detail-label">Salary or compensation</span><span class="opp-detail-value">{{ result.salary }}</span></div>
+      <div class="opp-detail-item"><span class="opp-detail-label">Employment type</span><span class="opp-detail-value">{{ result.employment_type }}</span></div>
+      <div class="opp-detail-item"><span class="opp-detail-label">Experience requested</span><span class="opp-detail-value">{{ result.experience }}</span></div>
+      <div class="opp-detail-item"><span class="opp-detail-label">Education requested</span><span class="opp-detail-value">{{ result.education }}</span></div>
+      <div class="opp-detail-item"><span class="opp-detail-label">Travel</span><span class="opp-detail-value">{{ result.travel }}</span></div>
+    </div>
+  </div>
+
+  <div class="section-head"><h2>What you would likely do</h2><div class="line"></div></div>
+  {% if result.responsibilities %}
+  <ul class="opp-list">{% for item in result.responsibilities %}<li>{{ item }}</li>{% endfor %}</ul>
+  {% else %}<p class="today-desc">Not clearly stated in the posting.</p>{% endif %}
+
+  <div class="section-head"><h2>Required qualifications</h2><div class="line"></div></div>
+  {% if result.required_qualifications %}
+  <ul class="opp-list">{% for item in result.required_qualifications %}<li>{{ item }}</li>{% endfor %}</ul>
+  {% else %}<p class="today-desc">Not clearly stated in the posting.</p>{% endif %}
+
+  <div class="section-head"><h2>Preferred qualifications</h2><div class="line"></div></div>
+  {% if result.preferred_qualifications %}
+  <ul class="opp-list">{% for item in result.preferred_qualifications %}<li>{{ item }}</li>{% endfor %}</ul>
+  {% else %}<p class="today-desc">Not clearly stated in the posting.</p>{% endif %}
+
+  <div class="section-head"><h2>Technical and domain skills</h2><div class="line"></div></div>
+  {% if result.skills %}
+  <div class="opp-chip-list">{% for skill in result.skills %}<span class="opp-chip">{{ skill }}</span>{% endfor %}</div>
+  {% else %}<p class="today-desc">No supported skills from our list were found in the posting.</p>{% endif %}
+
+  <div class="section-head"><h2>Questions to investigate</h2><div class="line"></div></div>
+  {% if result.questions %}
+  <ul class="opp-list">{% for q in result.questions %}<li>{{ q }}</li>{% endfor %}</ul>
+  {% else %}<p class="today-desc">The posting covers the basics clearly — no major open questions.</p>{% endif %}
+
+  <div class="result-card">
+    <div class="result-label">Career value</div>
+    <p class="opp-classification-badge opp-classification-{{ result.classification|lower|replace(' ', '-') }}">{{ result.classification }}</p>
+    <p class="today-desc">{{ result.classification_explanation }}</p>
+    <div class="opp-subhead">Reasons</div>
+    <ul class="opp-list">{% for r in result.classification_reasons %}<li>{{ r }}</li>{% endfor %}</ul>
+    {% if result.classification_concerns %}
+    <div class="opp-subhead">Concerns</div>
+    <ul class="opp-list">{% for c in result.classification_concerns %}<li>{{ c }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+
+  <div class="result-card">
+    <div class="result-label">Recommended next action</div>
+    <p class="opp-next-action">{{ result.next_action }}</p>
+    <p class="today-desc">{{ result.next_action_explanation }}</p>
+  </div>
+  {% endif %}
+
+  <div class="footer-note">EmmaGetsHired — <a href="{{ url_for('career_tools') }}">career tools</a> · <a href="{{ url_for('cover') }}">home</a></div>
+</div>
+</body>
+</html>

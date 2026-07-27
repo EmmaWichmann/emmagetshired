@@ -67,7 +67,6 @@ def test_career_tools_page_lists_four_cards(client):
     assert b"Walk and Speak" in resp.data
     assert b"LinkedIn Message Creator" in resp.data
     assert b"Career Opportunity Decoder" in resp.data
-    assert b"Coming Next" in resp.data
     assert b"Career Event Finder" in resp.data
 
 
@@ -397,3 +396,151 @@ def test_unexpected_exception_is_still_logged(client, monkeypatch):
     resp = test_client.get("/__test_boom_logging__")
     assert resp.status_code == 500
     assert any("simulated failure for the logging check" in m for m in logged_messages)
+
+
+# ---------------------------------------------------------------------------
+# CAREER OPPORTUNITY DECODER
+# ---------------------------------------------------------------------------
+
+SAMPLE_POSTING = """
+Frontend Developer
+Location: San Diego, CA
+Illumina is hiring a Frontend Developer to join our growing engineering team.
+
+What You'll Do
+- Design and build responsive web interfaces using JavaScript, HTML, and CSS
+- Collaborate with cross-functional teams including design and product
+- Own the frontend architecture for a key internal tool
+
+Requirements
+- 3+ years of experience in frontend development
+- Required: strong knowledge of JavaScript and Git
+
+This is a hybrid position.
+Compensation: $95,000 - $120,000 per year
+"""
+
+
+def test_opportunity_decoder_page_shows_disclaimer_and_privacy_note(client):
+    test_client, _ = client
+    resp = test_client.get("/tools/opportunity-decoder")
+    assert resp.status_code == 200
+    assert b"does not predict whether you will be hired" in resp.data
+    assert b"is analyzed for this request and is not permanently stored" in resp.data
+
+
+def test_opening_decoder_page_does_not_log_a_career_action(client):
+    test_client, _ = client
+    test_client.get("/tools/opportunity-decoder")
+    uid = test_client.get_cookie("uid").value
+    assert db.get_career_action_count_this_week(uid) == 0
+
+
+def test_empty_posting_submission_shows_error_and_does_not_log(client):
+    test_client, _ = client
+    resp = test_client.post("/tools/opportunity-decoder/decode", data={"posting_text": ""})
+    assert resp.status_code == 200
+    assert b"Paste a job posting" in resp.data
+    uid = test_client.get_cookie("uid").value
+    assert db.get_career_action_count_this_week(uid) == 0
+
+
+def test_too_short_posting_submission_shows_error_and_does_not_log(client):
+    test_client, _ = client
+    resp = test_client.post("/tools/opportunity-decoder/decode", data={"posting_text": "too short"})
+    assert resp.status_code == 200
+    assert b"too short to decode" in resp.data
+    uid = test_client.get_cookie("uid").value
+    assert db.get_career_action_count_this_week(uid) == 0
+
+
+def test_successful_decode_shows_all_result_sections(client):
+    test_client, _ = client
+    resp = test_client.post("/tools/opportunity-decoder/decode", data={"posting_text": SAMPLE_POSTING})
+    assert resp.status_code == 200
+    assert b"Extracted details" in resp.data
+    assert b"What you would likely do" in resp.data
+    assert b"Required qualifications" in resp.data
+    assert b"Preferred qualifications" in resp.data
+    assert b"Technical and domain skills" in resp.data
+    assert b"Questions to investigate" in resp.data
+    assert b"Career value" in resp.data
+    assert b"Recommended next action" in resp.data
+    assert b"Illumina" in resp.data
+
+
+def test_successful_decode_logs_exactly_one_job_review_action(client):
+    test_client, _ = client
+    test_client.post("/tools/opportunity-decoder/decode", data={"posting_text": SAMPLE_POSTING})
+    uid = test_client.get_cookie("uid").value
+    assert db.get_career_action_counts_by_type(uid).get("job_review") == 1
+
+
+def test_refresh_resubmission_does_not_create_a_duplicate_log(client):
+    test_client, _ = client
+    # simulates the browser resubmitting the identical form on refresh
+    test_client.post("/tools/opportunity-decoder/decode", data={"posting_text": SAMPLE_POSTING})
+    test_client.post("/tools/opportunity-decoder/decode", data={"posting_text": SAMPLE_POSTING})
+    test_client.post("/tools/opportunity-decoder/decode", data={"posting_text": SAMPLE_POSTING})
+    uid = test_client.get_cookie("uid").value
+    assert db.get_career_action_counts_by_type(uid).get("job_review") == 1
+
+
+def test_decoding_a_different_posting_the_same_day_logs_again(client):
+    test_client, _ = client
+    test_client.post("/tools/opportunity-decoder/decode", data={"posting_text": SAMPLE_POSTING})
+    other_posting = "Backend Engineer\nWe are hiring a backend engineer with Python and SQL experience."
+    test_client.post("/tools/opportunity-decoder/decode", data={"posting_text": other_posting})
+    uid = test_client.get_cookie("uid").value
+    assert db.get_career_action_counts_by_type(uid).get("job_review") == 2
+
+
+def test_decoder_page_never_leaks_posting_text_to_a_different_user(client):
+    test_client, app_module = client
+    test_client.post("/tools/opportunity-decoder/decode", data={"posting_text": SAMPLE_POSTING})
+
+    with app_module.app.test_client() as other_client:
+        resp = other_client.get("/tools/opportunity-decoder")
+        # a distinctive phrase from the posting body — not the "e.g. Illumina"
+        # placeholder hint that's shown to every visitor regardless of input
+        assert b"growing engineering team" not in resp.data
+
+
+def test_career_tools_card_for_decoder_is_active_not_coming_next(client):
+    test_client, _ = client
+    resp = test_client.get("/tools")
+    assert b'href="/tools/opportunity-decoder"' in resp.data
+    assert b"Coming Next" not in resp.data
+
+
+def test_today_review_job_action_links_to_opportunity_decoder(client):
+    _, app_module = client
+    review_job = next(a for a in app_module.TODAY_ACTIONS if a["id"] == "review-job")
+    assert review_job["cta_endpoint"] == "opportunity_decoder_tool"
+    assert review_job["action_type"] == "job_review"
+
+
+def test_today_page_links_to_opportunity_decoder_when_that_is_the_days_action(client, monkeypatch):
+    test_client, app_module = client
+    review_job = next(a for a in app_module.TODAY_ACTIONS if a["id"] == "review-job")
+    monkeypatch.setattr(app_module, "get_today_action", lambda: review_job)
+    resp = test_client.get("/today")
+    assert b'href="/tools/opportunity-decoder"' in resp.data
+
+
+def test_progress_counts_job_review_actions_from_the_decoder(client):
+    test_client, _ = client
+    test_client.post("/tools/opportunity-decoder/decode", data={"posting_text": SAMPLE_POSTING})
+    uid = test_client.get_cookie("uid").value
+    assert db.get_career_action_count_this_week(uid) == 1
+
+
+def test_progress_most_consistent_activity_can_be_job_review(client):
+    test_client, _ = client
+    other_posting = "Backend Engineer\nWe are hiring a backend engineer with Python and SQL experience."
+    third_posting = "Data Analyst\nWe are hiring a data analyst with SQL and Python skills."
+    test_client.post("/tools/opportunity-decoder/decode", data={"posting_text": SAMPLE_POSTING})
+    test_client.post("/tools/opportunity-decoder/decode", data={"posting_text": other_posting})
+    test_client.post("/tools/opportunity-decoder/decode", data={"posting_text": third_posting})
+    resp = test_client.get("/progress")
+    assert b"kept up with Job description reviews" in resp.data

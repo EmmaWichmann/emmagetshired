@@ -31,6 +31,7 @@ from werkzeug.exceptions import HTTPException
 
 import database as db
 import card_generator as cards
+import opportunity_decoder as decoder
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("ONEMORETIME_SECRET_KEY", "dev-key-change-this")
@@ -239,10 +240,10 @@ TODAY_ACTIONS = [
     {
         "id": "review-job",
         "title": "Review one job description",
-        "description": "Read one posting closely. Notice what stands out, what's missing, what you'd want to tailor for.",
+        "description": "Paste a job posting into the Career Opportunity Decoder to see what stands out, what's missing, and whether it's worth pursuing.",
         "action_type": "job_review",
-        "cta_label": "Open Career Tools",
-        "cta_endpoint": "career_tools",
+        "cta_label": "Open Career Opportunity Decoder",
+        "cta_endpoint": "opportunity_decoder_tool",
     },
     {
         "id": "explain-transition",
@@ -720,6 +721,66 @@ def events_go(engine):
         return redirect(url_for("events_tool"))
     db.log_career_action(g.user_id, "event", f"Searched {engine.title()} for events")
     return redirect(url)
+
+
+# ---------------------------------------------------------------------------
+# CAREER OPPORTUNITY DECODER — deterministic text processing
+# (opportunity_decoder.py), no external AI API. This is not a resume
+# matcher: nothing here compares the posting to a resume or predicts
+# whether the user will be hired. The posting text itself is never
+# stored — only a fingerprint of it (to prevent duplicate logging on a
+# browser refresh) ever reaches the database.
+# ---------------------------------------------------------------------------
+
+OPPORTUNITY_DECODER_DISCLAIMER = (
+    "This tool organizes information found in the posting. It does not predict whether you will be hired."
+)
+
+OPPORTUNITY_DECODER_PRIVACY_NOTE = (
+    "Your job posting is analyzed for this request and is not permanently stored."
+)
+
+OPPORTUNITY_DECODER_LOG_PREFIX = "Decoded a job posting"
+
+
+@app.route("/tools/opportunity-decoder")
+def opportunity_decoder_tool():
+    return render_template(
+        "opportunity_decoder.html", active_tab="tools",
+        disclaimer=OPPORTUNITY_DECODER_DISCLAIMER, privacy_note=OPPORTUNITY_DECODER_PRIVACY_NOTE,
+        form={}, result=None, error=None,
+    )
+
+
+@app.route("/tools/opportunity-decoder/decode", methods=["POST"])
+def opportunity_decoder_decode():
+    posting_text = request.form.get("posting_text", "").strip()
+    job_title = request.form.get("job_title", "").strip()
+    company = request.form.get("company", "").strip()
+    form = {"posting_text": posting_text, "job_title": job_title, "company": company}
+
+    error = None
+    result = None
+    if not posting_text:
+        error = "Paste a job posting before decoding it."
+    elif decoder.is_posting_too_short(posting_text):
+        error = "This posting looks too short to decode — paste the full job posting."
+    else:
+        result = decoder.decode_opportunity(posting_text, job_title, company)
+        # Idempotent by content fingerprint, not just "was anything logged
+        # today" — this way a refresh that resubmits the identical form
+        # never double-logs, but decoding a second, different posting the
+        # same day still counts.
+        fingerprint = decoder.posting_fingerprint(posting_text)
+        log_title = f"{OPPORTUNITY_DECODER_LOG_PREFIX} ({fingerprint})"
+        if not db.has_completed_action_today(g.user_id, log_title):
+            db.log_career_action(g.user_id, "job_review", log_title)
+
+    return render_template(
+        "opportunity_decoder.html", active_tab="tools",
+        disclaimer=OPPORTUNITY_DECODER_DISCLAIMER, privacy_note=OPPORTUNITY_DECODER_PRIVACY_NOTE,
+        form=form, result=result, error=error,
+    )
 
 
 # ---------------------------------------------------------------------------

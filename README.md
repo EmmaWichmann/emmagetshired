@@ -2,6 +2,22 @@
 
 EmmaGetsHired is an ADHD friendly career action copilot that turns job searching into one manageable next step at a time. It combines guided career actions, communication practice, opportunity analysis, automatic progress tracking, and privacy conscious design in a single Flask application.
 
+## Product Preview
+
+<p align="center">
+  <img src="assets/emmagetshired-today.png" alt="EmmaGetsHired Today page showing one daily career action and the animated growth trail" width="850">
+</p>
+
+<p align="center"><em>One manageable career action at a time.</em></p>
+
+### Career Opportunity Decoder
+
+<p align="center">
+  <img src="assets/emmagetshired-decoder.png" alt="Career Opportunity Decoder results showing extracted job details, career value, and a recommended next action" width="750">
+</p>
+
+<p align="center"><em>A fictional job posting organized into clear facts, career value, and one practical next step.</em></p>
+
 ## Overview
 
 Job searching creates a lot of open-ended decisions at once: what to work on today, how to talk about a career change, whether a posting is worth pursuing. That overload is often where momentum stalls. EmmaGetsHired surfaces one clear, time-boxed action at a time instead of a long task list, and logs progress automatically. It's built for anyone navigating a job search or career transition who benefits from structure without pressure.

@@ -27,6 +27,7 @@ from flask import (
     Flask, render_template, request, redirect, url_for,
     g, send_file, jsonify, flash,
 )
+from werkzeug.exceptions import HTTPException
 
 import database as db
 import card_generator as cards
@@ -439,6 +440,15 @@ def inject_globals():
         "today_mood": db.get_today_mood(user_id),
         "affirmation": random.choice(AFFIRMATIONS),
     }
+
+
+@app.errorhandler(HTTPException)
+def handle_http_exception(e):
+    """Werkzeug already built the correct response for this (404, 405,
+    etc.) — HTTPException is itself a valid WSGI response, so returning it
+    unchanged preserves its real status code instead of falling through
+    to the catch-all 500 handler below."""
+    return e
 
 
 @app.errorhandler(Exception)

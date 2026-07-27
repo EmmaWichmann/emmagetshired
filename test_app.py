@@ -66,7 +66,7 @@ def test_career_tools_page_lists_four_cards(client):
     assert resp.status_code == 200
     assert b"Walk and Speak" in resp.data
     assert b"LinkedIn Message Creator" in resp.data
-    assert b"Resume Match Checker" in resp.data
+    assert b"Career Opportunity Decoder" in resp.data
     assert b"Coming Next" in resp.data
     assert b"Career Event Finder" in resp.data
 
@@ -333,3 +333,67 @@ def test_mark_complete_still_logs_exactly_one_action_with_growth_trail_present(c
     test_client.post("/today/complete")
     uid = test_client.get_cookie("uid").value
     assert db.get_career_action_count_this_week(uid) == 1
+
+
+# ---------------------------------------------------------------------------
+# ERROR HANDLING — expected HTTP errors (404/405) must keep their real
+# status code instead of being collapsed into the catch-all 500 page;
+# genuinely unexpected exceptions still get logged and shown the friendly
+# error page, with no internal details leaked to the browser.
+# ---------------------------------------------------------------------------
+
+def test_missing_route_returns_404_not_500(client):
+    test_client, _ = client
+    resp = test_client.get("/this-route-does-not-exist-at-all")
+    assert resp.status_code == 404
+    # confirms it's Werkzeug's own 404, not the app's custom 500 error page
+    assert b"oops" not in resp.data
+
+
+def test_get_on_today_complete_post_only_route_returns_405(client):
+    test_client, _ = client
+    resp = test_client.get("/today/complete")
+    assert resp.status_code == 405
+
+
+def test_get_on_linkedin_generate_post_only_route_returns_405(client):
+    test_client, _ = client
+    resp = test_client.get("/tools/linkedin/generate")
+    assert resp.status_code == 405
+
+
+def test_unexpected_exception_returns_500_with_friendly_page_and_no_leak(client):
+    test_client, app_module = client
+    # TESTING=True normally re-raises exceptions instead of invoking the
+    # error handler — disable that so this test exercises the real
+    # request/error-handling path, not just a direct function call.
+    app_module.app.config["PROPAGATE_EXCEPTIONS"] = False
+
+    @app_module.app.route("/__test_boom__")
+    def _boom():
+        raise RuntimeError("simulated unexpected failure - should never reach the browser")
+
+    resp = test_client.get("/__test_boom__")
+    assert resp.status_code == 500
+    assert b"oops" in resp.data
+    assert b"Something broke" in resp.data
+    # no stack trace, exception type, or internal message leaked
+    assert b"RuntimeError" not in resp.data
+    assert b"Traceback" not in resp.data
+    assert b"simulated unexpected failure" not in resp.data
+
+
+def test_unexpected_exception_is_still_logged(client, monkeypatch):
+    test_client, app_module = client
+    app_module.app.config["PROPAGATE_EXCEPTIONS"] = False
+
+    logged_messages = []
+    monkeypatch.setattr(app_module.logger, "error", lambda msg: logged_messages.append(msg))
+
+    @app_module.app.route("/__test_boom_logging__")
+    def _boom_logging():
+        raise RuntimeError("simulated failure for the logging check")
+
+    resp = test_client.get("/__test_boom_logging__")
+    assert resp.status_code == 500
+    assert any("simulated failure for the logging check" in m for m in logged_messages)
